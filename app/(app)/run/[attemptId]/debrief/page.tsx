@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { loadDebrief, selectWeakAreas, type SectorRow, type WrongAnswer } from "@/lib/debrief";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { QuestionContent } from "@/components/question-content";
 import { formatDuration } from "@/lib/utils";
 import {
   ChevronLeft,
@@ -458,7 +459,11 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
         {q.marked && <Badge tone="warn">marked</Badge>}
         {picked === -1 && <Badge tone="bad">unanswered</Badge>}
       </div>
-      <p className="mt-4 text-[15px] leading-relaxed text-foreground">{q.stem}</p>
+      <QuestionContent
+        content={q.stem}
+        className="mt-4 text-[15px] leading-relaxed text-foreground"
+        imageClassName="max-w-3xl"
+      />
       <ul className="mt-4 space-y-1.5 text-sm">
         {q.choices.map((c, i) => {
           const isCorrect = i === q.correctIndex;
@@ -498,9 +503,11 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
             Why
           </p>
-          <p className="mt-1.5 text-xs leading-relaxed text-foreground-dim">
-            {q.explanation}
-          </p>
+          <QuestionContent
+            content={q.explanation}
+            className="mt-1.5 text-xs leading-relaxed text-foreground-dim"
+            imageClassName="max-w-2xl"
+          />
         </div>
       )}
     </article>

@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Flag,
-  AlertTriangle,
   ShieldAlert,
   Hourglass,
   CheckCircle2,
@@ -21,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn, formatDuration } from "@/lib/utils";
+import { QuestionContent } from "@/components/question-content";
 
 type RuntimeQuestion = {
   id: string;
@@ -53,7 +53,6 @@ const LETTERS = ["A", "B", "C", "D", "E", "F"];
 export function ExamRuntime({
   attemptId,
   durationMs,
-  startedAtMs,
   questions,
   initialPicks,
   initialMarked,
@@ -228,7 +227,10 @@ export function ExamRuntime({
   useEffect(() => {
     if (!armed || submittedRef.current) return;
     if (remainingMs === 0) {
-      submitAttempt({ aborted: false, reason: "time_expired" });
+      const timeout = window.setTimeout(() => {
+        submitAttempt({ aborted: false, reason: "time_expired" });
+      }, 0);
+      return () => window.clearTimeout(timeout);
     }
   }, [armed, remainingMs, submitAttempt]);
 
@@ -745,9 +747,10 @@ function QuestionView({
           {isMarked ? "Marked" : "Mark"}
         </Button>
       </div>
-      <p className="mt-5 whitespace-pre-line text-[16px] leading-relaxed text-foreground">
-        {question.stem}
-      </p>
+      <QuestionContent
+        content={question.stem}
+        className="mt-5 text-[16px] leading-relaxed text-foreground"
+      />
       <ul className="mt-7 space-y-2.5">
         {question.displayChoices.map((c, i) => {
           const selected = picked === i;

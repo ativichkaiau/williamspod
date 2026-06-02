@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { sql, isNull } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { lectures, questions } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,15 @@ async function loadLectures() {
       slug: lectures.slug,
       orderIndex: lectures.orderIndex,
       updatedAt: lectures.updatedAt,
-      count: sql<number>`(select count(*) from ${questions} where ${questions.lectureId} = ${lectures.id} and ${questions.archivedAt} is null)`,
+      count: count(questions.id),
     })
     .from(lectures)
+    .leftJoin(
+      questions,
+      and(eq(questions.lectureId, lectures.id), isNull(questions.archivedAt)),
+    )
     .where(isNull(lectures.archivedAt))
+    .groupBy(lectures.id)
     .orderBy(lectures.orderIndex, lectures.name);
   return rows;
 }

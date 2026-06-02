@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { QuestionContent } from "@/components/question-content";
 import { Pencil, X, Save, Trash2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +85,11 @@ export function QuestionEditor({
             {String(index).padStart(3, "0")}
           </span>
           <div className="min-w-0 flex-1 space-y-3">
-            <p className="text-sm text-foreground">{question.stem}</p>
+            <QuestionContent
+              content={question.stem}
+              className="text-sm text-foreground"
+              imageClassName="max-w-2xl"
+            />
             <ul className="space-y-1.5">
               {question.choices.map((c, i) => (
                 <li
@@ -105,13 +110,17 @@ export function QuestionEditor({
               ))}
             </ul>
             {question.explanation && (
-              <p className="rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
+              <div className="rounded-md border border-border bg-surface-2 p-3 text-xs text-muted">
                 <span className="text-[10px] uppercase tracking-[0.14em] text-foreground">
                   Why
                 </span>
                 <br />
-                {question.explanation}
-              </p>
+                <QuestionContent
+                  content={question.explanation}
+                  className="mt-1.5 text-xs text-muted"
+                  imageClassName="max-w-xl"
+                />
+              </div>
             )}
             <div className="flex flex-wrap items-center gap-2">
               {question.topic && <Badge tone="signal">{question.topic}</Badge>}

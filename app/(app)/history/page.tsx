@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { attempts } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DeleteAttemptButton } from "@/components/delete-attempt-button";
 import { formatDuration, pct } from "@/lib/utils";
 import { Activity, ChevronRight, Play } from "lucide-react";
 
@@ -97,10 +98,13 @@ export default async function HistoryPage() {
                   ? "text-bad"
                   : "text-foreground";
             return (
-              <li key={a.id}>
+              <li
+                key={a.id}
+                className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface-2"
+              >
                 <Link
                   href={`/run/${a.id}/debrief`}
-                  className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-2"
+                  className="flex min-w-0 flex-1 items-center gap-4"
                 >
                   <div className="w-28 font-mono text-xs tabular text-muted">
                     {new Date(a.startedAt).toLocaleDateString()}
@@ -134,6 +138,10 @@ export default async function HistoryPage() {
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
                 </Link>
+                <DeleteAttemptButton
+                  attemptId={a.id}
+                  label={a.label ?? "Pod run"}
+                />
               </li>
             );
           })}

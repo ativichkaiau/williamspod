@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { attempts } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DeleteAttemptButton } from "@/components/delete-attempt-button";
 import { Play, ChevronRight, Activity } from "lucide-react";
 import { formatDuration, pct } from "@/lib/utils";
 
@@ -79,10 +80,13 @@ export default async function RunsHubPage() {
                       ? "text-bad"
                       : "text-foreground";
               return (
-                <li key={a.id}>
+                <li
+                  key={a.id}
+                  className="group flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-surface-2"
+                >
                   <Link
                     href={submitted ? `/run/${a.id}/debrief` : `/pod/${a.id}`}
-                    className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-2"
+                    className="flex min-w-0 flex-1 items-center gap-4"
                   >
                     <Activity className="h-3.5 w-3.5 text-muted" />
                     <div className="min-w-0 flex-1">
@@ -122,6 +126,10 @@ export default async function RunsHubPage() {
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
                   </Link>
+                  <DeleteAttemptButton
+                    attemptId={a.id}
+                    label={a.label ?? "Pod run"}
+                  />
                 </li>
               );
             })}

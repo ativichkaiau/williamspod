@@ -4,6 +4,7 @@ import { loadDebrief, selectWeakAreas, type SectorRow, type WrongAnswer } from "
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QuestionContent } from "@/components/question-content";
+import { DeleteAttemptButton } from "@/components/delete-attempt-button";
 import { formatDuration } from "@/lib/utils";
 import {
   ChevronLeft,
@@ -147,6 +148,11 @@ export default async function DebriefPage(
               New run
             </Link>
           </Button>
+          <DeleteAttemptButton
+            attemptId={attemptId}
+            label={attempt.label ?? "Pod run"}
+            redirectTo="/run"
+          />
         </div>
       </section>
 

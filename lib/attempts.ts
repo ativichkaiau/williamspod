@@ -14,6 +14,13 @@ import { uid } from "./utils";
 import { mulberry32, randomSeed, seededShuffle } from "./rng";
 
 export const INTEGRITY_ABORT_THRESHOLD = 2;
+type IntegrityEventKind = typeof integrityEvents.$inferInsert.kind;
+const NOISY_INTEGRITY_EVENT_KINDS = new Set<IntegrityEventKind>([
+  "blur",
+  "visibility_hidden",
+  "fullscreen_exit",
+]);
+const INTEGRITY_EVENT_COALESCE_MS = 2500;
 
 export type CreateAttemptInput = {
   mode: "full" | "lecture" | "weak" | "custom";
@@ -303,11 +310,32 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
 
 export async function recordIntegrityEvent(opts: {
   attemptId: string;
-  kind: typeof integrityEvents.$inferInsert.kind;
+  kind: IntegrityEventKind;
   elapsedMs: number;
   detail?: string | null;
 }) {
   const now = new Date();
+  const existingEvents = await db
+    .select()
+    .from(integrityEvents)
+    .where(eq(integrityEvents.attemptId, opts.attemptId));
+
+  if (NOISY_INTEGRITY_EVENT_KINDS.has(opts.kind)) {
+    const lastNoisyEvent = existingEvents
+      .filter((event) => NOISY_INTEGRITY_EVENT_KINDS.has(event.kind))
+      .sort(
+        (a, b) =>
+          new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime(),
+      )[0];
+    if (
+      lastNoisyEvent &&
+      now.getTime() - new Date(lastNoisyEvent.occurredAt).getTime() <
+        INTEGRITY_EVENT_COALESCE_MS
+    ) {
+      return { total: existingEvents.length, recorded: false };
+    }
+  }
+
   await db.insert(integrityEvents).values({
     id: uid("ev"),
     attemptId: opts.attemptId,
@@ -325,5 +353,5 @@ export async function recordIntegrityEvent(opts: {
     .update(attempts)
     .set({ integrityFlagCount: events.length })
     .where(eq(attempts.id, opts.attemptId));
-  return events.length;
+  return { total: events.length, recorded: true };
 }

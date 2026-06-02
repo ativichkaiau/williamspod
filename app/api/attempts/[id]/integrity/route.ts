@@ -27,7 +27,7 @@ export async function POST(
   if (!parsed.success) {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
-  const total = await recordIntegrityEvent({
+  const result = await recordIntegrityEvent({
     attemptId: id,
     kind: parsed.data.kind,
     elapsedMs: parsed.data.elapsedMs,
@@ -35,8 +35,9 @@ export async function POST(
   });
   return NextResponse.json({
     ok: true,
-    total,
+    total: result.total,
+    recorded: result.recorded,
     abortThreshold: INTEGRITY_ABORT_THRESHOLD,
-    shouldAbort: total >= INTEGRITY_ABORT_THRESHOLD,
+    shouldAbort: result.recorded && result.total >= INTEGRITY_ABORT_THRESHOLD,
   });
 }

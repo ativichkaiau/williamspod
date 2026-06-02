@@ -247,8 +247,8 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
             <CardTitle>Lockdown</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-xs text-muted">
-            <Line>Fullscreen required to start.</Line>
-            <Line>Tab blur / exit fullscreen = integrity flag.</Line>
+            <Line>Fullscreen engages where supported.</Line>
+            <Line>Leaving the app can trigger an integrity flag.</Line>
             <Line>Copy/paste, right-click, and reload blocked.</Line>
             <Line>
               <span className="text-bad">2 flags → auto-submit and abort.</span>

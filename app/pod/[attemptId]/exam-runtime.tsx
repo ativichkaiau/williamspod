@@ -49,6 +49,25 @@ type IntegrityKind =
 
 const ABORT_THRESHOLD = 2;
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
+const NOISY_INTEGRITY_KINDS = new Set<IntegrityKind>([
+  "blur",
+  "visibility_hidden",
+  "fullscreen_exit",
+]);
+const INTEGRITY_CLUSTER_MS = 2500;
+
+function isTouchLockdownBrowser(): boolean {
+  if (typeof window === "undefined" || typeof navigator === "undefined") {
+    return false;
+  }
+  const ua = navigator.userAgent;
+  const touchPoints = navigator.maxTouchPoints ?? 0;
+  const isIPadOSDesktopUA = touchPoints > 1 && ua.includes("Macintosh");
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || isIPadOSDesktopUA;
+  const isCoarsePointer =
+    window.matchMedia?.("(pointer: coarse)").matches ?? false;
+  return isIOS || (touchPoints > 0 && isCoarsePointer);
+}
 
 export function ExamRuntime({
   attemptId,
@@ -70,6 +89,10 @@ export function ExamRuntime({
   const [integrityWarning, setIntegrityWarning] = useState<string | null>(null);
   const [abortReason, setAbortReason] = useState<string | null>(null);
   const submittedRef = useRef(false);
+  const touchLockdownRef = useRef(false);
+  const lastNoisyIntegrityRef = useRef<{ kind: IntegrityKind; at: number } | null>(
+    null,
+  );
 
   // Pending diff to flush to server on nav/answer-change.
   const pendingPicksRef = useRef<Record<string, number>>({});
@@ -174,7 +197,24 @@ export function ExamRuntime({
   const reportIntegrity = useCallback(
     async (kind: IntegrityKind, detail?: string) => {
       if (!armed || submittedRef.current) return;
-      const elapsed = examStartMs ? Date.now() - examStartMs : 0;
+      if (
+        touchLockdownRef.current &&
+        (kind === "blur" || kind === "fullscreen_exit")
+      ) {
+        return;
+      }
+
+      const eventAt = Date.now();
+      if (NOISY_INTEGRITY_KINDS.has(kind)) {
+        const last = lastNoisyIntegrityRef.current;
+        if (last && eventAt - last.at < INTEGRITY_CLUSTER_MS) {
+          lastNoisyIntegrityRef.current = { kind, at: eventAt };
+          return;
+        }
+        lastNoisyIntegrityRef.current = { kind, at: eventAt };
+      }
+
+      const elapsed = examStartMs ? eventAt - examStartMs : 0;
       try {
         const res = await fetch(`/api/attempts/${attemptId}/integrity`, {
           method: "POST",
@@ -184,9 +224,11 @@ export function ExamRuntime({
         });
         const j = (await res.json().catch(() => ({}))) as {
           total?: number;
+          recorded?: boolean;
           shouldAbort?: boolean;
         };
         if (typeof j.total === "number") setIntegrityCount(j.total);
+        if (j.recorded === false) return;
         setIntegrityWarning(
           `Integrity flag: ${humanizeKind(kind)} — ${j.total ?? "?"}/${ABORT_THRESHOLD}`,
         );
@@ -206,11 +248,15 @@ export function ExamRuntime({
 
   // ---------- Arm: enter fullscreen, start timer ----------
   const arm = useCallback(async () => {
+    const isTouch = isTouchLockdownBrowser();
+    touchLockdownRef.current = isTouch;
     try {
       const el = document.documentElement;
-      if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: "hide" } as FullscreenOptions);
+      if (!isTouch && el.requestFullscreen) {
+        await el.requestFullscreen({ navigationUI: "hide" } as FullscreenOptions);
+      }
     } catch {
-      // user may have denied; we still arm, but the first integrity event will be quick.
+      // Some browsers deny fullscreen; the run still arms and focus changes are tracked.
     }
     setExamStartMs(Date.now());
     setArmed(true);
@@ -353,8 +399,8 @@ export function ExamRuntime({
               Ready to enter the pod
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-foreground-dim">
-              Timer starts when you arm. Fullscreen engages. You can&apos;t rejoin a
-              run mid-stream — treat this like the real exam.
+              Timer starts when you arm. Fullscreen engages where supported. You
+              can&apos;t rejoin a run mid-stream — treat this like the real exam.
             </p>
 
             <ul className="mt-6 space-y-3">

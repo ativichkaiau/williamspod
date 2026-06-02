@@ -57,8 +57,8 @@ export default async function NewRunPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted">
           Pick lectures, set a timer shorter than the real Exam Pod, choose how many
-          questions. Pod runs use hard lockdown: fullscreen-required, tab-blur fires an
-          integrity flag, two flags = auto-submit.
+          questions. Pod runs use hard lockdown: fullscreen where supported, leaving
+          the app fires an integrity flag, two flags = auto-submit.
         </p>
       </header>
 

@@ -376,6 +376,69 @@ export function ExamRuntime({
     [scheduleFlush],
   );
 
+  // ---------- Keyboard navigation ----------
+  // A-E to pick · ←/→ (or [/]) to nav · M to mark · Cmd/Ctrl+Enter to submit.
+  // Modifier keys go through the integrity handler (which blocks Cmd+R etc.),
+  // so this listener only fires on the plain shortcuts above. Skipped inside
+  // text inputs (none in lockdown today, but future-proof).
+  useEffect(() => {
+    if (!armed || confirmSubmit || abortReason) return;
+    const cur = questions[currentIdx];
+    if (!cur) return;
+    const choiceCount = cur.displayChoices.length;
+
+    const onKeyNav = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      // Cmd/Ctrl+Enter → open submit dialog
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        setConfirmSubmit(true);
+        return;
+      }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key;
+      if (k.length === 1) {
+        const upper = k.toUpperCase();
+        const idx = LETTERS.indexOf(upper);
+        if (idx >= 0 && idx < choiceCount) {
+          e.preventDefault();
+          pick(cur.id, idx);
+          return;
+        }
+        if (upper === "M") {
+          e.preventDefault();
+          toggleMark(cur.id);
+          return;
+        }
+      }
+      if (k === "ArrowLeft" || k === "[") {
+        e.preventDefault();
+        flushNow();
+        setCurrentIdx((i) => Math.max(0, i - 1));
+        return;
+      }
+      if (k === "ArrowRight" || k === "]") {
+        e.preventDefault();
+        flushNow();
+        setCurrentIdx((i) => Math.min(questions.length - 1, i + 1));
+        return;
+      }
+    };
+
+    document.addEventListener("keydown", onKeyNav);
+    return () => document.removeEventListener("keydown", onKeyNav);
+  }, [
+    armed,
+    confirmSubmit,
+    abortReason,
+    questions,
+    currentIdx,
+    pick,
+    toggleMark,
+    flushNow,
+  ]);
+
   // ---------- Pre-arm splash ----------
   if (!armed) {
     return (
@@ -895,7 +958,40 @@ function Navigator({
         <LegendDot color="bg-signal/20 border-signal/60">current</LegendDot>
         <LegendDot color="bg-warn">marked</LegendDot>
       </div>
+
+      <div className="mt-4 space-y-1.5 border-t border-border pt-4">
+        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-muted">
+          <span>Keys</span>
+        </div>
+        <div className="space-y-1.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+          <KeyRow keys={["A", "—", "E"]} label="pick" />
+          <KeyRow keys={["←", "→"]} label="nav" />
+          <KeyRow keys={["M"]} label="mark" />
+          <KeyRow keys={["⌘", "↵"]} label="submit" />
+        </div>
+      </div>
     </aside>
+  );
+}
+
+function KeyRow({ keys, label }: { keys: string[]; label: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1">
+        {keys.map((k, i) => (
+          <kbd
+            key={`${k}-${i}`}
+            className={cn(
+              "inline-flex h-4 min-w-[16px] items-center justify-center rounded-[3px] border border-border-strong bg-surface-2 px-1 font-mono text-[9px] font-semibold text-foreground-dim shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.4)]",
+              k === "—" && "border-transparent bg-transparent px-0 text-muted shadow-none",
+            )}
+          >
+            {k}
+          </kbd>
+        ))}
+      </div>
+      <span>{label}</span>
+    </div>
   );
 }
 

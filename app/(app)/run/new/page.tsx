@@ -2,9 +2,8 @@ import Link from "next/link";
 import { and, count, eq, isNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { lectures, questions } from "@/lib/db/schema";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Upload } from "lucide-react";
 import { Configurator } from "./configurator";
 
 export const metadata = { title: "New run — WilliamsPod" };
@@ -39,38 +38,40 @@ export default async function NewRunPage() {
   const empty = lectures.every((l) => l.count === 0);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          href="/run"
-          className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted hover:text-foreground"
-        >
-          <ChevronLeft className="h-3 w-3" /> Runs
-        </Link>
-      </div>
+    <div className="space-y-8">
+      <Link
+        href="/run"
+        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
+      >
+        <ChevronLeft className="h-3 w-3" /> Runs
+      </Link>
+
       <header>
-        <p className="text-[10px] uppercase tracking-[0.2em] text-muted">
-          Configure training run
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-          New pod run
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          Pick lectures, set a timer shorter than the real Exam Pod, choose how many
-          questions. Pod runs use hard lockdown: fullscreen where supported, leaving
-          the app fires an integrity flag, two flags = auto-submit.
+        <div className="flex items-center gap-2">
+          <span className="dot text-signal pod-pulse" />
+          <p className="eyebrow">Configure training run</p>
+        </div>
+        <h1 className="mt-2 display-lg text-foreground">New pod run</h1>
+        <p className="mt-2 max-w-2xl text-sm text-foreground-dim">
+          Pick lectures, set a timer shorter than the real Exam Pod, choose how
+          many questions. Pod runs use hard lockdown: fullscreen where supported,
+          leaving the app fires an integrity flag,{" "}
+          <span className="text-bad">two flags auto-submit</span>.
         </p>
       </header>
 
       {empty ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted">
-            <p>No questions loaded. Upload an .xlsx first.</p>
-            <Button asChild className="mt-4" variant="signal">
-              <Link href="/upload">Upload bank</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="panel bg-grid flex flex-col items-center gap-3 py-14 text-center">
+          <p className="text-sm text-muted">
+            No questions loaded. Upload an .xlsx first.
+          </p>
+          <Button asChild className="mt-2" variant="signal">
+            <Link href="/upload">
+              <Upload className="h-4 w-4" />
+              Upload bank
+            </Link>
+          </Button>
+        </div>
       ) : (
         <Configurator lectures={lectures} />
       )}

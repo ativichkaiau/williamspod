@@ -3,9 +3,6 @@ import Link from "next/link";
 import { eq, and, isNull, asc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { lectures, questions } from "@/lib/db/schema";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ChevronLeft } from "lucide-react";
 import { LectureToolbar } from "./toolbar";
 import { QuestionEditor } from "./question-editor";
@@ -28,22 +25,24 @@ export default async function LecturePage(
     .orderBy(asc(questions.createdAt));
 
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          href="/bank"
-          className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-muted hover:text-foreground"
-        >
-          <ChevronLeft className="h-3 w-3" /> Bank
-        </Link>
-      </div>
+    <div className="space-y-8">
+      <Link
+        href="/bank"
+        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
+      >
+        <ChevronLeft className="h-3 w-3" /> Bank
+      </Link>
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted">Lecture</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">{lec.name}</h1>
-          <p className="mt-1 text-sm text-muted">
-            {qs.length} question{qs.length === 1 ? "" : "s"} · slug{" "}
+          <div className="flex items-center gap-2">
+            <span className="dot text-signal" />
+            <p className="eyebrow">Lecture</p>
+          </div>
+          <h1 className="mt-2 display-lg text-foreground">{lec.name}</h1>
+          <p className="mt-2 text-sm text-foreground-dim">
+            <span className="digit text-foreground">{qs.length}</span> question
+            {qs.length === 1 ? "" : "s"} · slug{" "}
             <span className="font-mono text-foreground">{lec.slug}</span>
           </p>
         </div>
@@ -51,11 +50,9 @@ export default async function LecturePage(
       </header>
 
       {qs.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted">
-            No questions in this lecture.
-          </CardContent>
-        </Card>
+        <div className="panel flex flex-col items-center gap-3 py-14 text-center text-sm text-muted">
+          No questions in this lecture yet.
+        </div>
       ) : (
         <ol className="space-y-3">
           {qs.map((q, i) => (

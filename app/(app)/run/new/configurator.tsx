@@ -2,17 +2,23 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Play, AlertTriangle } from "lucide-react";
+import {
+  Play,
+  AlertTriangle,
+  ChevronsRight,
+  Gauge,
+  Timer,
+  Shuffle,
+} from "lucide-react";
 
 type LectureChoice = { id: string; name: string; slug: string; count: number };
 
-const DEFAULT_REAL_EXAM_MIN = 90; // assumed Exam Pod default; configurable per-run
+const DEFAULT_REAL_EXAM_MIN = 90;
 const DEFAULT_PRESSURE_DELTA_MIN = 10;
 
 export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
@@ -47,6 +53,16 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
     if (!Number.isFinite(n) || n < 1) return availableQuestions;
     return Math.min(n, availableQuestions);
   })();
+
+  const perQSec =
+    targetCount > 0 ? Math.round((effectiveMs / targetCount / 1000) * 10) / 10 : 0;
+
+  function selectAll() {
+    setSelected(Object.fromEntries(lectures.map((l) => [l.id, l.count > 0])));
+  }
+  function clearAll() {
+    setSelected(Object.fromEntries(lectures.map((l) => [l.id, false])));
+  }
 
   async function start() {
     setError(null);
@@ -88,79 +104,123 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-      <Card>
-        <CardHeader>
-          <CardTitle>Run setup</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-3">
-            <Label>Lectures</Label>
-            <ul className="space-y-1.5">
-              {lectures.map((l) => {
-                const disabled = l.count === 0;
-                const checked = !!selected[l.id] && !disabled;
-                return (
-                  <li key={l.id}>
-                    <label
-                      className={cn(
-                        "flex cursor-pointer items-center gap-3 rounded-md border border-border bg-surface px-3 py-2",
-                        disabled && "opacity-50 cursor-not-allowed",
-                        checked && "border-signal/60 bg-signal/5",
-                      )}
-                    >
-                      <input
-                        type="checkbox"
-                        className="accent-signal"
-                        checked={checked}
-                        disabled={disabled}
-                        onChange={(e) =>
-                          setSelected((s) => ({ ...s, [l.id]: e.target.checked }))
-                        }
-                      />
-                      <span className="flex-1 text-sm text-foreground">{l.name}</span>
-                      <Badge tone={l.count === 0 ? "warn" : "neutral"}>
-                        {l.count} Q
-                      </Badge>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Real exam duration (min)</Label>
-              <Input
-                type="number"
-                min={5}
-                max={300}
-                value={realMin}
-                onChange={(e) => setRealMin(Math.max(5, Number(e.target.value) || 0))}
-              />
-              <p className="text-[11px] text-muted">
-                Mirror the official Exam Pod limit.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label>Pressure reduction (min)</Label>
-              <Input
-                type="number"
-                min={0}
-                max={realMin - 1}
-                value={pressureDeltaMin}
-                onChange={(e) =>
-                  setPressureDeltaMin(Math.max(0, Number(e.target.value) || 0))
-                }
-              />
-              <p className="text-[11px] text-muted">
-                Shaved off the real timer. Doctrine: train under worse conditions than
-                the race.
-              </p>
+      <div className="space-y-6">
+        {/* ---------- Lectures ---------- */}
+        <section className="panel p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <p className="eyebrow">Lectures</p>
+            <div className="flex items-center gap-1.5">
+              <Button variant="ghost" size="sm" onClick={selectAll}>
+                All
+              </Button>
+              <span className="text-muted">·</span>
+              <Button variant="ghost" size="sm" onClick={clearAll}>
+                None
+              </Button>
             </div>
           </div>
+          <ul className="grid gap-1.5 sm:grid-cols-2">
+            {lectures.map((l) => {
+              const disabled = l.count === 0;
+              const checked = !!selected[l.id] && !disabled;
+              return (
+                <li key={l.id}>
+                  <label
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 transition-colors",
+                      disabled && "cursor-not-allowed opacity-40",
+                      checked
+                        ? "border-signal/60 bg-signal-soft text-foreground"
+                        : "border-border bg-surface-2 text-foreground-dim hover:border-border-bright hover:text-foreground",
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      className="accent-signal"
+                      checked={checked}
+                      disabled={disabled}
+                      onChange={(e) =>
+                        setSelected((s) => ({ ...s, [l.id]: e.target.checked }))
+                      }
+                    />
+                    <span className="flex-1 truncate text-sm">{l.name}</span>
+                    <Badge tone={disabled ? "warn" : checked ? "signal" : "neutral"}>
+                      {l.count} Q
+                    </Badge>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+        {/* ---------- Timing ---------- */}
+        <section className="panel p-6">
+          <div className="mb-5 flex items-center gap-2">
+            <Timer className="h-3.5 w-3.5 text-signal" />
+            <p className="eyebrow">Timing</p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <NumberField
+              label="Real exam (min)"
+              hint="Mirror the official Exam Pod limit."
+              value={realMin}
+              onChange={(v) => setRealMin(Math.max(5, v))}
+              min={5}
+              max={300}
+            />
+            <NumberField
+              label="Pressure shave (min)"
+              hint="Doctrine: train under worse conditions than the race."
+              value={pressureDeltaMin}
+              onChange={(v) => setPressureDeltaMin(Math.max(0, v))}
+              min={0}
+              max={Math.max(0, realMin - 1)}
+            />
+          </div>
+
+          {/* visual: real -> pod */}
+          <div className="mt-6 rounded-md border border-border bg-surface-2 p-4">
+            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-muted">
+              <span>Real</span>
+              <span className="flex items-center gap-1 text-signal">
+                <ChevronsRight className="h-3 w-3" />
+                Pod timer
+              </span>
+            </div>
+            <div className="mt-2 flex items-baseline justify-between gap-4">
+              <span className="digit text-2xl text-foreground-dim">
+                {realMin}
+                <span className="text-sm text-muted"> min</span>
+              </span>
+              <div className="flex flex-1 items-center px-3">
+                <div className="relative h-1 w-full overflow-hidden rounded-full bg-surface-3">
+                  <div
+                    className="absolute inset-y-0 left-0 bg-signal shadow-[0_0_8px_-1px_rgba(45,212,241,0.6)] transition-[width]"
+                    style={{
+                      width: `${Math.max(5, (effectiveMin / Math.max(1, realMin)) * 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="digit text-2xl text-signal">
+                {effectiveMin}
+                <span className="text-sm text-muted"> min</span>
+              </span>
+            </div>
+            <p className="mt-3 text-[10px] uppercase tracking-[0.16em] text-muted">
+              −{pressureDeltaMin} min vs real
+            </p>
+          </div>
+        </section>
+
+        {/* ---------- Scope ---------- */}
+        <section className="panel p-6">
+          <div className="mb-5 flex items-center gap-2">
+            <Gauge className="h-3.5 w-3.5 text-signal" />
+            <p className="eyebrow">Scope</p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Max questions (optional)</Label>
               <Input
@@ -170,92 +230,101 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                 placeholder={`all available (${availableQuestions})`}
                 onChange={(e) => setMaxQuestions(e.target.value)}
               />
+              <p className="text-[11px] text-muted">
+                Cap the run shorter than the bank.
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Label (optional)</Label>
               <Input
                 value={label}
                 maxLength={120}
-                placeholder='e.g. "midblock pacing run #3"'
+                placeholder='"midblock pacing run #3"'
                 onChange={(e) => setLabel(e.target.value)}
               />
+              <p className="text-[11px] text-muted">
+                Shows in run history.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------- Shuffle ---------- */}
+        <section className="panel p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <Shuffle className="h-3.5 w-3.5 text-signal" />
+            <p className="eyebrow">Shuffling</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Toggle
+              checked={shuffleQuestions}
+              onChange={setShuffleQuestions}
+              label="Shuffle questions"
+            />
+            <Toggle
+              checked={shuffleChoices}
+              onChange={setShuffleChoices}
+              label="Shuffle answer choices"
+            />
+          </div>
+        </section>
+
+        {error && (
+          <div className="flex items-start gap-2 rounded-md border border-bad/40 bg-bad-soft p-3 text-sm pop-in">
+            <AlertTriangle className="mt-0.5 h-4 w-4 text-bad" />
+            <p className="text-bad/90">{error}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ---------- Right column: pressure brief ---------- */}
+      <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+        <div className="panel-deep p-5">
+          <div className="flex items-center gap-2">
+            <span className="dot text-signal pod-pulse" />
+            <p className="eyebrow">Pressure brief</p>
+          </div>
+
+          <div className="mt-5 space-y-1">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+              Pod timer
+            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="digit display-lg text-signal">{effectiveMin}</span>
+              <span className="text-sm text-muted">min</span>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Shuffling</Label>
-            <div className="flex flex-wrap gap-2">
-              <Toggle
-                checked={shuffleQuestions}
-                onChange={setShuffleQuestions}
-                label="Shuffle questions"
-              />
-              <Toggle
-                checked={shuffleChoices}
-                onChange={setShuffleChoices}
-                label="Shuffle answer choices"
-              />
-            </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <BriefTile label="Questions" value={String(targetCount)} />
+            <BriefTile
+              label="Per Q"
+              value={perQSec > 0 ? `${perQSec}s` : "—"}
+              tone={perQSec > 0 && perQSec < 45 ? "warn" : undefined}
+            />
+            <BriefTile
+              label="Lectures"
+              value={String(selectedLectures.length)}
+            />
+            <BriefTile label="Real exam" value={`${realMin}m`} sub="vs" />
           </div>
+        </div>
 
-          {error && (
-            <div className="flex items-start gap-2 rounded-md border border-bad/40 bg-bad/5 p-3 text-sm">
-              <AlertTriangle className="mt-0.5 h-4 w-4 text-bad" />
-              <p className="text-bad/90">{error}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Pressure brief</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <Row label="Lectures" value={`${selectedLectures.length} selected`} />
-            <Row
-              label="Questions"
-              value={`${targetCount}${
-                maxQuestions && availableQuestions > targetCount
-                  ? ` (of ${availableQuestions})`
-                  : ""
-              }`}
-            />
-            <Row label="Real exam" value={`${realMin} min`} />
-            <Row
-              label="Pod timer"
-              value={
-                <span className="font-mono tabular text-signal">
-                  {effectiveMin} min
-                </span>
-              }
-            />
-            <Row
-              label="Per-Q budget"
-              value={
-                targetCount > 0
-                  ? `${Math.round((effectiveMs / targetCount / 1000) * 10) / 10}s`
-                  : "—"
-              }
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Lockdown</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-xs text-muted">
-            <Line>Fullscreen engages where supported.</Line>
-            <Line>Leaving the app can trigger an integrity flag.</Line>
-            <Line>Copy/paste, right-click, and reload blocked.</Line>
-            <Line>
-              <span className="text-bad">2 flags → auto-submit and abort.</span>
-            </Line>
-            <Line>Timer hitting zero auto-submits.</Line>
-          </CardContent>
-        </Card>
+        <div className="panel p-5">
+          <div className="flex items-center gap-2 text-bad">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            <p className="eyebrow text-bad">Lockdown</p>
+          </div>
+          <ul className="mt-4 space-y-2 text-xs text-foreground-dim">
+            <LockLine>Fullscreen engages where supported.</LockLine>
+            <LockLine>Leaving the app triggers an integrity flag.</LockLine>
+            <LockLine>Copy/paste, right-click, reload blocked.</LockLine>
+            <LockLine accent>
+              2 flags → auto-submit and abort.
+            </LockLine>
+            <LockLine>Timer hitting zero auto-submits.</LockLine>
+          </ul>
+        </div>
 
         <Button
           variant="signal"
@@ -267,10 +336,43 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           <Play className="h-4 w-4" />
           {busy ? "Spinning up pod…" : "Enter pod"}
         </Button>
-        <p className="text-center text-[10px] uppercase tracking-[0.18em] text-muted">
-          You will lose the AppShell once inside.
+        <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
+          No way back once armed
         </p>
-      </div>
+      </aside>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------------------
+
+function NumberField({
+  label,
+  hint,
+  value,
+  onChange,
+  min,
+  max,
+}: {
+  label: string;
+  hint: string;
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <Input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value) || 0)}
+        className="font-mono"
+      />
+      <p className="text-[11px] text-muted">{hint}</p>
     </div>
   );
 }
@@ -289,10 +391,10 @@ function Toggle({
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
+        "rounded-md border px-3.5 py-2 text-xs font-medium transition-all",
         checked
-          ? "border-signal/60 bg-signal/10 text-signal"
-          : "border-border-strong bg-surface text-muted hover:text-foreground",
+          ? "border-signal/60 bg-signal-soft text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.18)]"
+          : "border-border-strong bg-surface-2 text-muted-strong hover:border-border-bright hover:text-foreground",
       )}
     >
       {label}
@@ -300,22 +402,48 @@ function Toggle({
   );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function BriefTile({
+  label,
+  value,
+  sub,
+  tone,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  tone?: "warn" | "bad";
+}) {
+  const color =
+    tone === "warn" ? "text-warn" : tone === "bad" ? "text-bad" : "text-foreground";
   return (
-    <div className="flex items-center justify-between border-b border-border/60 pb-2 last:border-0 last:pb-0">
-      <span className="text-[11px] uppercase tracking-[0.14em] text-muted">
+    <div className="rounded-md border border-border bg-surface-2 p-2.5">
+      <p className="text-[9px] uppercase tracking-[0.18em] text-muted">
         {label}
-      </span>
-      <span className="text-sm text-foreground">{value}</span>
+      </p>
+      <div className="mt-1 flex items-baseline gap-1">
+        <span className={`digit text-base ${color}`}>{value}</span>
+        {sub && <span className="text-[9px] text-muted">{sub}</span>}
+      </div>
     </div>
   );
 }
 
-function Line({ children }: { children: React.ReactNode }) {
+function LockLine({
+  children,
+  accent,
+}: {
+  children: React.ReactNode;
+  accent?: boolean;
+}) {
   return (
-    <div className="flex items-start gap-1.5">
-      <span className="mt-1 inline-block h-1 w-1 rounded-full bg-signal" />
-      <span>{children}</span>
-    </div>
+    <li className="flex items-start gap-2">
+      <span
+        className={cn(
+          "mt-1.5 inline-block h-1 w-1 rounded-full",
+          accent ? "bg-bad" : "bg-signal",
+        )}
+      />
+      <span className={accent ? "text-bad" : ""}>{children}</span>
+    </li>
   );
 }

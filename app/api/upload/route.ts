@@ -18,6 +18,8 @@ export async function POST(req: Request) {
   }
   const file = form.get("file");
   const mode = (form.get("mode") as string | null) ?? "merge"; // "merge" | "replace"
+  const subjectRaw = (form.get("subject") as string | null) ?? null;
+  const subject = subjectRaw && subjectRaw.trim() !== "" ? subjectRaw.trim().slice(0, 80) : null;
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "missing 'file' field" }, { status: 400 });
   }
@@ -60,6 +62,7 @@ export async function POST(req: Request) {
         id: lectureId,
         name: pl.name,
         slug,
+        subject,
         orderIndex: 0,
         createdAt: now,
         updatedAt: now,
@@ -73,10 +76,15 @@ export async function POST(req: Request) {
       } else {
         actionMode = "merged";
       }
-      await db
-        .update(lectures)
-        .set({ name: pl.name, updatedAt: now })
-        .where(eq(lectures.id, lectureId));
+      // Update subject only when the form explicitly provides one — empty
+      // string is treated as "don't change" so re-uploading without a subject
+      // doesn't clobber existing groupings.
+      const updates: Partial<typeof lectures.$inferInsert> = {
+        name: pl.name,
+        updatedAt: now,
+      };
+      if (subject) updates.subject = subject;
+      await db.update(lectures).set(updates).where(eq(lectures.id, lectureId));
     }
 
     for (const q of pl.questions) {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { UploadCloud, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -19,6 +20,7 @@ export function UploadClient() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [mode, setMode] = useState<"merge" | "replace">("merge");
+  const [subject, setSubject] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<UploadResult | null>(null);
@@ -33,6 +35,7 @@ export function UploadClient() {
       const fd = new FormData();
       fd.append("file", file);
       fd.append("mode", mode);
+      if (subject.trim()) fd.append("subject", subject.trim());
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -111,6 +114,23 @@ export function UploadClient() {
             {mode === "merge"
               ? "Append rows to matching lectures; keep existing questions."
               : "Wipe matching lectures and reload from this file."}
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="subject" className="text-foreground">
+            Subject (optional)
+          </Label>
+          <Input
+            id="subject"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="e.g. HNS-2, HEN-2 — groups these lectures in /bank"
+            maxLength={80}
+          />
+          <p className="text-[11px] text-muted">
+            Applied to every lecture in this upload. Re-uploading without a
+            subject leaves existing groupings alone.
           </p>
         </div>
 

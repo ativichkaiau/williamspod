@@ -40,7 +40,9 @@ export default async function LecturePage(
         <div>
           <div className="flex items-center gap-2">
             <span className="dot text-signal" />
-            <p className="eyebrow">Lecture</p>
+            <p className="eyebrow">
+              {lec.subject ? `Lecture · ${lec.subject}` : "Lecture"}
+            </p>
           </div>
           <h1 className="mt-2 display-lg text-foreground">{lec.name}</h1>
           <p className="mt-2 text-sm text-foreground-dim">
@@ -49,7 +51,13 @@ export default async function LecturePage(
             <span className="font-mono text-foreground">{lec.slug}</span>
           </p>
         </div>
-        {isAdmin && <LectureToolbar lectureId={lec.id} name={lec.name} />}
+        {isAdmin && (
+          <LectureToolbar
+            lectureId={lec.id}
+            name={lec.name}
+            subject={lec.subject}
+          />
+        )}
       </header>
 
       {qs.length === 0 ? (

@@ -56,12 +56,15 @@ export const invites = sqliteTable(
 
 // Lectures = the curated organizational unit. One Excel sheet = one lecture.
 // SHARED across all users — only admins can write.
+// `subject` groups lectures into exam sets (e.g. "HNS-2", "HEN-2"); free-text
+// so admins can add new exam sets without code changes.
 export const lectures = sqliteTable(
   "lectures",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
+    subject: text("subject"),
     description: text("description"),
     orderIndex: integer("order_index").notNull().default(0),
     archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
@@ -72,7 +75,10 @@ export const lectures = sqliteTable(
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
   },
-  (t) => [index("lectures_order_idx").on(t.orderIndex)],
+  (t) => [
+    index("lectures_order_idx").on(t.orderIndex),
+    index("lectures_subject_idx").on(t.subject),
+  ],
 );
 
 // Questions belong to a lecture. Choices stored as JSON for flexibility.

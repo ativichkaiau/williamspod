@@ -16,16 +16,27 @@ import {
   Shuffle,
 } from "lucide-react";
 
-type LectureChoice = { id: string; name: string; slug: string; count: number };
+type LectureChoice = {
+  id: string;
+  name: string;
+  slug: string;
+  subject: string | null;
+  count: number;
+};
 
 const DEFAULT_REAL_EXAM_MIN = 90;
 const DEFAULT_PRESSURE_DELTA_MIN = 10;
+const UNGROUPED = "Other";
+
+function ltNumber(name: string): number {
+  const m = name.match(/^LT(\d+)/);
+  return m ? Number(m[1]) : 9999;
+}
 
 export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
   const router = useRouter();
-  const [selected, setSelected] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(lectures.map((l) => [l.id, true])),
-  );
+  // Default: nothing selected — user picks subject(s) deliberately.
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [realMin, setRealMin] = useState(DEFAULT_REAL_EXAM_MIN);
   const [pressureDeltaMin, setPressureDeltaMin] = useState(DEFAULT_PRESSURE_DELTA_MIN);
   const [maxQuestions, setMaxQuestions] = useState<string>("");
@@ -61,7 +72,62 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
     setSelected(Object.fromEntries(lectures.map((l) => [l.id, l.count > 0])));
   }
   function clearAll() {
-    setSelected(Object.fromEntries(lectures.map((l) => [l.id, false])));
+    setSelected({});
+  }
+
+  // Group lectures by subject for the picker.
+  const groups = useMemo(() => {
+    const m = new Map<string, LectureChoice[]>();
+    for (const l of lectures) {
+      const key = l.subject?.trim() || UNGROUPED;
+      const arr = m.get(key) ?? [];
+      arr.push(l);
+      m.set(key, arr);
+    }
+    for (const arr of m.values()) {
+      arr.sort((a, b) => {
+        const an = ltNumber(a.name);
+        const bn = ltNumber(b.name);
+        if (an !== bn) return an - bn;
+        return a.name.localeCompare(b.name);
+      });
+    }
+    return m;
+  }, [lectures]);
+
+  const groupOrder = useMemo(() => {
+    return Array.from(groups.keys()).sort((a, b) => {
+      if (a === UNGROUPED) return 1;
+      if (b === UNGROUPED) return -1;
+      return a.localeCompare(b);
+    });
+  }, [groups]);
+
+  function selectGroup(subject: string) {
+    const items = groups.get(subject) ?? [];
+    setSelected((prev) => {
+      const next = { ...prev };
+      for (const l of items) {
+        if (l.count > 0) next[l.id] = true;
+      }
+      return next;
+    });
+  }
+  function clearGroup(subject: string) {
+    const items = groups.get(subject) ?? [];
+    setSelected((prev) => {
+      const next = { ...prev };
+      for (const l of items) next[l.id] = false;
+      return next;
+    });
+  }
+  function groupSelectionState(subject: string): "none" | "some" | "all" {
+    const items = (groups.get(subject) ?? []).filter((l) => l.count > 0);
+    if (items.length === 0) return "none";
+    const sel = items.filter((l) => selected[l.id]).length;
+    if (sel === 0) return "none";
+    if (sel === items.length) return "all";
+    return "some";
   }
 
   async function start() {
@@ -119,39 +185,113 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
               </Button>
             </div>
           </div>
-          <ul className="grid gap-1.5 sm:grid-cols-2">
-            {lectures.map((l) => {
-              const disabled = l.count === 0;
-              const checked = !!selected[l.id] && !disabled;
+
+          <div className="space-y-5">
+            {groupOrder.map((subject) => {
+              const items = groups.get(subject)!;
+              const state = groupSelectionState(subject);
+              const counts = items.reduce(
+                (acc, l) => {
+                  if (selected[l.id]) {
+                    acc.sel++;
+                    acc.q += l.count;
+                  }
+                  acc.total++;
+                  return acc;
+                },
+                { sel: 0, total: 0, q: 0 },
+              );
               return (
-                <li key={l.id}>
-                  <label
-                    className={cn(
-                      "flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 transition-colors",
-                      disabled && "cursor-not-allowed opacity-40",
-                      checked
-                        ? "border-signal/60 bg-signal-soft text-foreground"
-                        : "border-border bg-surface-2 text-foreground-dim hover:border-border-bright hover:text-foreground",
-                    )}
-                  >
-                    <input
-                      type="checkbox"
-                      className="accent-signal"
-                      checked={checked}
-                      disabled={disabled}
-                      onChange={(e) =>
-                        setSelected((s) => ({ ...s, [l.id]: e.target.checked }))
-                      }
-                    />
-                    <span className="flex-1 truncate text-sm">{l.name}</span>
-                    <Badge tone={disabled ? "warn" : checked ? "signal" : "neutral"}>
-                      {l.count} Q
-                    </Badge>
-                  </label>
-                </li>
+                <div key={subject} className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-1.5">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`dot ${
+                          subject === UNGROUPED
+                            ? "text-muted"
+                            : state === "all"
+                              ? "text-signal"
+                              : state === "some"
+                                ? "text-warn"
+                                : "text-muted"
+                        }`}
+                      />
+                      <h3
+                        className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${
+                          subject === UNGROUPED
+                            ? "text-muted"
+                            : "text-foreground-dim"
+                        }`}
+                      >
+                        {subject}
+                      </h3>
+                      <span className="font-mono text-[10px] tabular text-muted">
+                        {counts.sel}/{counts.total}
+                        {counts.sel > 0 && ` · ${counts.q} Q`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => selectGroup(subject)}
+                      >
+                        All
+                      </Button>
+                      <span className="text-muted">·</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => clearGroup(subject)}
+                      >
+                        None
+                      </Button>
+                    </div>
+                  </div>
+                  <ul className="grid gap-1.5 sm:grid-cols-2">
+                    {items.map((l) => {
+                      const disabled = l.count === 0;
+                      const checked = !!selected[l.id] && !disabled;
+                      return (
+                        <li key={l.id}>
+                          <label
+                            className={cn(
+                              "flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 transition-colors",
+                              disabled && "cursor-not-allowed opacity-40",
+                              checked
+                                ? "border-signal/60 bg-signal-soft text-foreground"
+                                : "border-border bg-surface-2 text-foreground-dim hover:border-border-bright hover:text-foreground",
+                            )}
+                          >
+                            <input
+                              type="checkbox"
+                              className="accent-signal"
+                              checked={checked}
+                              disabled={disabled}
+                              onChange={(e) =>
+                                setSelected((s) => ({
+                                  ...s,
+                                  [l.id]: e.target.checked,
+                                }))
+                              }
+                            />
+                            <span className="flex-1 truncate text-sm">
+                              {l.name}
+                            </span>
+                            <Badge
+                              tone={disabled ? "warn" : checked ? "signal" : "neutral"}
+                            >
+                              {l.count} Q
+                            </Badge>
+                          </label>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </section>
 
         {/* ---------- Timing ---------- */}

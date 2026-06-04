@@ -15,6 +15,7 @@ async function loadLectures() {
       id: lectures.id,
       name: lectures.name,
       slug: lectures.slug,
+      subject: lectures.subject,
       orderIndex: lectures.orderIndex,
       updatedAt: lectures.updatedAt,
       count: count(questions.id),
@@ -30,9 +31,45 @@ async function loadLectures() {
   return rows;
 }
 
+const UNGROUPED = "Other";
+
+function ltNumber(name: string): number {
+  const m = name.match(/^LT(\d+)/);
+  return m ? Number(m[1]) : 9999;
+}
+
 export default async function BankPage() {
   const rows = await loadLectures();
   const total = rows.reduce((s, r) => s + Number(r.count ?? 0), 0);
+
+  // Group by subject.
+  const groups = new Map<
+    string,
+    typeof rows
+  >();
+  for (const r of rows) {
+    const key = r.subject?.trim() || UNGROUPED;
+    const arr = groups.get(key) ?? [];
+    arr.push(r);
+    groups.set(key, arr);
+  }
+
+  // Sort lectures within a group by LT number, then name.
+  for (const arr of groups.values()) {
+    arr.sort((a, b) => {
+      const an = ltNumber(a.name);
+      const bn = ltNumber(b.name);
+      if (an !== bn) return an - bn;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  // Subject order: alphabetical, but "Other" last.
+  const groupOrder = Array.from(groups.keys()).sort((a, b) => {
+    if (a === UNGROUPED) return 1;
+    if (b === UNGROUPED) return -1;
+    return a.localeCompare(b);
+  });
 
   return (
     <div className="space-y-8">
@@ -47,7 +84,9 @@ export default async function BankPage() {
             <span className="digit text-foreground">{rows.length}</span> lecture
             {rows.length === 1 ? "" : "s"} ·{" "}
             <span className="digit text-foreground">{total}</span> question
-            {total === 1 ? "" : "s"} loaded
+            {total === 1 ? "" : "s"} loaded · grouped into{" "}
+            <span className="digit text-foreground">{groupOrder.length}</span>{" "}
+            subject{groupOrder.length === 1 ? "" : "s"}
           </p>
         </div>
         <Button asChild variant="outline">
@@ -70,30 +109,66 @@ export default async function BankPage() {
           </Button>
         </div>
       ) : (
-        <ul className="panel divide-y divide-border overflow-hidden">
-          {rows.map((r, i) => (
-            <li key={r.id}>
-              <Link
-                href={`/bank/${r.id}`}
-                className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-2"
-              >
-                <span className="digit w-8 text-xs text-muted">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-foreground">
-                    {r.name}
+        <div className="space-y-6">
+          {groupOrder.map((subject) => {
+            const items = groups.get(subject)!;
+            const subTotal = items.reduce(
+              (s, r) => s + Number(r.count ?? 0),
+              0,
+            );
+            return (
+              <section key={subject} className="space-y-2.5">
+                <div className="flex items-baseline justify-between border-b border-border/70 pb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`dot ${
+                        subject === UNGROUPED ? "text-muted" : "text-signal"
+                      }`}
+                    />
+                    <h2
+                      className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${
+                        subject === UNGROUPED
+                          ? "text-muted"
+                          : "text-foreground-dim"
+                      }`}
+                    >
+                      {subject}
+                    </h2>
                   </div>
-                  <div className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
-                    {r.slug}
-                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+                    {items.length} lec ·{" "}
+                    <span className="digit text-foreground-dim">{subTotal}</span>{" "}
+                    Q
+                  </span>
                 </div>
-                <Badge tone="neutral">{Number(r.count ?? 0)} Q</Badge>
-                <ChevronRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-              </Link>
-            </li>
-          ))}
-        </ul>
+                <ul className="panel divide-y divide-border overflow-hidden">
+                  {items.map((r, i) => (
+                    <li key={r.id}>
+                      <Link
+                        href={`/bank/${r.id}`}
+                        className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-surface-2"
+                      >
+                        <span className="digit w-8 text-xs text-muted">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium text-foreground">
+                            {r.name}
+                          </div>
+                          <div className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+                            {r.slug}
+                          </div>
+                        </div>
+                        <Badge tone="neutral">{Number(r.count ?? 0)} Q</Badge>
+                        <ChevronRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
       )}
     </div>
   );

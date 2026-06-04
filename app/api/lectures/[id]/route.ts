@@ -7,6 +7,7 @@ import { apiAuth } from "@/lib/auth";
 
 const PatchBody = z.object({
   name: z.string().min(1).max(200).optional(),
+  subject: z.string().max(80).nullable().optional(),
   description: z.string().max(500).nullable().optional(),
   orderIndex: z.number().int().optional(),
 });

@@ -15,6 +15,7 @@ async function loadLectureChoices() {
       id: lectures.id,
       name: lectures.name,
       slug: lectures.slug,
+      subject: lectures.subject,
       count: count(questions.id),
     })
     .from(lectures)
@@ -33,6 +34,7 @@ export default async function NewRunPage() {
     id: l.id,
     name: l.name,
     slug: l.slug,
+    subject: l.subject ?? null,
     count: Number(l.count ?? 0),
   }));
   const empty = lectures.every((l) => l.count === 0);

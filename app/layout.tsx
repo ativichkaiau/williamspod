@@ -17,6 +17,22 @@ export const metadata: Metadata = {
   description: "Private exam telemetry simulator. Wind tunnel before the race.",
 };
 
+const themeInitScript = `
+(() => {
+  try {
+    const stored = localStorage.getItem("williamspod-theme");
+    const theme = stored === "light" ? "light" : "dark";
+    const root = document.documentElement;
+    root.classList.remove("dark", "light");
+    root.classList.add(theme);
+    root.style.colorScheme = theme;
+  } catch {
+    document.documentElement.classList.add("dark");
+    document.documentElement.style.colorScheme = "dark";
+  }
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -27,6 +43,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
       </body>
     </html>

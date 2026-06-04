@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Gauge,
   BookOpen,
@@ -41,7 +42,7 @@ export function AppShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-8 px-4">
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4 sm:gap-8">
           <Link href="/" className="group flex items-center gap-2.5">
             <div className="relative flex h-7 w-7 items-center justify-center rounded-[5px] border border-signal/40 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.25),0_0_12px_-4px_rgba(45,212,241,0.6)]">
               <span className="font-mono text-[10px] font-bold tracking-[0.18em]">WP</span>
@@ -55,7 +56,7 @@ export function AppShell({
               </span>
             </div>
           </Link>
-          <nav className="flex flex-1 items-center gap-0.5">
+          <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {links.map(({ href, label, icon: Icon }) => {
               const active =
                 href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -64,7 +65,7 @@ export function AppShell({
                   key={href}
                   href={href}
                   className={cn(
-                    "relative flex items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors",
+                    "relative flex shrink-0 items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors",
                     active
                       ? "text-foreground"
                       : "text-muted hover:bg-surface-2 hover:text-foreground-dim",
@@ -80,6 +81,7 @@ export function AppShell({
             })}
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <div className="hidden items-center gap-2 sm:flex">
               <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-strong bg-surface-2 text-[11px] font-semibold text-foreground">
                 {initial}

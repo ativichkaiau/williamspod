@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { UploadClient } from "./upload-client";
+import { NotebookLmHelper } from "@/components/notebook-lm-helper";
 import { requireUser } from "@/lib/auth";
 
 export const metadata = { title: "Upload — WilliamsPod" };
@@ -23,7 +24,10 @@ export default async function UploadPage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <UploadClient />
+        <div className="space-y-6">
+          <UploadClient />
+          <NotebookLmHelper />
+        </div>
         <div className="panel p-6 self-start">
           <p className="eyebrow">Sheet template</p>
           <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-muted-strong">

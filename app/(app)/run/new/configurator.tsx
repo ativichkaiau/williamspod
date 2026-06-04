@@ -14,6 +14,7 @@ import {
   Gauge,
   Timer,
   Shuffle,
+  Rocket,
 } from "lucide-react";
 
 type LectureChoice = {
@@ -130,6 +131,21 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
     return "some";
   }
 
+  // "Launch full mock" presets: pick exactly one subject's lectures and nothing else.
+  function launchMock(subject: string) {
+    const items = groups.get(subject) ?? [];
+    const next: Record<string, boolean> = {};
+    for (const l of items) {
+      if (l.count > 0) next[l.id] = true;
+    }
+    setSelected(next);
+    // Auto-label the run for easy identification in History.
+    if (!label) setLabel(`${subject} mock`);
+  }
+
+  // Subjects that should appear as launchable mocks (skip "Other").
+  const mockSubjects = groupOrder.filter((s) => s !== UNGROUPED);
+
   async function start() {
     setError(null);
     if (selectedLectures.length === 0) {
@@ -171,6 +187,48 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <div className="space-y-6">
+        {/* ---------- Quick mock presets ---------- */}
+        {mockSubjects.length > 0 && (
+          <section className="panel-deep p-5 pop-in">
+            <div className="mb-3 flex items-center gap-2">
+              <Rocket className="h-3.5 w-3.5 text-signal" />
+              <p className="eyebrow">Quick mock</p>
+            </div>
+            <p className="mb-4 text-xs text-foreground-dim">
+              One click selects every lecture in a subject. Future uploads tagged
+              with the same subject auto-join the mock.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {mockSubjects.map((subject) => {
+                const items = groups.get(subject)!;
+                const lecCount = items.length;
+                const qCount = items.reduce((s, l) => s + l.count, 0);
+                const isActive =
+                  groupSelectionState(subject) === "all" &&
+                  // ensure no other subject is selected
+                  mockSubjects
+                    .filter((s) => s !== subject)
+                    .every((s) => groupSelectionState(s) === "none");
+                return (
+                  <Button
+                    key={subject}
+                    type="button"
+                    variant={isActive ? "signal" : "outline"}
+                    size="md"
+                    onClick={() => launchMock(subject)}
+                  >
+                    <Rocket className="h-3.5 w-3.5" />
+                    {subject} mock
+                    <span className="ml-1 font-mono text-[10px] tabular text-muted">
+                      {lecCount} lec · {qCount} Q
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* ---------- Lectures ---------- */}
         <section className="panel p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">

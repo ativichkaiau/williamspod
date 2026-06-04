@@ -11,6 +11,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:check": "tsx scripts/check-db.ts",
     "setup:admin": "tsx scripts/setup-admin.ts",
+    "users:list": "tsx scripts/list-users.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio"
   },

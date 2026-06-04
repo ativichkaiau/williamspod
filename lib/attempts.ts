@@ -23,6 +23,7 @@ const NOISY_INTEGRITY_EVENT_KINDS = new Set<IntegrityEventKind>([
 const INTEGRITY_EVENT_COALESCE_MS = 2500;
 
 export type CreateAttemptInput = {
+  userId: string;
   mode: "full" | "lecture" | "weak" | "custom";
   lectureIds: string[];
   durationMs: number;
@@ -88,6 +89,7 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
   const now = new Date();
   const attemptRow = {
     id: attemptId,
+    userId: input.userId,
     label: input.label ?? null,
     mode: input.mode,
     durationMs: input.durationMs,
@@ -155,7 +157,27 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
   return { attempt: attemptCreated, questions: setupQuestions };
 }
 
-export async function loadAttemptForRuntime(attemptId: string): Promise<
+/**
+ * Verifies an attempt belongs to a user. Returns the attempt or null.
+ * Legacy attempts with NULL userId are treated as owned by no one (admin only).
+ */
+export async function findAttemptForUser(
+  attemptId: string,
+  userId: string,
+): Promise<Attempt | null> {
+  const [attempt] = await db
+    .select()
+    .from(attempts)
+    .where(eq(attempts.id, attemptId));
+  if (!attempt) return null;
+  if (attempt.userId !== userId) return null;
+  return attempt;
+}
+
+export async function loadAttemptForRuntime(
+  attemptId: string,
+  userId?: string,
+): Promise<
   | (AttemptSetup & {
       answers: Pick<AttemptAnswer, "questionId" | "pickedShownIndex" | "markedForReview">[];
     })
@@ -163,6 +185,7 @@ export async function loadAttemptForRuntime(attemptId: string): Promise<
 > {
   const [attempt] = await db.select().from(attempts).where(eq(attempts.id, attemptId));
   if (!attempt) return null;
+  if (userId !== undefined && attempt.userId !== userId) return null;
 
   const ans = await db
     .select()

@@ -4,11 +4,14 @@ import { db } from "@/lib/db";
 import { lectures, questions } from "@/lib/db/schema";
 import { parseWorkbook, slugify } from "@/lib/excel";
 import { uid } from "@/lib/utils";
+import { apiAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const auth = await apiAuth({ adminOnly: true });
+  if (!auth.ok) return auth.response;
   const form = await req.formData().catch(() => null);
   if (!form) {
     return NextResponse.json({ error: "expected multipart/form-data" }, { status: 400 });

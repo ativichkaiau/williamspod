@@ -17,9 +17,11 @@ const LETTERS = ["A", "B", "C", "D", "E", "F"];
 export function QuestionEditor({
   index,
   question,
+  canEdit = false,
 }: {
   index: number;
   question: Question;
+  canEdit?: boolean;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -169,31 +171,38 @@ export function QuestionEditor({
               )}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-0.5 opacity-50 transition-opacity group-hover:opacity-100">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setEditing(true)}
-              aria-label="Edit"
-              title="Edit"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={remove}
-              aria-label="Delete"
-              title="Delete"
-              disabled={busy}
-              className="hover:text-bad"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
+          {canEdit && (
+            <div className="flex shrink-0 items-center gap-0.5 opacity-50 transition-opacity group-hover:opacity-100">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setEditing(true)}
+                aria-label="Edit"
+                title="Edit"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={remove}
+                aria-label="Delete"
+                title="Delete"
+                disabled={busy}
+                className="hover:text-bad"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
         </div>
       </article>
     );
+  }
+
+  if (!canEdit) {
+    // Defensive — non-admins can't reach edit mode, but never render the editor.
+    return null;
   }
 
   // -------------------- Edit mode --------------------

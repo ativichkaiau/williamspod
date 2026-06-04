@@ -52,9 +52,13 @@ export type DebriefData = {
   }[];
 };
 
-export async function loadDebrief(attemptId: string): Promise<DebriefData | null> {
+export async function loadDebrief(
+  attemptId: string,
+  userId?: string,
+): Promise<DebriefData | null> {
   const [attempt] = await db.select().from(attempts).where(eq(attempts.id, attemptId));
   if (!attempt) return null;
+  if (userId !== undefined && attempt.userId !== userId) return null;
 
   const ans = await db
     .select()

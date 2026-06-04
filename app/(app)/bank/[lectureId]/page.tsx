@@ -6,6 +6,7 @@ import { lectures, questions } from "@/lib/db/schema";
 import { ChevronLeft } from "lucide-react";
 import { LectureToolbar } from "./toolbar";
 import { QuestionEditor } from "./question-editor";
+import { requireUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,8 @@ export default async function LecturePage(
   props: { params: Promise<{ lectureId: string }> },
 ) {
   const { lectureId } = await props.params;
+  const user = await requireUser();
+  const isAdmin = user.role === "admin";
   const [lec] = await db.select().from(lectures).where(eq(lectures.id, lectureId));
   if (!lec) notFound();
 
@@ -46,7 +49,7 @@ export default async function LecturePage(
             <span className="font-mono text-foreground">{lec.slug}</span>
           </p>
         </div>
-        <LectureToolbar lectureId={lec.id} name={lec.name} />
+        {isAdmin && <LectureToolbar lectureId={lec.id} name={lec.name} />}
       </header>
 
       {qs.length === 0 ? (
@@ -57,7 +60,7 @@ export default async function LecturePage(
         <ol className="space-y-3">
           {qs.map((q, i) => (
             <li key={q.id}>
-              <QuestionEditor index={i + 1} question={q} />
+              <QuestionEditor index={i + 1} question={q} canEdit={isAdmin} />
             </li>
           ))}
         </ol>

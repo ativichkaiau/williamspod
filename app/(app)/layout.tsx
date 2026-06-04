@@ -1,9 +1,22 @@
+import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
+import { getCurrentUser } from "@/lib/auth";
 
-export default function AppGroupLayout({
+export default async function AppGroupLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AppShell>{children}</AppShell>;
+  const user = await getCurrentUser();
+  if (!user) {
+    // The middleware should have already redirected, but belt and suspenders.
+    redirect("/login");
+  }
+  return (
+    <AppShell
+      user={{ id: user.id, name: user.name, role: user.role }}
+    >
+      {children}
+    </AppShell>
+  );
 }

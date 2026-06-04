@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAttempt } from "@/lib/attempts";
+import { apiAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,8 @@ const Body = z.object({
 });
 
 export async function POST(req: Request) {
+  const auth = await apiAuth();
+  if (!auth.ok) return auth.response;
   const json = await req.json().catch(() => null);
   const parsed = Body.safeParse(json);
   if (!parsed.success) {
@@ -25,7 +28,7 @@ export async function POST(req: Request) {
     );
   }
   try {
-    const setup = await createAttempt(parsed.data);
+    const setup = await createAttempt({ ...parsed.data, userId: auth.user.id });
     return NextResponse.json({
       ok: true,
       attemptId: setup.attempt.id,

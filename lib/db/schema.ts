@@ -3,11 +3,59 @@ import {
   sqliteTable,
   text,
   integer,
-  real,
   index,
 } from "drizzle-orm/sqlite-core";
 
-// Lectures = the user's organizational unit. One Excel sheet = one lecture.
+// Users — multi-tenant identities. Display names are case-preserved for the UI;
+// `nameLower` is the normalized form used for lookups and uniqueness.
+export const users = sqliteTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    nameLower: text("name_lower").notNull().unique(),
+    role: text("role", { enum: ["admin", "member"] })
+      .notNull()
+      .default("member"),
+    // PBKDF2-SHA256 packed as `pbkdf2$<iter>$<saltHex>$<hashHex>`.
+    passhash: text("passhash").notNull(),
+    archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    lastSeenAt: integer("last_seen_at", { mode: "timestamp_ms" }),
+  },
+  (t) => [index("users_archived_idx").on(t.archivedAt)],
+);
+
+// Single-use invite codes that authorize signup. Admin generates, friend redeems.
+export const invites = sqliteTable(
+  "invites",
+  {
+    id: text("id").primaryKey(),
+    code: text("code").notNull().unique(),
+    note: text("note"), // optional label, e.g. "for Aaron"
+    createdById: text("created_by_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }),
+    usedAt: integer("used_at", { mode: "timestamp_ms" }),
+    usedById: text("used_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    revokedAt: integer("revoked_at", { mode: "timestamp_ms" }),
+  },
+  (t) => [
+    index("invites_code_idx").on(t.code),
+    index("invites_creator_idx").on(t.createdById),
+  ],
+);
+
+// Lectures = the curated organizational unit. One Excel sheet = one lecture.
+// SHARED across all users — only admins can write.
 export const lectures = sqliteTable(
   "lectures",
   {
@@ -28,6 +76,7 @@ export const lectures = sqliteTable(
 );
 
 // Questions belong to a lecture. Choices stored as JSON for flexibility.
+// Shared bank — only admins can write.
 export const questions = sqliteTable(
   "questions",
   {
@@ -36,13 +85,10 @@ export const questions = sqliteTable(
       .notNull()
       .references(() => lectures.id, { onDelete: "cascade" }),
     stem: text("stem").notNull(),
-    // JSON-encoded array of strings, e.g. ["choice A", "choice B", ...]
     choices: text("choices", { mode: "json" }).$type<string[]>().notNull(),
-    // Index of correct choice in the ORIGINAL choices array (0-based).
     correctIndex: integer("correct_index").notNull(),
     explanation: text("explanation"),
     topic: text("topic"),
-    // 1 = easy, 2 = medium, 3 = hard, nullable if unknown.
     difficulty: integer("difficulty"),
     archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
@@ -58,42 +104,38 @@ export const questions = sqliteTable(
   ],
 );
 
-// An attempt = one WilliamsPod training run.
+// An attempt = one WilliamsPod training run. Now scoped to a user.
+// userId is nullable to allow backfilling legacy single-user data via the
+// setup-admin script; once backfilled all new rows always set it.
 export const attempts = sqliteTable(
   "attempts",
   {
     id: text("id").primaryKey(),
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
     label: text("label"),
     mode: text("mode", { enum: ["full", "lecture", "weak", "custom"] }).notNull(),
-    // ms allotted for the whole run
     durationMs: integer("duration_ms").notNull(),
-    // ms actually used (set on submit)
     timeUsedMs: integer("time_used_ms"),
     startedAt: integer("started_at", { mode: "timestamp_ms" }).notNull(),
     submittedAt: integer("submitted_at", { mode: "timestamp_ms" }),
-    // Snapshot of selected lecture ids (JSON array)
     lectureIds: text("lecture_ids", { mode: "json" }).$type<string[]>().notNull(),
-    // Snapshot of question count target
     questionCount: integer("question_count").notNull(),
-    // Final score = correct / total
     scoreCorrect: integer("score_correct"),
     scoreTotal: integer("score_total"),
-    // Cached number of integrity_events for quick listing
     integrityFlagCount: integer("integrity_flag_count").notNull().default(0),
-    // If true, attempt was aborted (window closed, integrity threshold exceeded, etc.)
     aborted: integer("aborted", { mode: "boolean" }).notNull().default(false),
     abortReason: text("abort_reason"),
     createdAt: integer("created_at", { mode: "timestamp_ms" })
       .notNull()
       .default(sql`(unixepoch() * 1000)`),
   },
-  (t) => [index("attempts_started_idx").on(t.startedAt)],
+  (t) => [
+    index("attempts_started_idx").on(t.startedAt),
+    index("attempts_user_idx").on(t.userId),
+  ],
 );
 
 // Per-question state inside an attempt.
-// shownChoices = the permutation of choices presented to the user (indices into the original choices array).
-// pickedShownIndex = the user's pick, as an index into shownChoices.
-// We derive correctness on submit and store it for fast queries.
 export const attemptAnswers = sqliteTable(
   "attempt_answers",
   {
@@ -104,19 +146,15 @@ export const attemptAnswers = sqliteTable(
     questionId: text("question_id")
       .notNull()
       .references(() => questions.id, { onDelete: "cascade" }),
-    // Display order within this attempt (0-based)
     questionOrder: integer("question_order").notNull(),
-    // JSON array of indices into question.choices, in display order
     shownChoices: text("shown_choices", { mode: "json" })
       .$type<number[]>()
       .notNull(),
-    // -1 if unanswered
     pickedShownIndex: integer("picked_shown_index").notNull().default(-1),
     isCorrect: integer("is_correct", { mode: "boolean" }),
     markedForReview: integer("marked_for_review", { mode: "boolean" })
       .notNull()
       .default(false),
-    // ms spent on this question (best-effort, accumulated)
     timeOnQuestionMs: integer("time_on_question_ms").notNull().default(0),
   },
   (t) => [
@@ -146,13 +184,16 @@ export const integrityEvents = sqliteTable(
       ],
     }).notNull(),
     occurredAt: integer("occurred_at", { mode: "timestamp_ms" }).notNull(),
-    // ms since attempt start, useful for replaying
     elapsedMs: integer("elapsed_ms").notNull(),
     detail: text("detail"),
   },
   (t) => [index("integrity_events_attempt_idx").on(t.attemptId)],
 );
 
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Invite = typeof invites.$inferSelect;
+export type NewInvite = typeof invites.$inferInsert;
 export type Lecture = typeof lectures.$inferSelect;
 export type NewLecture = typeof lectures.$inferInsert;
 export type Question = typeof questions.$inferSelect;

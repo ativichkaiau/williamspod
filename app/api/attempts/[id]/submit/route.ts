@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { submitAttempt } from "@/lib/attempts";
+import { findAttemptForUser, submitAttempt } from "@/lib/attempts";
+import { apiAuth } from "@/lib/auth";
 
 const Body = z.object({
   picks: z.record(z.string(), z.number().int().min(-1).max(10).nullable()),
@@ -14,6 +15,8 @@ export async function POST(
   req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
+  const auth = await apiAuth();
+  if (!auth.ok) return auth.response;
   const { id } = await ctx.params;
   const json = await req.json().catch(() => null);
   const parsed = Body.safeParse(json);
@@ -23,6 +26,8 @@ export async function POST(
       { status: 400 },
     );
   }
+  const attempt = await findAttemptForUser(id, auth.user.id);
+  if (!attempt) return NextResponse.json({ error: "not found" }, { status: 404 });
   try {
     const result = await submitAttempt({
       attemptId: id,

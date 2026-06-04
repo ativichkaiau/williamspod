@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { sql, desc } from "drizzle-orm";
+import { sql, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { lectures, questions, attempts } from "@/lib/db/schema";
+import { requireUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,14 +18,19 @@ import { formatDuration, pct } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-async function getStats() {
+async function getStats(userId: string) {
   const [lectureCount, questionCount, attemptCount, lastAttempt] = await Promise.all([
     db.select({ c: sql<number>`count(*)` }).from(lectures).then((r) => r[0]?.c ?? 0),
     db.select({ c: sql<number>`count(*)` }).from(questions).then((r) => r[0]?.c ?? 0),
-    db.select({ c: sql<number>`count(*)` }).from(attempts).then((r) => r[0]?.c ?? 0),
+    db
+      .select({ c: sql<number>`count(*)` })
+      .from(attempts)
+      .where(eq(attempts.userId, userId))
+      .then((r) => r[0]?.c ?? 0),
     db
       .select()
       .from(attempts)
+      .where(eq(attempts.userId, userId))
       .orderBy(desc(attempts.startedAt))
       .limit(1)
       .then((r) => r[0] ?? null),
@@ -33,7 +39,8 @@ async function getStats() {
 }
 
 export default async function DashboardPage() {
-  const { lectureCount, questionCount, attemptCount, lastAttempt } = await getStats();
+  const user = await requireUser();
+  const { lectureCount, questionCount, attemptCount, lastAttempt } = await getStats(user.id);
   const empty = questionCount === 0;
   const lastP =
     lastAttempt && lastAttempt.scoreTotal && lastAttempt.scoreTotal > 0

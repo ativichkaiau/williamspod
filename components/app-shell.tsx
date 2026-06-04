@@ -3,18 +3,41 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Gauge, BookOpen, Upload, Play, History, LogOut } from "lucide-react";
+import {
+  Gauge,
+  BookOpen,
+  Upload,
+  Play,
+  History,
+  LogOut,
+  Shield,
+} from "lucide-react";
 
-const links = [
+type ShellUser = { id: string; name: string; role: "admin" | "member" };
+
+const MEMBER_LINKS = [
   { href: "/", label: "Telemetry", icon: Gauge },
   { href: "/bank", label: "Bank", icon: BookOpen },
-  { href: "/upload", label: "Upload", icon: Upload },
   { href: "/run", label: "Run", icon: Play },
   { href: "/history", label: "History", icon: History },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+const ADMIN_EXTRA = [
+  { href: "/upload", label: "Upload", icon: Upload },
+  { href: "/admin", label: "Admin", icon: Shield },
+];
+
+export function AppShell({
+  children,
+  user,
+}: {
+  children: React.ReactNode;
+  user: ShellUser;
+}) {
   const pathname = usePathname();
+  const links = user.role === "admin" ? [...MEMBER_LINKS, ...ADMIN_EXTRA] : MEMBER_LINKS;
+  const initial = user.name.trim().charAt(0).toUpperCase() || "?";
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
@@ -56,16 +79,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          <div className="flex items-center gap-3">
-            <div className="hidden items-center gap-1.5 text-[9px] uppercase tracking-[0.22em] text-muted md:flex">
-              <span className="dot text-good" />
-              <span>live</span>
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 sm:flex">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-strong bg-surface-2 text-[11px] font-semibold text-foreground">
+                {initial}
+              </div>
+              <div className="flex flex-col leading-none">
+                <span className="text-[11px] font-semibold tracking-tight text-foreground">
+                  {user.name}
+                </span>
+                <span className="text-[9px] uppercase tracking-[0.18em] text-muted">
+                  {user.role === "admin" ? "admin" : "member"}
+                </span>
+              </div>
             </div>
             <form action="/api/auth/logout" method="post">
               <button
                 type="submit"
                 className="flex items-center gap-1.5 rounded-[5px] px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted hover:bg-surface-2 hover:text-foreground"
                 aria-label="Sign out"
+                title="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />
               </button>
@@ -82,7 +115,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="dot text-signal" />
             <span>Wind tunnel — not the race</span>
           </div>
-          <span className="font-mono tabular">v0.1</span>
+          <span className="font-mono tabular">v0.2</span>
         </div>
       </footer>
     </div>

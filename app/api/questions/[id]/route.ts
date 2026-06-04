@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { questions } from "@/lib/db/schema";
+import { apiAuth } from "@/lib/auth";
 
 const PatchBody = z.object({
   stem: z.string().min(1).max(4000).optional(),
@@ -17,6 +18,8 @@ export async function PATCH(
   req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
+  const auth = await apiAuth({ adminOnly: true });
+  if (!auth.ok) return auth.response;
   const { id } = await ctx.params;
   const json = await req.json().catch(() => null);
   const parsed = PatchBody.safeParse(json);
@@ -44,6 +47,8 @@ export async function DELETE(
   _req: Request,
   ctx: { params: Promise<{ id: string }> },
 ) {
+  const auth = await apiAuth({ adminOnly: true });
+  if (!auth.ok) return auth.response;
   const { id } = await ctx.params;
   await db.delete(questions).where(eq(questions.id, id));
   return NextResponse.json({ ok: true });

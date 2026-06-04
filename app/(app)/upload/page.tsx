@@ -1,8 +1,12 @@
+import { redirect } from "next/navigation";
 import { UploadClient } from "./upload-client";
+import { requireUser } from "@/lib/auth";
 
 export const metadata = { title: "Upload — WilliamsPod" };
 
-export default function UploadPage() {
+export default async function UploadPage() {
+  const user = await requireUser();
+  if (user.role !== "admin") redirect("/bank");
   return (
     <div className="space-y-8">
       <header>

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { loadAttemptForRuntime } from "@/lib/attempts";
+import { requireUser } from "@/lib/auth";
 import { ExamRuntime } from "./exam-runtime";
 
 export const dynamic = "force-dynamic";
@@ -9,7 +10,8 @@ export default async function PodRuntimePage(
   props: { params: Promise<{ attemptId: string }> },
 ) {
   const { attemptId } = await props.params;
-  const loaded = await loadAttemptForRuntime(attemptId);
+  const user = await requireUser();
+  const loaded = await loadAttemptForRuntime(attemptId, user.id);
   if (!loaded) notFound();
   if (loaded.attempt.submittedAt) {
     redirect(`/run/${attemptId}/debrief`);

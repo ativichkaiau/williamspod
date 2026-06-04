@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { issueSessionToken, setSessionCookie, verifyPassword } from "@/lib/auth";
+import { issueSessionToken, setSessionCookie } from "@/lib/auth";
+import { authenticateUser, touchLastSeen } from "@/lib/users";
 
-const Body = z.object({ password: z.string().min(1).max(200) });
+const Body = z.object({
+  name: z.string().min(1).max(60),
+  password: z.string().min(1).max(200),
+});
 
 export async function POST(req: Request) {
   let json: unknown;
@@ -15,11 +19,18 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
-  const ok = await verifyPassword(parsed.data.password);
-  if (!ok) {
-    return NextResponse.json({ error: "Invalid passphrase." }, { status: 401 });
+  const user = await authenticateUser(parsed.data.name, parsed.data.password);
+  if (!user) {
+    return NextResponse.json(
+      { error: "Invalid name or passphrase." },
+      { status: 401 },
+    );
   }
-  const token = await issueSessionToken();
+  const token = await issueSessionToken(user.id);
   await setSessionCookie(token);
-  return NextResponse.json({ ok: true });
+  void touchLastSeen(user.id);
+  return NextResponse.json({
+    ok: true,
+    user: { id: user.id, name: user.name, role: user.role },
+  });
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attempts } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
@@ -7,14 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteAttemptButton } from "@/components/delete-attempt-button";
 import { Play, ChevronRight, Activity } from "lucide-react";
 import { formatDuration, pct } from "@/lib/utils";
+import { requireUser } from "@/lib/auth";
 
 export const metadata = { title: "Runs — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 export default async function RunsHubPage() {
+  const user = await requireUser();
   const recent = await db
     .select()
     .from(attempts)
+    .where(eq(attempts.userId, user.id))
     .orderBy(desc(attempts.startedAt))
     .limit(20);
 

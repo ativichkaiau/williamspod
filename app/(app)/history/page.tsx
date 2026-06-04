@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc, isNotNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { attempts } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
@@ -7,15 +7,19 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteAttemptButton } from "@/components/delete-attempt-button";
 import { formatDuration, pct } from "@/lib/utils";
 import { Activity, ChevronRight, Play } from "lucide-react";
+import { requireUser } from "@/lib/auth";
 
 export const metadata = { title: "History — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 export default async function HistoryPage() {
+  const user = await requireUser();
   const rows = await db
     .select()
     .from(attempts)
-    .where(isNotNull(attempts.submittedAt))
+    .where(
+      and(eq(attempts.userId, user.id), isNotNull(attempts.submittedAt)),
+    )
     .orderBy(desc(attempts.startedAt))
     .limit(100);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ export function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") ?? "/";
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export function LoginForm() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ name, password }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -40,13 +42,26 @@ export function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div className="space-y-2">
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          autoFocus
+          autoComplete="username"
+          required
+          className="h-11"
+          placeholder="e.g. ativich"
+        />
+      </div>
+      <div className="space-y-2">
         <Label htmlFor="pw">Passphrase</Label>
         <Input
           id="pw"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          autoFocus
           autoComplete="current-password"
           required
           className="h-11 font-mono tracking-[0.2em]"
@@ -63,11 +78,20 @@ export function LoginForm() {
         variant="signal"
         size="lg"
         className="w-full"
-        disabled={submitting || !password}
+        disabled={submitting || !name || !password}
       >
         {submitting ? "Verifying…" : "Arm session"}
         <ArrowRight className="h-4 w-4" />
       </Button>
+      <p className="pt-1 text-center text-[10px] uppercase tracking-[0.18em] text-muted">
+        Got an invite code?{" "}
+        <Link
+          href="/signup"
+          className="text-signal hover:text-signal-strong"
+        >
+          Redeem here
+        </Link>
+      </p>
     </form>
   );
 }

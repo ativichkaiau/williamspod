@@ -44,5 +44,7 @@ next-env.d.ts
 # WilliamsPod
 williamspod.db
 williamspod.db-journal
+williamspod-test.db
+williamspod-test.db-journal
 sample-bank.xlsx
 

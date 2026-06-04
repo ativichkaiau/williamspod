@@ -1,7 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const AUTH_COOKIE_NAME = "williamspod_session";
-const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+const COOKIE_VERSION = "v2";
+const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+const PUBLIC_PATHS = [
+  "/login",
+  "/signup",
+  "/api/auth/login",
+  "/api/auth/signup",
+  "/api/auth/check-invite",
+];
 
 function toHex(buf: ArrayBuffer): string {
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -30,21 +39,27 @@ function constantTimeEqual(a: string, b: string): boolean {
 async function isValidSession(token: string | undefined): Promise<boolean> {
   if (!token) return false;
   const parts = token.split(".");
-  if (parts.length !== 3) return false;
-  const [, issuedAtStr, sig] = parts;
+  if (parts.length !== 4) return false;
+  const [ver, userId, issuedAtStr, sig] = parts;
+  if (ver !== COOKIE_VERSION) return false;
+  if (!userId) return false;
   const issuedAt = Number(issuedAtStr);
   if (!Number.isFinite(issuedAt)) return false;
   const ageMs = Date.now() - issuedAt;
-  if (ageMs < 0 || ageMs > 14 * 24 * 60 * 60 * 1000) return false;
+  if (ageMs < 0 || ageMs > SESSION_MAX_AGE_MS) return false;
   const secret = process.env.WILLIAMSPOD_AUTH_SECRET;
   if (!secret) return false;
-  const expected = await hmac(secret, `v1.${issuedAtStr}`);
+  const expected = await hmac(secret, `${COOKIE_VERSION}.${userId}.${issuedAtStr}`);
   return constantTimeEqual(sig, expected);
+}
+
+function isPublic(pathname: string): boolean {
+  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+  if (isPublic(pathname)) {
     return NextResponse.next();
   }
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
@@ -61,7 +76,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Run on everything except Next internals and static assets.
     "/((?!_next/static|_next/image|favicon.ico|robots.txt|manifest.webmanifest|.*\\.(?:png|jpg|jpeg|svg|webp|ico)$).*)",
   ],
 };

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadDebrief, selectWeakAreas, type SectorRow, type WrongAnswer } from "@/lib/debrief";
+import { requireUser } from "@/lib/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QuestionContent } from "@/components/question-content";
@@ -25,7 +26,8 @@ export default async function DebriefPage(
   props: { params: Promise<{ attemptId: string }> },
 ) {
   const { attemptId } = await props.params;
-  const debrief = await loadDebrief(attemptId);
+  const user = await requireUser();
+  const debrief = await loadDebrief(attemptId, user.id);
   if (!debrief) notFound();
 
   const {

@@ -109,7 +109,7 @@ export function QuestionEditor({
           <div className="min-w-0 flex-1 space-y-3.5">
             <QuestionContent
               content={question.stem}
-              className="text-[14.5px] leading-relaxed text-foreground"
+              className="text-[14.5px] font-semibold leading-relaxed text-foreground"
               imageClassName="max-w-2xl"
             />
             <ul className="space-y-1.5">
@@ -135,7 +135,14 @@ export function QuestionEditor({
                     >
                       {LETTERS[i]}
                     </span>
-                    <span className="flex-1 text-sm">{c}</span>
+                    <span
+                      className={cn(
+                        "flex-1 text-sm",
+                        isCorrect ? "font-semibold" : "font-medium",
+                      )}
+                    >
+                      {c}
+                    </span>
                     {isCorrect && <Check className="mt-0.5 h-3.5 w-3.5" />}
                   </li>
                 );
@@ -148,7 +155,7 @@ export function QuestionEditor({
                 </p>
                 <QuestionContent
                   content={question.explanation}
-                  className="mt-1.5 text-xs leading-relaxed text-foreground-dim"
+                  className="mt-1.5 text-xs font-medium leading-relaxed text-foreground-dim"
                   imageClassName="max-w-xl"
                 />
               </div>

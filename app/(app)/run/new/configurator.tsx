@@ -275,7 +275,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                         }`}
                       />
                       <h3
-                        className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${
+                        className={`text-[11px] font-bold uppercase tracking-[0.22em] ${
                           subject === UNGROUPED
                             ? "text-muted"
                             : "text-foreground-dim"
@@ -333,7 +333,12 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                                 }))
                               }
                             />
-                            <span className="flex-1 truncate text-sm">
+                            <span
+                              className={cn(
+                                "flex-1 truncate text-sm",
+                                checked ? "font-bold" : "font-medium",
+                              )}
+                            >
                               {l.name}
                             </span>
                             <Badge
@@ -589,7 +594,7 @@ function Toggle({
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        "rounded-md border px-3.5 py-2 text-xs font-medium transition-all",
+        "rounded-md border px-3.5 py-2 text-xs font-semibold transition-all",
         checked
           ? "border-signal/60 bg-signal-soft text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.18)]"
           : "border-border-strong bg-surface-2 text-muted-strong hover:border-border-bright hover:text-foreground",

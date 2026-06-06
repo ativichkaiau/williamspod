@@ -115,7 +115,7 @@ export default async function HistoryPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="text-foreground">{a.label ?? "Pod run"}</span>
+                      <span className="font-bold text-foreground">{a.label ?? "Pod run"}</span>
                       {a.aborted && <Badge tone="bad">Aborted</Badge>}
                       {a.integrityFlagCount > 0 && (
                         <Badge tone="warn">
@@ -137,7 +137,7 @@ export default async function HistoryPage() {
                       />
                     </div>
                   </div>
-                  <div className={`w-14 text-right digit text-sm ${txtColor}`}>
+                  <div className={`w-14 text-right digit text-sm font-bold ${txtColor}`}>
                     {p}%
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
@@ -174,7 +174,7 @@ function Stat({
           : "text-foreground";
   return (
     <div className="panel-flat p-4">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted">
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
         {label}
       </div>
       <div className={`mt-1 digit text-2xl ${color}`}>{value}</div>

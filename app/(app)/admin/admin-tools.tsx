@@ -25,8 +25,6 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   XCircle,
-  CheckCircle2,
-  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -310,7 +308,7 @@ function InviteSection({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {i.note && <span className="text-foreground-dim">{i.note}</span>}
+                  {i.note && <span className="font-semibold text-foreground-dim">{i.note}</span>}
                   <InviteBadge status={i.status} />
                 </div>
                 <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted">
@@ -406,7 +404,7 @@ function UserSection({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="text-foreground">{u.name}</span>
+                  <span className="font-bold text-foreground">{u.name}</span>
                   {u.role === "admin" ? (
                     <Badge tone="signal">admin</Badge>
                   ) : (
@@ -526,7 +524,7 @@ function Stat({
           : "text-foreground";
   return (
     <div className="panel-flat p-4">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted">
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
         {label}
       </div>
       <div className={`mt-1 digit text-2xl ${color}`}>{value}</div>

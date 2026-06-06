@@ -283,7 +283,7 @@ function MiniStat({
   return (
     <div className="rounded-sm border border-border bg-surface-2/60 px-2 py-1.5">
       <div className="text-muted">{label}</div>
-      <div className={`mt-0.5 font-mono tabular text-xs ${color}`}>{value}</div>
+      <div className={`mt-0.5 font-mono text-xs font-bold tabular ${color}`}>{value}</div>
     </div>
   );
 }
@@ -309,8 +309,8 @@ function ActionCard({
       className="panel panel-hover group block p-6"
     >
       <p className="eyebrow">{eyebrow}</p>
-      <h3 className="mt-2 text-lg font-semibold text-foreground">{title}</h3>
-      <p className="mt-1 text-sm text-foreground-dim">{body}</p>
+      <h3 className="mt-2 text-lg font-bold text-foreground">{title}</h3>
+      <p className="mt-1 text-sm font-medium text-foreground-dim">{body}</p>
       <div className="mt-5">
         <Button asChild variant={variant} size="md" className="pointer-events-none">
           <span>

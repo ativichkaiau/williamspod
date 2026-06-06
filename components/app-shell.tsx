@@ -48,7 +48,7 @@ export function AppShell({
               <span className="font-mono text-[10px] font-bold tracking-[0.18em]">WP</span>
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground">
+              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-foreground">
                 Williams<span className="text-signal">Pod</span>
               </span>
               <span className="mt-0.5 text-[9px] uppercase tracking-[0.22em] text-muted">
@@ -65,7 +65,7 @@ export function AppShell({
                   key={href}
                   href={href}
                   className={cn(
-                    "relative flex shrink-0 items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] transition-colors",
+                    "relative flex shrink-0 items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] transition-colors",
                     active
                       ? "text-foreground"
                       : "text-muted hover:bg-surface-2 hover:text-foreground-dim",
@@ -87,7 +87,7 @@ export function AppShell({
                 {initial}
               </div>
               <div className="flex flex-col leading-none">
-                <span className="text-[11px] font-semibold tracking-tight text-foreground">
+                <span className="text-[11px] font-bold tracking-tight text-foreground">
                   {user.name}
                 </span>
                 <span className="text-[9px] uppercase tracking-[0.18em] text-muted">
@@ -98,7 +98,7 @@ export function AppShell({
             <form action="/api/auth/logout" method="post">
               <button
                 type="submit"
-                className="flex items-center gap-1.5 rounded-[5px] px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted hover:bg-surface-2 hover:text-foreground"
+                className="flex items-center gap-1.5 rounded-[5px] px-2 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted hover:bg-surface-2 hover:text-foreground"
                 aria-label="Sign out"
                 title="Sign out"
               >

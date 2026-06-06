@@ -126,7 +126,7 @@ export default async function BankPage() {
                       }`}
                     />
                     <h2
-                      className={`text-[11px] font-semibold uppercase tracking-[0.22em] ${
+                      className={`text-[11px] font-bold uppercase tracking-[0.22em] ${
                         subject === UNGROUPED
                           ? "text-muted"
                           : "text-foreground-dim"
@@ -152,7 +152,7 @@ export default async function BankPage() {
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium text-foreground">
+                          <div className="truncate text-sm font-bold text-foreground">
                             {r.name}
                           </div>
                           <div className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-[0.16em] text-muted">

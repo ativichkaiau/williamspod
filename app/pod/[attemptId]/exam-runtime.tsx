@@ -747,7 +747,7 @@ function Stat({
 }) {
   return (
     <div className="flex flex-col items-end leading-tight">
-      <span className="text-[9px] uppercase tracking-[0.18em] text-muted">{label}</span>
+      <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted">{label}</span>
       <span
         className={cn(
           "mt-0.5 digit text-sm",
@@ -777,7 +777,7 @@ function Spec({
         : "text-foreground";
   return (
     <li className="flex items-center justify-between border-b border-border/60 pb-2.5 last:border-0 last:pb-0">
-      <span className="text-[11px] uppercase tracking-[0.18em] text-muted">
+      <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted">
         {label}
       </span>
       <span className={cn("font-mono text-sm tabular", color)}>{value}</span>
@@ -796,7 +796,7 @@ function Tile({
 }) {
   return (
     <div className="rounded-md border border-border bg-surface-2 p-3 text-left">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted">
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
         {label}
       </div>
       <div
@@ -832,7 +832,7 @@ function QuestionView({
     <article key={question.id} className="panel p-7 pop-in">
       <div className="flex items-center justify-between border-b border-border/70 pb-4">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted">
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-muted">
             Question
           </span>
           <span className="digit text-lg text-foreground">
@@ -858,7 +858,7 @@ function QuestionView({
       </div>
       <QuestionContent
         content={question.stem}
-        className="mt-5 text-[16px] leading-relaxed text-foreground"
+        className="mt-5 text-[16px] font-semibold leading-relaxed text-foreground"
       />
       <ul className="mt-7 space-y-2.5">
         {question.displayChoices.map((c, i) => {
@@ -887,7 +887,9 @@ function QuestionView({
                 <span
                   className={cn(
                     "text-[14.5px] leading-relaxed",
-                    selected ? "text-foreground" : "text-foreground-dim",
+                    selected
+                      ? "font-semibold text-foreground"
+                      : "font-medium text-foreground-dim",
                   )}
                 >
                   {c}

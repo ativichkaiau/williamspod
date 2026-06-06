@@ -101,7 +101,7 @@ export default async function RunsHubPage() {
                           })}
                         </span>
                         {a.label && (
-                          <span className="text-foreground">{a.label}</span>
+                          <span className="font-bold text-foreground">{a.label}</span>
                         )}
                         {!submitted && <Badge tone="warn">In progress</Badge>}
                         {a.aborted && <Badge tone="bad">Aborted</Badge>}
@@ -120,7 +120,7 @@ export default async function RunsHubPage() {
                       </div>
                     </div>
                     <div className="w-20 text-right">
-                      <div className={`digit text-base ${scoreColor}`}>{score}</div>
+                      <div className={`digit text-base font-bold ${scoreColor}`}>{score}</div>
                       {scorePct != null && (
                         <div className="font-mono text-[10px] tabular text-muted">
                           {scorePct}%

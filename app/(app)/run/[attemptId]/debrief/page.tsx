@@ -304,7 +304,7 @@ function BigTile({
           : "text-foreground";
   return (
     <div className="panel-flat p-4">
-      <div className="text-[10px] uppercase tracking-[0.18em] text-muted">
+      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
         {label}
       </div>
       <div className="mt-1 flex items-baseline gap-1.5">
@@ -390,7 +390,7 @@ function SectorBars({
           <li key={r.key} className="space-y-1.5">
             <div className="flex items-center justify-between gap-2 text-sm">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate text-foreground">{r.name}</span>
+                <span className="truncate font-bold text-foreground">{r.name}</span>
                 {isWeak && <Badge tone="bad">weakest</Badge>}
               </div>
               <div className="flex shrink-0 items-baseline gap-2 text-xs">
@@ -442,7 +442,7 @@ function WeakestCard({
       <p className="mt-3 text-xl font-semibold text-foreground">{name}</p>
       <div className="mt-1 flex items-baseline gap-2">
         <span className="digit text-2xl text-bad">{pct}%</span>
-        <span className="font-mono text-xs tabular text-muted">
+        <span className="font-mono text-xs font-semibold tabular text-muted">
           {correct}/{total}
         </span>
       </div>
@@ -469,7 +469,7 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
       </div>
       <QuestionContent
         content={q.stem}
-        className="mt-4 text-[15px] leading-relaxed text-foreground"
+        className="mt-4 text-[15px] font-semibold leading-relaxed text-foreground"
         imageClassName="max-w-3xl"
       />
       <ul className="mt-4 space-y-1.5 text-sm">
@@ -491,7 +491,15 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
               <span className="mt-0.5 w-5 font-mono tabular text-[11px]">
                 {LETTERS[i]}.
               </span>
-              <span className="flex-1 text-foreground-dim">{c}</span>
+              <span
+                className={`flex-1 ${
+                  isCorrect || isPicked
+                    ? "font-semibold text-foreground"
+                    : "font-medium text-foreground-dim"
+                }`}
+              >
+                {c}
+              </span>
               {isCorrect && (
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-good">
                   correct

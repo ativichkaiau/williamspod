@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { WilliamsPodMark } from "@/components/brand/williamspod-logo";
 import {
   Gauge,
   BookOpen,
@@ -44,14 +45,14 @@ export function AppShell({
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-2 px-4 sm:gap-4">
           <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-[0_8px_16px_-6px_var(--brand-soft),inset_0_2px_2px_-1px_rgba(255,255,255,0.45),inset_0_-4px_8px_-4px_rgba(0,0,0,0.28)]">
-              <span className="text-base font-black leading-none">V</span>
-            </div>
-            <span className="hidden text-[15px] font-black tracking-tight text-foreground sm:inline">
-              VESTRIPPN<span className="text-brand">3.0</span>
+            <WilliamsPodMark size="md" />
+            <span className="hidden text-[15px] font-black italic tracking-tight text-foreground sm:inline">
+              Williams<span className="text-signal">Pod</span>
             </span>
-            <span className="hidden items-center rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-strong shadow-[var(--clay-chip)] md:inline-flex">
-              WilliamsPod
+            <span className="hidden items-center gap-1 rounded-full bg-surface-2 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] shadow-[var(--clay-chip)] lg:inline-flex">
+              <span className="text-muted">by</span>
+              <span className="text-foreground">VESTRIPPN</span>
+              <span className="text-brand">3.0</span>
             </span>
           </Link>
           <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

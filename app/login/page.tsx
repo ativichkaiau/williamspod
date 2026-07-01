@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
+import { BrandLockup } from "@/components/brand/williamspod-logo";
 
 export const metadata = { title: "WilliamsPod — Auth" };
 
@@ -10,19 +11,7 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-signal/8 blur-3xl" />
 
       <div className="relative w-full max-w-md pop-in">
-        <div className="mb-8 flex items-center justify-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-signal/40 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.25),0_0_24px_-4px_rgba(45,212,241,0.6)]">
-            <span className="font-mono text-xs font-bold tracking-[0.2em]">WP</span>
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="text-xs font-semibold uppercase tracking-[0.24em] text-foreground">
-              Williams<span className="text-signal">Pod</span>
-            </span>
-            <span className="mt-0.5 text-[9px] uppercase tracking-[0.24em] text-muted">
-              authorization required
-            </span>
-          </div>
-        </div>
+        <BrandLockup className="mb-8" />
 
         <div className="panel-deep p-8">
           <div className="mb-6 flex items-center justify-between">

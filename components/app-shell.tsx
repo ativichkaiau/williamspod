@@ -42,19 +42,17 @@ export function AppShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4 sm:gap-8">
-          <Link href="/" className="group flex items-center gap-2.5">
-            <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-signal/10 text-signal shadow-[0_6px_14px_-6px_rgba(45,212,241,0.6),inset_0_1px_1px_0_rgba(255,255,255,0.25),inset_0_-3px_6px_-3px_rgba(0,0,0,0.4)]">
-              <span className="font-mono text-[10px] font-bold tracking-[0.18em]">WP</span>
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-2 px-4 sm:gap-4">
+          <Link href="/" className="group flex shrink-0 items-center gap-2.5">
+            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-[0_8px_16px_-6px_var(--brand-soft),inset_0_2px_2px_-1px_rgba(255,255,255,0.45),inset_0_-4px_8px_-4px_rgba(0,0,0,0.28)]">
+              <span className="text-base font-black leading-none">V</span>
             </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[11px] font-bold uppercase tracking-[0.22em] text-foreground">
-                Williams<span className="text-signal">Pod</span>
-              </span>
-              <span className="mt-0.5 text-[9px] uppercase tracking-[0.22em] text-muted">
-                exam telemetry
-              </span>
-            </div>
+            <span className="hidden text-[15px] font-black tracking-tight text-foreground sm:inline">
+              VESTRIPPN<span className="text-brand">3.0</span>
+            </span>
+            <span className="hidden items-center rounded-full bg-surface-2 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-strong shadow-[var(--clay-chip)] md:inline-flex">
+              WilliamsPod
+            </span>
           </Link>
           <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {links.map(({ href, label, icon: Icon }) => {
@@ -65,7 +63,7 @@ export function AppShell({
                   key={href}
                   href={href}
                   className={cn(
-                    "relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all",
+                    "relative flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] transition-all",
                     active
                       ? "bg-surface-2 text-foreground shadow-[var(--clay-chip)]"
                       : "text-muted hover:bg-surface-2/60 hover:text-foreground-dim",
@@ -80,13 +78,17 @@ export function AppShell({
               );
             })}
           </nav>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-muted xl:inline">
+              Mode
+            </span>
+            <ThemeToggle labeled />
+            <span className="mx-0.5 hidden h-5 w-px bg-border sm:inline-block" />
             <div className="hidden items-center gap-2 sm:flex">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-[11px] font-bold text-foreground shadow-[var(--clay-chip)]">
                 {initial}
               </div>
-              <div className="flex flex-col leading-none">
+              <div className="hidden flex-col leading-none xl:flex">
                 <span className="text-[11px] font-bold tracking-tight text-foreground">
                   {user.name}
                 </span>

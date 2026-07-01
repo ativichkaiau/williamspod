@@ -1,131 +1,155 @@
 @import "tailwindcss";
 
 /*
- * WilliamsPod — telemetry instrument cluster.
- * Layered surfaces with subtle inset highlights, Williams cyan
- * for signal, academic-clean typography. Night by default, day on demand.
+ * WilliamsPod — instrument clay.
+ * Soft, puffy claymorphic surfaces (dual inner light/shadow + soft outer lift,
+ * chunky radii) hosting glowing cyan telemetry readouts. Night by default,
+ * day on demand. Premium soft-touch cockpit — not a childish quiz app.
  */
 
 :root, :root.dark {
   color-scheme: dark;
 
-  /* Background stack — three layers, each slightly lifted */
-  --background: #050709;
-  --background-tint: #07090c;
-  --surface: #0e1217;
-  --surface-2: #161b22;
-  --surface-3: #1c222b;
+  /* Background stack — deep soft navy so clay panels lift off it */
+  --background: #070b11;
+  --background-tint: #0a0f16;
+  --surface: #121822;
+  --surface-2: #1a212d;
+  --surface-3: #232c3a;
 
-  /* Borders / dividers */
-  --border: #1e242c;
-  --border-strong: #2a323c;
-  --border-bright: #3a4452;
+  /* Borders / dividers (mostly hairlines — clay shadows define most edges) */
+  --border: #212a37;
+  --border-strong: #2c3746;
+  --border-bright: #3d4a5c;
 
   /* Text */
-  --foreground: #e8ecf1;
-  --foreground-dim: #b6bcc4;
-  --muted: #7c848d;
-  --muted-strong: #9aa3ad;
+  --foreground: #e9edf3;
+  --foreground-dim: #b4bcc8;
+  --muted: #7b8593;
+  --muted-strong: #99a4b3;
 
-  /* Brand — Williams cyan, with a hotter highlight */
+  /* Brand — Williams cyan */
   --signal: #2dd4f1;
-  --signal-strong: #00b8da;
-  --signal-soft: rgba(45, 212, 241, 0.12);
-  --signal-glow: 0 0 0 1px rgba(45, 212, 241, 0.35), 0 0 24px -6px rgba(45, 212, 241, 0.6);
+  --signal-strong: #12bcdc;
+  --signal-soft: rgba(45, 212, 241, 0.14);
+  --signal-glow: 0 0 0 1px rgba(45, 212, 241, 0.35), 0 0 26px -6px rgba(45, 212, 241, 0.65);
 
   /* Status */
   --good: #4ec27f;
-  --good-soft: rgba(78, 194, 127, 0.12);
+  --good-soft: rgba(78, 194, 127, 0.14);
   --warn: #e9b033;
-  --warn-soft: rgba(233, 176, 51, 0.12);
+  --warn-soft: rgba(233, 176, 51, 0.14);
   --bad: #ef5350;
-  --bad-soft: rgba(239, 83, 80, 0.12);
+  --bad-soft: rgba(239, 83, 80, 0.14);
 
   /* Instrument grid */
-  --grid: rgba(255, 255, 255, 0.025);
-  --grid-strong: rgba(255, 255, 255, 0.06);
+  --grid: rgba(255, 255, 255, 0.022);
+  --grid-strong: rgba(255, 255, 255, 0.05);
   --scanline: rgba(255, 255, 255, 0.012);
 
   /* Ambient light */
-  --ambient-top: rgba(45, 212, 241, 0.04);
-  --ambient-bottom: rgba(45, 212, 241, 0.025);
+  --ambient-top: rgba(45, 212, 241, 0.055);
+  --ambient-bottom: rgba(45, 212, 241, 0.03);
 
-  /* Inset highlight (top edge catching light) */
-  --inset-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
-  --inset-bottom: inset 0 -1px 0 0 rgba(0, 0, 0, 0.4);
-  --panel-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.4);
-  --panel-deep-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.025);
-  --panel-deep-inner: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
-  --panel-deep-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  /* ---- Claymorphism shadow recipes ---- */
+  /* Raised puffy surface: crisp contact + soft lift + inner top light + inner bottom depth */
+  --clay-raised:
+    0 1px 1px 0 rgba(0, 0, 0, 0.5),
+    0 18px 34px -16px rgba(0, 0, 0, 0.8),
+    inset 0 2px 3px -1px rgba(255, 255, 255, 0.07),
+    inset 0 -16px 26px -18px rgba(0, 0, 0, 0.6);
+  --clay-raised-hover:
+    0 1px 1px 0 rgba(0, 0, 0, 0.5),
+    0 26px 46px -18px rgba(0, 0, 0, 0.85),
+    inset 0 2px 4px -1px rgba(255, 255, 255, 0.09),
+    inset 0 -16px 26px -18px rgba(0, 0, 0, 0.6);
+  /* Deep / hero surface: recessed base with a stronger lift */
+  --clay-deep:
+    0 2px 2px 0 rgba(0, 0, 0, 0.55),
+    0 30px 60px -24px rgba(0, 0, 0, 0.9),
+    inset 0 3px 5px -2px rgba(255, 255, 255, 0.06),
+    inset 0 -20px 40px -24px rgba(0, 0, 0, 0.65);
+  /* Pressed-in well (inputs, tracks) */
+  --clay-inset:
+    inset 0 2px 6px 0 rgba(0, 0, 0, 0.6),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.04);
+  /* Small pill / chip lift */
+  --clay-chip:
+    0 4px 10px -6px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -3px 6px -4px rgba(0, 0, 0, 0.5);
+  --clay-border: rgba(255, 255, 255, 0.04);
+
   --focus-ring: rgba(45, 212, 241, 0.55);
-  --dot-ring: rgba(0, 0, 0, 0.4);
-
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --dot-ring: rgba(0, 0, 0, 0.5);
 }
 
 :root.light {
   color-scheme: light;
 
-  /* Background stack — high contrast without losing the instrument feel */
-  --background: #f6f8fb;
-  --background-tint: #eef3f8;
-  --surface: #ffffff;
-  --surface-2: #edf2f7;
-  --surface-3: #e2e9f1;
+  /* Soft off-white with a faint cool cast — classic clay canvas */
+  --background: #eef1f7;
+  --background-tint: #e7ebf3;
+  --surface: #fbfcfe;
+  --surface-2: #eef1f7;
+  --surface-3: #e3e8f1;
 
-  /* Borders / dividers */
-  --border: #d4dde8;
-  --border-strong: #bcc9d8;
-  --border-bright: #8fa3b8;
+  --border: #dbe2ec;
+  --border-strong: #c4cedb;
+  --border-bright: #9aa9bd;
 
-  /* Text */
-  --foreground: #15202b;
-  --foreground-dim: #405062;
-  --muted: #647386;
-  --muted-strong: #465668;
+  --foreground: #1a232f;
+  --foreground-dim: #445264;
+  --muted: #697687;
+  --muted-strong: #4a5869;
 
-  /* Brand — daylight cyan tuned for white surfaces */
-  --signal: #007a99;
-  --signal-strong: #006680;
-  --signal-soft: rgba(0, 122, 153, 0.12);
-  --signal-glow: 0 0 0 1px rgba(0, 122, 153, 0.28), 0 0 18px -8px rgba(0, 122, 153, 0.45);
+  /* Daylight teal tuned for soft surfaces */
+  --signal: #0891b2;
+  --signal-strong: #0e7490;
+  --signal-soft: rgba(8, 145, 178, 0.14);
+  --signal-glow: 0 0 0 1px rgba(8, 145, 178, 0.28), 0 0 20px -8px rgba(8, 145, 178, 0.5);
 
-  /* Status */
-  --good: #207a4a;
-  --good-soft: rgba(32, 122, 74, 0.12);
-  --warn: #9a6a00;
-  --warn-soft: rgba(154, 106, 0, 0.12);
-  --bad: #bd2f2a;
-  --bad-soft: rgba(189, 47, 42, 0.12);
+  --good: #1f9d57;
+  --good-soft: rgba(31, 157, 87, 0.14);
+  --warn: #b07400;
+  --warn-soft: rgba(176, 116, 0, 0.14);
+  --bad: #d23f39;
+  --bad-soft: rgba(210, 63, 57, 0.14);
 
-  /* Instrument grid */
-  --grid: rgba(21, 32, 43, 0.045);
-  --grid-strong: rgba(21, 32, 43, 0.085);
-  --scanline: rgba(21, 32, 43, 0.022);
+  --grid: rgba(26, 35, 47, 0.04);
+  --grid-strong: rgba(26, 35, 47, 0.075);
+  --scanline: rgba(26, 35, 47, 0.02);
 
-  /* Ambient light */
-  --ambient-top: rgba(0, 122, 153, 0.08);
-  --ambient-bottom: rgba(32, 122, 74, 0.045);
+  --ambient-top: rgba(8, 145, 178, 0.08);
+  --ambient-bottom: rgba(31, 157, 87, 0.05);
 
-  /* Inset highlight (top edge catching light) */
-  --inset-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  --inset-bottom: inset 0 -1px 0 0 rgba(21, 32, 43, 0.08);
-  --panel-shadow: 0 1px 2px 0 rgba(16, 24, 40, 0.06);
-  --panel-deep-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.75);
-  --panel-deep-inner: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
-  --panel-deep-shadow: 0 10px 28px -18px rgba(21, 32, 43, 0.35);
-  --focus-ring: rgba(0, 122, 153, 0.35);
+  /* ---- Claymorphism (light): soft pastel puff, bright top highlight ---- */
+  --clay-raised:
+    0 1px 1px 0 rgba(70, 90, 130, 0.05),
+    0 20px 38px -18px rgba(70, 90, 130, 0.34),
+    inset 0 3px 5px -1px rgba(255, 255, 255, 0.95),
+    inset 0 -14px 24px -16px rgba(70, 90, 130, 0.16);
+  --clay-raised-hover:
+    0 1px 1px 0 rgba(70, 90, 130, 0.05),
+    0 28px 50px -20px rgba(70, 90, 130, 0.4),
+    inset 0 3px 6px -1px rgba(255, 255, 255, 1),
+    inset 0 -14px 24px -16px rgba(70, 90, 130, 0.16);
+  --clay-deep:
+    0 2px 2px 0 rgba(70, 90, 130, 0.06),
+    0 34px 64px -26px rgba(70, 90, 130, 0.42),
+    inset 0 4px 6px -2px rgba(255, 255, 255, 0.95),
+    inset 0 -18px 32px -22px rgba(70, 90, 130, 0.18);
+  --clay-inset:
+    inset 0 3px 7px 0 rgba(70, 90, 130, 0.2),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.85);
+  --clay-chip:
+    0 6px 12px -8px rgba(70, 90, 130, 0.4),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -3px 6px -4px rgba(70, 90, 130, 0.14);
+  --clay-border: rgba(255, 255, 255, 0.6);
+
+  --focus-ring: rgba(8, 145, 178, 0.4);
   --dot-ring: rgba(255, 255, 255, 0.9);
-
-  --radius-xs: 2px;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
 }
 
 @theme inline {
@@ -150,6 +174,14 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-geist-sans);
+
+  /* Chunky clay radius scale — drives Tailwind rounded-* utilities too */
+  --radius-xs: 5px;
+  --radius-sm: 9px;
+  --radius-md: 13px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
 }
 
 html, body {
@@ -202,27 +234,31 @@ body {
   );
 }
 
-/* Instrument panel surface treatment */
+/* ---- Claymorphic surfaces ---- */
 .panel {
-  background: linear-gradient(180deg, var(--surface) 0%, var(--background-tint) 100%);
-  border: 1px solid var(--border);
-  box-shadow: var(--inset-top), var(--inset-bottom), var(--panel-shadow);
+  background: var(--surface);
+  border: 1px solid var(--clay-border);
+  box-shadow: var(--clay-raised);
   border-radius: var(--radius-lg);
 }
 .panel-flat {
   background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: var(--inset-top);
+  border: 1px solid var(--clay-border);
+  box-shadow: var(--clay-chip);
   border-radius: var(--radius-lg);
 }
 .panel-deep {
-  background: linear-gradient(180deg, var(--background-tint) 0%, var(--background) 100%);
-  border: 1px solid var(--border-strong);
-  box-shadow:
-    var(--panel-deep-top),
-    var(--panel-deep-inner),
-    var(--panel-deep-shadow);
-  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--background-tint) 120%);
+  border: 1px solid var(--clay-border);
+  box-shadow: var(--clay-deep);
+  border-radius: var(--radius-xl);
+}
+
+/* Pressed-in well (inputs, progress tracks, code blocks) */
+.clay-inset {
+  background: var(--background-tint);
+  box-shadow: var(--clay-inset);
+  border-radius: var(--radius-md);
 }
 
 /* Display numerics — used for big timer / score */
@@ -234,18 +270,17 @@ body {
   letter-spacing: 0;
 }
 
-/* Subtle hover lift on interactive panels */
+/* Puffy hover lift on interactive panels */
 .panel-hover {
-  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease,
-    box-shadow 160ms ease;
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease;
 }
 .panel-hover:hover {
-  border-color: var(--border-bright);
-  background-color: var(--surface-2);
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  box-shadow: var(--clay-raised-hover);
 }
 .panel-hover:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(0.995);
+  box-shadow: var(--clay-inset);
 }
 
 /* Focus ring */
@@ -287,10 +322,10 @@ body {
 
 /* Subtle pop-in animation */
 @keyframes pop-in {
-  0% { opacity: 0; transform: translateY(4px); }
+  0% { opacity: 0; transform: translateY(6px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-.pop-in { animation: pop-in 240ms ease-out both; }
+.pop-in { animation: pop-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 /* Sweep-in for bars */
 @keyframes bar-sweep {
@@ -313,11 +348,11 @@ body {
 /* Top status strip indicator dot */
 .dot {
   display: inline-block;
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 0 2px var(--dot-ring), 0 0 8px 0 currentColor;
+  box-shadow: 0 0 0 2px var(--dot-ring), 0 0 10px 0 currentColor;
 }
 
 /* Section eyebrow */
@@ -333,13 +368,13 @@ body {
 .display-xl {
   font-size: 2.35rem;
   line-height: 1.05;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
   font-weight: 700;
 }
 .display-lg {
   font-size: 2rem;
   line-height: 1.05;
-  letter-spacing: 0;
+  letter-spacing: -0.01em;
   font-weight: 700;
 }
 
@@ -347,11 +382,11 @@ body {
 .smooth { scroll-behavior: smooth; }
 
 /* Scrollbar treatment */
-::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar { width: 12px; height: 12px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
-  border-radius: 6px;
-  border: 2px solid var(--background);
+  border-radius: 999px;
+  border: 3px solid var(--background);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }

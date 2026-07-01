@@ -13,7 +13,7 @@ function variantClass(v: CardVariant | undefined) {
       return "panel-flat";
     case "default":
     default:
-      return "rounded-lg border border-border bg-surface text-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.025)]";
+      return "panel text-foreground";
   }
 }
 

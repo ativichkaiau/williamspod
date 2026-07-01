@@ -44,7 +44,7 @@ export function AppShell({
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4 sm:gap-8">
           <Link href="/" className="group flex items-center gap-2.5">
-            <div className="relative flex h-7 w-7 items-center justify-center rounded-[5px] border border-signal/40 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.25),0_0_12px_-4px_rgba(45,212,241,0.6)]">
+            <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-signal/10 text-signal shadow-[0_6px_14px_-6px_rgba(45,212,241,0.6),inset_0_1px_1px_0_rgba(255,255,255,0.25),inset_0_-3px_6px_-3px_rgba(0,0,0,0.4)]">
               <span className="font-mono text-[10px] font-bold tracking-[0.18em]">WP</span>
             </div>
             <div className="flex flex-col leading-none">
@@ -65,16 +65,16 @@ export function AppShell({
                   key={href}
                   href={href}
                   className={cn(
-                    "relative flex shrink-0 items-center gap-1.5 rounded-[5px] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] transition-colors",
+                    "relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] transition-all",
                     active
-                      ? "text-foreground"
-                      : "text-muted hover:bg-surface-2 hover:text-foreground-dim",
+                      ? "bg-surface-2 text-foreground shadow-[var(--clay-chip)]"
+                      : "text-muted hover:bg-surface-2/60 hover:text-foreground-dim",
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {label}
                   {active && (
-                    <span className="pointer-events-none absolute inset-x-2 -bottom-[15px] h-[2px] rounded-full bg-signal shadow-[0_0_8px_0_rgba(45,212,241,0.6)]" />
+                    <span className="pointer-events-none absolute -bottom-[7px] left-1/2 h-[3px] w-4 -translate-x-1/2 rounded-full bg-signal shadow-[0_0_10px_0_rgba(45,212,241,0.7)]" />
                   )}
                 </Link>
               );
@@ -83,7 +83,7 @@ export function AppShell({
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <div className="hidden items-center gap-2 sm:flex">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-border-strong bg-surface-2 text-[11px] font-semibold text-foreground">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-[11px] font-bold text-foreground shadow-[var(--clay-chip)]">
                 {initial}
               </div>
               <div className="flex flex-col leading-none">
@@ -98,7 +98,7 @@ export function AppShell({
             <form action="/api/auth/logout" method="post">
               <button
                 type="submit"
-                className="flex items-center gap-1.5 rounded-[5px] px-2 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted hover:bg-surface-2 hover:text-foreground"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
                 aria-label="Sign out"
                 title="Sign out"
               >

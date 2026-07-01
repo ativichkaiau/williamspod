@@ -50,7 +50,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     <button
       type="button"
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-[5px] border border-border bg-surface-2 text-muted transition-colors hover:border-border-bright hover:text-foreground",
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted shadow-[var(--clay-chip)] transition-all hover:text-foreground active:shadow-[var(--clay-inset)]",
         className,
       )}
       aria-label={theme === "dark" ? "Switch to day mode" : "Switch to night mode"}

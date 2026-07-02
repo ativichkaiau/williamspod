@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react";
 import { LectureToolbar } from "./toolbar";
 import { QuestionEditor } from "./question-editor";
 import { requireUser } from "@/lib/auth";
+import { subjectHref, subjectLabel } from "@/lib/bank";
 
 export const dynamic = "force-dynamic";
 
@@ -30,10 +31,10 @@ export default async function LecturePage(
   return (
     <div className="space-y-8">
       <Link
-        href="/bank"
-        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
+        href={subjectHref(lec.subject)}
+        className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.18em] text-muted transition-colors hover:text-foreground"
       >
-        <ChevronLeft className="h-3 w-3" /> Bank
+        <ChevronLeft className="h-3 w-3" /> {subjectLabel(lec.subject)}
       </Link>
 
       <header className="flex flex-wrap items-end justify-between gap-3">

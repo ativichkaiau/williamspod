@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { WilliamsPodMark } from "@/components/brand/williamspod-logo";
+import { WilliamsPodLogo } from "@/components/brand/williamspod-logo";
 import {
   Gauge,
   BookOpen,
@@ -43,16 +43,17 @@ export function AppShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-2 px-4 sm:gap-4">
-          <Link href="/" className="group flex shrink-0 items-center gap-2.5">
-            <WilliamsPodMark size="md" />
-            <span className="hidden text-[15px] font-black italic tracking-tight text-foreground sm:inline">
-              Williams<span className="text-signal">Pod</span>
-            </span>
-            <span className="hidden items-center gap-1 rounded-full bg-surface-2 px-2 py-1 text-[9px] font-black uppercase tracking-[0.12em] shadow-[var(--clay-chip)] lg:inline-flex">
-              <span className="text-muted">by</span>
-              <span className="text-foreground">VESTRIPPN</span>
+        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-4">
+          <Link href="/" className="group flex shrink-0 items-center gap-3">
+            <WilliamsPodLogo
+              size="md"
+              subtitle="Study Pod"
+              wordmarkClassName="hidden sm:flex"
+            />
+            <span className="hidden items-center rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted-strong shadow-[var(--clay-chip)] lg:inline-flex">
+              <span>VESTRIPPN</span>
               <span className="text-brand">3.0</span>
+              <span>&nbsp;· M-8</span>
             </span>
           </Link>
           <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

@@ -1,34 +1,22 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Original WilliamsPod brand marks. Motorsport-flavored: bold, angular,
- * forward-leaning geometry. This is our own design — not a reproduction of any
- * existing team's trademarked logo — evoking the general race-livery aesthetic.
- */
-
-/**
- * The "W" mark: an original angular double-chevron with a tall, sharp centre
- * peak and a slight forward rake, cut from clean geometry. Uses currentColor.
- */
+/** Shared Williams family mark used by WilliamsHub and WilliamsPod. */
 export function WilliamsWMark({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 160 120"
+      viewBox="0 0 64 58"
       className={className}
-      fill="currentColor"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <g transform="skewX(-9)">
-        {/* Left arm — tapered wedge sweeping down to the first valley */}
-        <path d="M26 12 L48 12 L70 104 L52 104 Z" />
-        {/* Rising stroke to the tall centre peak */}
-        <path d="M52 104 L70 104 L86 40 L74 40 Z" />
-        {/* Falling stroke from the centre peak */}
-        <path d="M74 40 L86 40 L108 104 L90 104 Z" />
-        {/* Right arm — tapered wedge back up to the top */}
-        <path d="M90 104 L108 104 L130 12 L112 12 Z" />
-      </g>
+      <path
+        d="M6 9 L19 49 L32 26 L45 49 L58 9"
+        stroke="currentColor"
+        strokeWidth="9"
+        strokeLinejoin="miter"
+        strokeLinecap="butt"
+      />
     </svg>
   );
 }
@@ -36,20 +24,20 @@ export function WilliamsWMark({ className }: { className?: string }) {
 type Size = "sm" | "md" | "lg" | "xl";
 
 const TILE_SIZE: Record<Size, string> = {
-  sm: "h-8 w-8 rounded-lg",
-  md: "h-9 w-9 rounded-xl",
-  lg: "h-12 w-12 rounded-2xl",
-  xl: "h-16 w-16 rounded-2xl",
+  sm: "h-8 w-8 rounded-[8px]",
+  md: "h-10 w-10 rounded-[10px]",
+  lg: "h-12 w-12 rounded-[12px]",
+  xl: "h-16 w-16 rounded-[16px]",
 };
 const MARK_SIZE: Record<Size, string> = {
-  sm: "h-4 w-4",
-  md: "h-5 w-5",
-  lg: "h-6 w-6",
-  xl: "h-8 w-8",
+  sm: "h-5 w-5",
+  md: "h-6 w-6",
+  lg: "h-7 w-7",
+  xl: "h-10 w-10",
 };
 const WORD_SIZE: Record<Size, string> = {
-  sm: "text-sm",
-  md: "text-base",
+  sm: "text-[15px]",
+  md: "text-[19px]",
   lg: "text-2xl",
   xl: "text-3xl",
 };
@@ -67,7 +55,7 @@ export function WilliamsPodMark({
   return (
     <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center bg-[#1b3bd6] text-white shadow-[0_10px_20px_-8px_rgba(27,59,214,0.7),inset_0_2px_2px_-1px_rgba(255,255,255,0.5),inset_0_-5px_10px_-5px_rgba(0,0,0,0.35)]",
+        "relative flex shrink-0 items-center justify-center bg-[linear-gradient(135deg,#2E5BFF_0%,#0A1A7A_100%)] text-white shadow-[0_8px_18px_-8px_rgba(46,91,255,0.8),inset_0_1px_1px_rgba(255,255,255,0.22)]",
         TILE_SIZE[size],
         className,
       )}
@@ -85,25 +73,28 @@ export function WilliamsPodLogo({
   size = "md",
   subtitle,
   className,
+  wordmarkClassName,
 }: {
   size?: Size;
   subtitle?: string;
   className?: string;
+  wordmarkClassName?: string;
 }) {
   return (
     <span className={cn("flex items-center gap-2.5", className)}>
       <WilliamsPodMark size={size} />
-      <span className="flex flex-col leading-none">
+      <span className={cn("flex flex-col leading-none", wordmarkClassName)}>
         <span
           className={cn(
-            "font-black italic tracking-tight text-foreground",
+            "font-black leading-none text-foreground",
             WORD_SIZE[size],
           )}
         >
-          Williams<span className="text-signal">Pod</span>
+          Williams
+          <span className="text-[#2E5BFF] dark:text-[#7AA0FF]">Pod</span>
         </span>
         {subtitle && (
-          <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.28em] text-muted">
+          <span className="mt-[5px] whitespace-nowrap text-[8.5px] font-bold uppercase leading-none tracking-[0.36em] text-muted">
             {subtitle}
           </span>
         )}

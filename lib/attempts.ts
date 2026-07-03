@@ -6,12 +6,15 @@ import {
   integrityEvents,
   lectures,
   questions,
+  questionVariants,
   type Attempt,
   type AttemptAnswer,
   type Question,
 } from "./db/schema";
 import { uid } from "./utils";
 import { mulberry32, randomSeed, seededShuffle } from "./rng";
+import { resolveEffectiveItems } from "./variations/effective";
+import type { QuestionAngle } from "./variations/types";
 
 export const INTEGRITY_ABORT_THRESHOLD = 2;
 type IntegrityEventKind = typeof integrityEvents.$inferInsert.kind;
@@ -33,6 +36,8 @@ export type CreateAttemptInput = {
   shuffleChoices?: boolean;
   /** When true, shuffle the order of questions. */
   shuffleQuestions?: boolean;
+  /** When true, substitute a concept variant for any question that has one. */
+  useVariants?: boolean;
   /** Optional seed for deterministic replay. Random if omitted. */
   seed?: number;
 };
@@ -44,10 +49,13 @@ export type AttemptSetup = {
     stem: string;
     /** Display-order choices = the strings to render */
     displayChoices: string[];
-    /** Source indices into the original Question.choices array, in display order */
+    /** Source indices into the effective choices array, in display order */
     shownChoices: number[];
     lectureId: string;
     topic: string | null;
+    /** Set when this item is a substituted variant. */
+    variantId?: string | null;
+    angle?: QuestionAngle | null;
   }[];
 };
 
@@ -108,6 +116,46 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
 
   await db.insert(attempts).values(attemptRow);
 
+  // Optionally pick one variant per question (seeded → reproducible).
+  const chosenVariant = new Map<
+    string,
+    { id: string; stem: string; choices: string[]; correctIndex: number; angle: QuestionAngle }
+  >();
+  if (input.useVariants) {
+    const vrows = await db
+      .select()
+      .from(questionVariants)
+      .where(
+        and(
+          inArray(
+            questionVariants.baseQuestionId,
+            ordered.map((q) => q.id),
+          ),
+          isNull(questionVariants.archivedAt),
+        ),
+      );
+    const byBase = new Map<string, typeof vrows>();
+    for (const v of vrows) {
+      const arr = byBase.get(v.baseQuestionId) ?? [];
+      arr.push(v);
+      byBase.set(v.baseQuestionId, arr);
+    }
+    const variantRng = mulberry32(seed ^ 0x85ebca6b);
+    for (const q of ordered) {
+      const options = byBase.get(q.id);
+      if (options && options.length > 0) {
+        const pick = options[Math.floor(variantRng() * options.length)];
+        chosenVariant.set(q.id, {
+          id: pick.id,
+          stem: pick.stem,
+          choices: pick.choices,
+          correctIndex: pick.correctIndex,
+          angle: pick.angle,
+        });
+      }
+    }
+  }
+
   // Derive per-question shown choice permutations using a derived seed so seeds compose deterministically.
   const choiceShuffleSeed = seed ^ 0x9e3779b9;
   const choiceRng = mulberry32(choiceShuffleSeed);
@@ -115,7 +163,12 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
   const setupQuestions: AttemptSetup["questions"] = [];
   for (let i = 0; i < ordered.length; i++) {
     const q = ordered[i];
-    const sourceIndices = q.choices.map((_, idx) => idx);
+    const variant = chosenVariant.get(q.id) ?? null;
+    // The "effective" item that is actually served + graded.
+    const effChoices = variant ? variant.choices : q.choices;
+    const effStem = variant ? variant.stem : q.stem;
+
+    const sourceIndices = effChoices.map((_, idx) => idx);
     let shownChoices: number[];
     if (shuffleC) {
       // Pull n random numbers per question so the sequence is deterministic for this attempt.
@@ -131,7 +184,8 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
     await db.insert(attemptAnswers).values({
       id: uid("ans"),
       attemptId,
-      questionId: q.id,
+      questionId: q.id, // base question — provenance + telemetry
+      variantId: variant?.id ?? null,
       questionOrder: i,
       shownChoices,
       pickedShownIndex: -1,
@@ -142,11 +196,13 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
 
     setupQuestions.push({
       id: q.id,
-      stem: q.stem,
-      displayChoices: shownChoices.map((s) => q.choices[s]),
+      stem: effStem,
+      displayChoices: shownChoices.map((s) => effChoices[s]),
       shownChoices,
       lectureId: q.lectureId,
       topic: q.topic,
+      variantId: variant?.id ?? null,
+      angle: variant?.angle ?? null,
     });
   }
 
@@ -195,30 +251,20 @@ export async function loadAttemptForRuntime(
 
   if (ans.length === 0) return null;
 
-  const qids = ans.map((a) => a.questionId);
-  const qrows = await db.select().from(questions).where(inArray(questions.id, qids));
-  const byId = new Map(qrows.map((q) => [q.id, q] as const));
+  // Resolve each answer to its effective item (variant or base question).
+  const effective = await resolveEffectiveItems(ans);
 
   const setupQuestions: AttemptSetup["questions"] = ans.map((a) => {
-    const q = byId.get(a.questionId);
-    if (!q) {
-      // Orphan — question was deleted. Surface a sensible placeholder.
-      return {
-        id: a.questionId,
-        stem: "[deleted question]",
-        displayChoices: [],
-        shownChoices: a.shownChoices,
-        lectureId: "",
-        topic: null,
-      };
-    }
+    const eff = effective.get(a.id)!;
     return {
-      id: q.id,
-      stem: q.stem,
-      displayChoices: a.shownChoices.map((s) => q.choices[s] ?? ""),
+      id: a.questionId,
+      stem: eff.missing ? "[deleted question]" : eff.stem,
+      displayChoices: a.shownChoices.map((s) => eff.choices[s] ?? ""),
       shownChoices: a.shownChoices,
-      lectureId: q.lectureId,
-      topic: q.topic,
+      lectureId: eff.lectureId,
+      topic: eff.topic,
+      variantId: eff.variantId,
+      angle: eff.angle,
     };
   });
 
@@ -269,23 +315,15 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
     .select()
     .from(attemptAnswers)
     .where(eq(attemptAnswers.attemptId, input.attemptId));
-  const qrows = await db
-    .select()
-    .from(questions)
-    .where(
-      inArray(
-        questions.id,
-        ans.map((a) => a.questionId),
-      ),
-    );
-  const byId = new Map(qrows.map((q) => [q.id, q] as const));
+  // Grade against the EFFECTIVE item (variant when substituted, else base).
+  const effective = await resolveEffectiveItems(ans);
 
   let correct = 0;
   const now = new Date();
 
   for (const a of ans) {
-    const q = byId.get(a.questionId);
-    if (!q) {
+    const eff = effective.get(a.id);
+    if (!eff || eff.missing) {
       await db
         .update(attemptAnswers)
         .set({ isCorrect: false })
@@ -299,7 +337,7 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
         ? -1
         : pickedShown;
     const sourceIndex = picked >= 0 ? a.shownChoices[picked] : -1;
-    const isCorrect = sourceIndex === q.correctIndex;
+    const isCorrect = sourceIndex === eff.correctIndex;
     if (isCorrect) correct++;
     await db
       .update(attemptAnswers)

@@ -43,6 +43,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
   const [maxQuestions, setMaxQuestions] = useState<string>("");
   const [shuffleQuestions, setShuffleQuestions] = useState(true);
   const [shuffleChoices, setShuffleChoices] = useState(true);
+  const [useVariants, setUseVariants] = useState(false);
   const [label, setLabel] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -169,6 +170,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           label: label || undefined,
           shuffleQuestions,
           shuffleChoices,
+          useVariants,
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -452,11 +454,11 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           </div>
         </section>
 
-        {/* ---------- Shuffle ---------- */}
+        {/* ---------- Shuffle & variations ---------- */}
         <section className="panel p-6">
           <div className="mb-4 flex items-center gap-2">
             <Shuffle className="h-3.5 w-3.5 text-signal" />
-            <p className="eyebrow">Shuffling</p>
+            <p className="eyebrow">Anti-memorisation</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Toggle
@@ -469,7 +471,18 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
               onChange={setShuffleChoices}
               label="Shuffle answer choices"
             />
+            <Toggle
+              checked={useVariants}
+              onChange={setUseVariants}
+              label="Use concept variations"
+            />
           </div>
+          <p className="mt-3 text-[11px] leading-relaxed text-muted">
+            With concept variations on, any question that has generated variants
+            is served as a random re-framing of the same concept — so you train
+            the idea, not a memorised stem. Scoring and weak-area telemetry stay
+            tied to the original lecture.
+          </p>
         </section>
 
         {error && (

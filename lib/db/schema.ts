@@ -196,6 +196,12 @@ export const attemptAnswers = sqliteTable(
     questionId: text("question_id")
       .notNull()
       .references(() => questions.id, { onDelete: "cascade" }),
+    // When set, this answer was served as a concept variant of the base
+    // question. Null = the base question itself. The base questionId is always
+    // kept so per-lecture / per-topic telemetry is unaffected.
+    variantId: text("variant_id").references(() => questionVariants.id, {
+      onDelete: "set null",
+    }),
     questionOrder: integer("question_order").notNull(),
     shownChoices: text("shown_choices", { mode: "json" })
       .$type<number[]>()

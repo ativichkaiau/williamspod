@@ -97,9 +97,33 @@ validated against the strict Zod contract before it can be stored.
 Anything not matching (bad shape, `correctIndex` out of range, unknown angle)
 is rejected by `parseAiVariationResponse()` before persistence.
 
+## Live runs
+
+Turn on **"Use concept variations"** in `/run/new` (the Anti-memorisation
+section). When enabled, `createAttempt`:
+
+- for each selected question that has non-archived variants, seed-picks one
+  and serves it **in place of** the base question;
+- stores `attempt_answers.variantId` (the base `questionId` is kept, so
+  per-lecture / per-topic telemetry is unchanged);
+- grades against the **variant's** correct answer.
+
+Everything downstream resolves the "effective" item via
+`lib/variations/effective.ts` (`resolveEffectiveItems`): the runtime serves
+the variant stem/choices, `submitAttempt` grades it, and the debrief's
+wrong-answer review tags it `variant · <angle>` with the "Modified from
+original question bank" label. Attempts with no variant (`variantId = null`)
+behave exactly as before — the whole change is additive.
+
+Migration `0004` adds the nullable `attempt_answers.variant_id` column.
+
 ## Local testing
 
 ```bash
+# 0) End-to-end run test (variant substituted, graded, debriefed) on a throwaway DB.
+DATABASE_URL=file:/tmp/wp-vartest.db npm run db:migrate
+DATABASE_URL=file:/tmp/wp-vartest.db npx tsx scripts/variations-run-test.ts
+
 # 1) Offline pipeline check — validates the example + runs the placeholder.
 npx tsx scripts/variations-demo.ts
 

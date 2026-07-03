@@ -5,10 +5,10 @@ import {
   attemptAnswers,
   integrityEvents,
   lectures,
-  questions,
   type Attempt,
-  type Question,
 } from "./db/schema";
+import { resolveEffectiveItems } from "./variations/effective";
+import { ANGLE_META, type QuestionAngle } from "./variations/types";
 
 export type SectorRow = {
   key: string;
@@ -33,6 +33,9 @@ export type WrongAnswer = {
   lectureName: string | null;
   topic: string | null;
   marked: boolean;
+  /** Provenance when this item was served as a concept variant. */
+  isVariant: boolean;
+  angleLabel: string | null;
 };
 
 export type DebriefData = {
@@ -79,11 +82,17 @@ export async function loadDebrief(
     };
   }
 
-  const qids = ans.map((a) => a.questionId);
-  const qrows = await db.select().from(questions).where(inArray(questions.id, qids));
-  const qById = new Map<string, Question>(qrows.map((q) => [q.id, q] as const));
+  // Resolve each answer to its effective item (variant or base). lectureId /
+  // topic always come from the base question, so sector telemetry is unaffected.
+  const effective = await resolveEffectiveItems(ans);
 
-  const lectureIds = Array.from(new Set(qrows.map((q) => q.lectureId)));
+  const lectureIds = Array.from(
+    new Set(
+      Array.from(effective.values())
+        .map((e) => e.lectureId)
+        .filter((id) => id),
+    ),
+  );
   const lectureRows =
     lectureIds.length > 0
       ? await db.select().from(lectures).where(inArray(lectures.id, lectureIds))
@@ -98,41 +107,46 @@ export async function loadDebrief(
   let unanswered = 0;
 
   for (const a of ans) {
-    const q = qById.get(a.questionId);
+    const eff = effective.get(a.id);
     const isCorrect = a.isCorrect === true;
     if (isCorrect) correct++;
     if (a.pickedShownIndex < 0) unanswered++;
 
-    const lecKey = q?.lectureId ?? "unknown";
-    const lecName = q ? lectureNameById.get(q.lectureId) ?? "Unknown" : "Deleted";
+    const lecKey = eff && !eff.missing ? eff.lectureId : "unknown";
+    const lecName =
+      eff && !eff.missing
+        ? lectureNameById.get(eff.lectureId) ?? "Unknown"
+        : "Deleted";
     const lec = sectorAcc.get(lecKey) ?? { name: lecName, total: 0, correct: 0 };
     lec.total++;
     if (isCorrect) lec.correct++;
     sectorAcc.set(lecKey, lec);
 
-    const topicKey = (q?.topic ?? "Untagged").trim() || "Untagged";
+    const topicKey = (eff?.topic ?? "Untagged").trim() || "Untagged";
     const top = topicAcc.get(topicKey) ?? { name: topicKey, total: 0, correct: 0 };
     top.total++;
     if (isCorrect) top.correct++;
     topicAcc.set(topicKey, top);
 
-    if (!isCorrect && q) {
+    if (!isCorrect && eff && !eff.missing) {
       const sourcePicked =
         a.pickedShownIndex >= 0 && a.pickedShownIndex < a.shownChoices.length
           ? a.shownChoices[a.pickedShownIndex]
           : -1;
       wrong.push({
-        questionId: q.id,
+        questionId: eff.questionId,
         questionOrder: a.questionOrder,
-        stem: q.stem,
-        choices: q.choices,
-        correctIndex: q.correctIndex,
+        stem: eff.stem,
+        choices: eff.choices,
+        correctIndex: eff.correctIndex,
         pickedSourceIndex: sourcePicked,
         shownChoices: a.shownChoices,
-        explanation: q.explanation,
-        lectureName: lectureNameById.get(q.lectureId) ?? null,
-        topic: q.topic,
+        explanation: eff.explanation,
+        lectureName: lectureNameById.get(eff.lectureId) ?? null,
+        topic: eff.topic,
         marked: a.markedForReview,
+        isVariant: !!eff.variantId,
+        angleLabel: eff.angle ? ANGLE_META[eff.angle as QuestionAngle].label : null,
       });
     }
   }

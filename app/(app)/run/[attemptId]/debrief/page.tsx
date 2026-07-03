@@ -464,9 +464,19 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
         </span>
         {q.lectureName && <Badge tone="neutral">{q.lectureName}</Badge>}
         {q.topic && <Badge tone="signal">{q.topic}</Badge>}
+        {q.isVariant && (
+          <Badge tone="signal">
+            variant{q.angleLabel ? ` · ${q.angleLabel}` : ""}
+          </Badge>
+        )}
         {q.marked && <Badge tone="warn">marked</Badge>}
         {picked === -1 && <Badge tone="bad">unanswered</Badge>}
       </div>
+      {q.isVariant && (
+        <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-muted">
+          Modified from original question bank
+        </p>
+      )}
       <QuestionContent
         content={q.stem}
         className="mt-4 text-[15px] font-semibold leading-relaxed text-foreground"

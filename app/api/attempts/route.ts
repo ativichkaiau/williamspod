@@ -14,6 +14,7 @@ const Body = z.object({
   label: z.string().max(120).optional(),
   shuffleChoices: z.boolean().optional(),
   shuffleQuestions: z.boolean().optional(),
+  useVariants: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {

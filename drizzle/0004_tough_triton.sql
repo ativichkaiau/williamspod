@@ -1,0 +1,1 @@
+ALTER TABLE `attempt_answers` ADD `variant_id` text REFERENCES question_variants(id);

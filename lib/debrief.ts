@@ -9,6 +9,12 @@ import {
 } from "./db/schema";
 import { resolveEffectiveItems } from "./variations/effective";
 import { ANGLE_META, type QuestionAngle } from "./variations/types";
+import {
+  listTelemetryForAttempt,
+  summarize,
+  type TelemetrySummary,
+} from "./telemetry/store";
+import type { ErrorType, TimingCategory } from "./telemetry/types";
 
 export type SectorRow = {
   key: string;
@@ -36,6 +42,9 @@ export type WrongAnswer = {
   /** Provenance when this item was served as a concept variant. */
   isVariant: boolean;
   angleLabel: string | null;
+  /** Telemetry classification (present when the run recorded metrics). */
+  timingCategory: TimingCategory | null;
+  errorType: ErrorType | null;
 };
 
 export type DebriefData = {
@@ -53,6 +62,8 @@ export type DebriefData = {
     occurredAt: Date;
     detail: string | null;
   }[];
+  /** Timing + error-classification telemetry (null when the run recorded none). */
+  telemetry: TelemetrySummary | null;
 };
 
 export async function loadDebrief(
@@ -79,12 +90,19 @@ export async function loadDebrief(
       weakestTopic: null,
       wrongAnswers: [],
       integrityTimeline: [],
+      telemetry: null,
     };
   }
 
   // Resolve each answer to its effective item (variant or base). lectureId /
   // topic always come from the base question, so sector telemetry is unaffected.
   const effective = await resolveEffectiveItems(ans);
+
+  // Per-question telemetry classification (timing category + error type).
+  const telemetryRecords = await listTelemetryForAttempt(attemptId);
+  const telByQuestion = new Map(
+    telemetryRecords.map((t) => [t.questionId, t] as const),
+  );
 
   const lectureIds = Array.from(
     new Set(
@@ -147,6 +165,8 @@ export async function loadDebrief(
         marked: a.markedForReview,
         isVariant: !!eff.variantId,
         angleLabel: eff.angle ? ANGLE_META[eff.angle as QuestionAngle].label : null,
+        timingCategory: telByQuestion.get(eff.questionId)?.timingCategory ?? null,
+        errorType: telByQuestion.get(eff.questionId)?.errorType ?? null,
       });
     }
   }
@@ -202,6 +222,7 @@ export async function loadDebrief(
       occurredAt: new Date(e.occurredAt),
       detail: e.detail,
     })),
+    telemetry: telemetryRecords.length > 0 ? summarize(telemetryRecords) : null,
   };
 }
 

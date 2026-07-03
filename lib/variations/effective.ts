@@ -19,6 +19,8 @@ export interface EffectiveItem {
   explanation: string | null;
   lectureId: string;
   topic: string | null;
+  /** Base question difficulty (1-3), for adaptive timing. */
+  difficulty: number | null;
   /** True when the base question no longer exists (deleted). */
   missing: boolean;
 }
@@ -70,6 +72,7 @@ export async function resolveEffectiveItems(
         explanation: variant?.explanation ?? null,
         lectureId: "",
         topic: null,
+        difficulty: null,
         missing: true,
       });
       continue;
@@ -86,6 +89,7 @@ export async function resolveEffectiveItems(
         explanation: variant.explanation,
         lectureId: base.lectureId, // telemetry stays on the base
         topic: base.topic,
+        difficulty: base.difficulty,
         missing: false,
       });
     } else {
@@ -99,6 +103,7 @@ export async function resolveEffectiveItems(
         explanation: base.explanation,
         lectureId: base.lectureId,
         topic: base.topic,
+        difficulty: base.difficulty,
         missing: false,
       });
     }

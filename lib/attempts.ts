@@ -15,6 +15,11 @@ import { uid } from "./utils";
 import { mulberry32, randomSeed, seededShuffle } from "./rng";
 import { resolveEffectiveItems } from "./variations/effective";
 import type { QuestionAngle } from "./variations/types";
+import { computeTiming, inferQuestionType } from "./timing/service";
+import type { QuestionDifficulty, QuestionType } from "./timing/types";
+import { classifyAttempt } from "./telemetry/classify";
+import { saveTelemetry, type TelemetryInsert } from "./telemetry/store";
+import type { ConfidenceLevel } from "./telemetry/types";
 
 export const INTEGRITY_ABORT_THRESHOLD = 2;
 type IntegrityEventKind = typeof integrityEvents.$inferInsert.kind;
@@ -56,6 +61,10 @@ export type AttemptSetup = {
     /** Set when this item is a substituted variant. */
     variantId?: string | null;
     angle?: QuestionAngle | null;
+    /** Cognitive type (variant angle, else inferred from difficulty). */
+    type?: QuestionType;
+    /** Advisory adaptive time budget (seconds). */
+    recommendedSec?: number;
   }[];
 };
 
@@ -194,6 +203,12 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
       timeOnQuestionMs: 0,
     });
 
+    const qType = inferQuestionType(q.difficulty, variant?.angle ?? null);
+    const timing = computeTiming({
+      questionType: qType,
+      difficulty: (q.difficulty as QuestionDifficulty | null) ?? undefined,
+    });
+
     setupQuestions.push({
       id: q.id,
       stem: effStem,
@@ -203,6 +218,8 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
       topic: q.topic,
       variantId: variant?.id ?? null,
       angle: variant?.angle ?? null,
+      type: qType,
+      recommendedSec: timing.recommendedSeconds,
     });
   }
 
@@ -256,6 +273,11 @@ export async function loadAttemptForRuntime(
 
   const setupQuestions: AttemptSetup["questions"] = ans.map((a) => {
     const eff = effective.get(a.id)!;
+    const qType = inferQuestionType(eff.difficulty, eff.angle);
+    const timing = computeTiming({
+      questionType: qType,
+      difficulty: (eff.difficulty as QuestionDifficulty | null) ?? undefined,
+    });
     return {
       id: a.questionId,
       stem: eff.missing ? "[deleted question]" : eff.stem,
@@ -265,6 +287,8 @@ export async function loadAttemptForRuntime(
       topic: eff.topic,
       variantId: eff.variantId,
       angle: eff.angle,
+      type: qType,
+      recommendedSec: timing.recommendedSeconds,
     };
   });
 
@@ -279,6 +303,18 @@ export async function loadAttemptForRuntime(
   };
 }
 
+/** Per-question interaction metrics collected by the runtime (optional). */
+export type SubmitTelemetry = Record<
+  string,
+  {
+    timeTakenMs?: number;
+    clickCount?: number;
+    answerChangeCount?: number;
+    revisitCount?: number;
+    confidence?: number | null;
+  }
+>;
+
 export type SubmitInput = {
   attemptId: string;
   /** Map of questionId → display-order picked index. -1 / undefined = unanswered. */
@@ -287,6 +323,8 @@ export type SubmitInput = {
   timeUsedMs: number;
   aborted?: boolean;
   abortReason?: string | null;
+  /** Per-question metrics keyed by questionId; classified + stored on submit. */
+  telemetry?: SubmitTelemetry;
 };
 
 export type SubmitResult = {
@@ -318,8 +356,25 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
   // Grade against the EFFECTIVE item (variant when substituted, else base).
   const effective = await resolveEffectiveItems(ans);
 
+  // Resolve subject per lecture for telemetry packets.
+  const lectureIds = Array.from(
+    new Set(
+      Array.from(effective.values())
+        .map((e) => e.lectureId)
+        .filter((id) => id),
+    ),
+  );
+  const lecRows = lectureIds.length
+    ? await db
+        .select({ id: lectures.id, subject: lectures.subject })
+        .from(lectures)
+        .where(inArray(lectures.id, lectureIds))
+    : [];
+  const subjectByLecture = new Map(lecRows.map((l) => [l.id, l.subject] as const));
+
   let correct = 0;
   const now = new Date();
+  const telemetryRows: TelemetryInsert[] = [];
 
   for (const a of ans) {
     const eff = effective.get(a.id);
@@ -337,6 +392,7 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
         ? -1
         : pickedShown;
     const sourceIndex = picked >= 0 ? a.shownChoices[picked] : -1;
+    const answered = picked >= 0;
     const isCorrect = sourceIndex === eff.correctIndex;
     if (isCorrect) correct++;
     await db
@@ -347,6 +403,56 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
         isCorrect,
       })
       .where(eq(attemptAnswers.id, a.id));
+
+    // ---- Telemetry classification (when the runtime supplied metrics) ----
+    const m = input.telemetry?.[a.questionId];
+    if (input.telemetry) {
+      const qType = inferQuestionType(eff.difficulty, eff.angle);
+      const expectedMs = computeTiming({
+        questionType: qType,
+        difficulty: (eff.difficulty as QuestionDifficulty | null) ?? undefined,
+      }).recommendedMs;
+      const timeTakenMs = Math.max(0, Math.round(m?.timeTakenMs ?? 0));
+      const confidence = (m?.confidence ?? null) as ConfidenceLevel | null;
+      const cls = classifyAttempt({
+        isCorrect,
+        answered,
+        timeTakenMs,
+        expectedMs,
+        questionType: qType,
+        metrics: {
+          clickCount: m?.clickCount ?? 0,
+          answerChangeCount: m?.answerChangeCount ?? 0,
+          revisitCount: m?.revisitCount ?? 0,
+          confidence,
+        },
+      });
+      telemetryRows.push({
+        attemptId: input.attemptId,
+        userId: attempt.userId,
+        questionId: eff.questionId,
+        originalQuestionId: eff.variantId ? eff.questionId : null,
+        variantId: eff.variantId,
+        lectureId: eff.lectureId || null,
+        subject: subjectByLecture.get(eff.lectureId) ?? null,
+        questionType: qType,
+        selectedIndex: sourceIndex,
+        correctIndex: eff.correctIndex,
+        isCorrect,
+        timeTakenMs,
+        clickCount: m?.clickCount ?? 0,
+        answerChangeCount: m?.answerChangeCount ?? 0,
+        revisitCount: m?.revisitCount ?? 0,
+        confidence: confidence,
+        timingCategory: cls.timingCategory,
+        errorType: cls.errorType,
+        trapType: cls.trapType,
+      });
+    }
+  }
+
+  if (telemetryRows.length > 0) {
+    await saveTelemetry(telemetryRows);
   }
 
   await db

@@ -219,6 +219,59 @@ export const attemptAnswers = sqliteTable(
   ],
 );
 
+// Per-question telemetry — one row per question attempted in a run. Additive:
+// grading still lives on attempt_answers; this captures interaction metrics +
+// derived timing/error classification, and is the packet WilliamsSync forwards.
+export const questionTelemetry = sqliteTable(
+  "question_telemetry",
+  {
+    id: text("id").primaryKey(),
+    attemptId: text("attempt_id")
+      .notNull()
+      .references(() => attempts.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
+    questionId: text("question_id").notNull(),
+    /** Set when the served item was a variant (== questionId of the base). */
+    originalQuestionId: text("original_question_id"),
+    variantId: text("variant_id"),
+    lectureId: text("lecture_id"),
+    subject: text("subject"),
+    questionType: text("question_type").notNull(),
+    selectedIndex: integer("selected_index").notNull().default(-1),
+    correctIndex: integer("correct_index").notNull(),
+    isCorrect: integer("is_correct", { mode: "boolean" }).notNull(),
+    timeTakenMs: integer("time_taken_ms").notNull().default(0),
+    clickCount: integer("click_count").notNull().default(0),
+    answerChangeCount: integer("answer_change_count").notNull().default(0),
+    revisitCount: integer("revisit_count").notNull().default(0),
+    confidence: integer("confidence"),
+    timingCategory: text("timing_category", {
+      enum: ["fast_correct", "slow_correct", "fast_wrong", "slow_wrong"],
+    }),
+    errorType: text("error_type", {
+      enum: [
+        "recall_error",
+        "mechanism_error",
+        "frame_error",
+        "trap_error",
+        "overthinking_error",
+        "timing_error",
+        "confidence_error",
+        "integration_error",
+      ],
+    }),
+    trapType: text("trap_type"),
+    attemptedAt: integer("attempted_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => [
+    index("question_telemetry_attempt_idx").on(t.attemptId),
+    index("question_telemetry_user_idx").on(t.userId),
+    index("question_telemetry_question_idx").on(t.questionId),
+  ],
+);
+
 // Integrity events captured during hard lockdown.
 export const integrityEvents = sqliteTable(
   "integrity_events",
@@ -262,3 +315,5 @@ export type AttemptAnswer = typeof attemptAnswers.$inferSelect;
 export type NewAttemptAnswer = typeof attemptAnswers.$inferInsert;
 export type IntegrityEvent = typeof integrityEvents.$inferSelect;
 export type NewIntegrityEvent = typeof integrityEvents.$inferInsert;
+export type QuestionTelemetryRow = typeof questionTelemetry.$inferSelect;
+export type NewQuestionTelemetryRow = typeof questionTelemetry.$inferInsert;

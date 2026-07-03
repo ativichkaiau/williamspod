@@ -30,6 +30,18 @@ export const QUESTION_ANGLES = [
 
 export type QuestionAngle = (typeof QUESTION_ANGLES)[number];
 
+/**
+ * The preserved concept a base question and all its variants must still test.
+ * Currently carried as the `learningObjective` string on generation responses
+ * and persisted per variant; this named type documents the contract.
+ */
+export interface LearningObjective {
+  /** One-sentence statement of the concept under test. */
+  statement: string;
+  /** Optional short concept tag, e.g. "aortic root → AR". */
+  conceptTag?: string;
+}
+
 /** Human-facing metadata for each angle (labels, blurbs, tone). */
 export const ANGLE_META: Record<
   QuestionAngle,

@@ -15,6 +15,7 @@ import {
   TrendingUp,
   CheckCircle2,
   XCircle,
+  Timer as TimerIcon,
 } from "lucide-react";
 import { WeakAreaRetryButton } from "./retry-actions";
 
@@ -39,6 +40,7 @@ export default async function DebriefPage(
     weakestTopic,
     wrongAnswers,
     integrityTimeline,
+    telemetry,
   } = debrief;
   const weak = selectWeakAreas(debrief);
 
@@ -205,6 +207,58 @@ export default async function DebriefPage(
         </section>
       )}
 
+      {/* ----- TIMING & ERROR TELEMETRY ----- */}
+      {telemetry && (
+        <section className="panel p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <TimerIcon className="h-3.5 w-3.5 text-signal" />
+            <p className="eyebrow">Timing &amp; error telemetry</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-4">
+            <TelemetryTile
+              label="Fast + correct"
+              value={telemetry.byTimingCategory.fast_correct}
+              tone="good"
+            />
+            <TelemetryTile
+              label="Slow + correct"
+              value={telemetry.byTimingCategory.slow_correct}
+              tone="neutral"
+              hint="not yet fluent"
+            />
+            <TelemetryTile
+              label="Fast + wrong"
+              value={telemetry.byTimingCategory.fast_wrong}
+              tone="bad"
+              hint="impulsive / trap"
+            />
+            <TelemetryTile
+              label="Slow + wrong"
+              value={telemetry.byTimingCategory.slow_wrong}
+              tone="bad"
+              hint="weak concept"
+            />
+          </div>
+          {Object.keys(telemetry.byErrorType).length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+                Error mix
+              </span>
+              {Object.entries(telemetry.byErrorType).map(([k, n]) => (
+                <Badge key={k} tone="warn">
+                  {k.replace(/_/g, " ")} · {Number(n)}
+                </Badge>
+              ))}
+            </div>
+          )}
+          <p className="mt-3 text-[11px] leading-relaxed text-muted">
+            Median time {Math.round(telemetry.medianTimeMs / 100) / 10}s per
+            question. These classifications sync to WilliamsHub to build your
+            repair queue.
+          </p>
+        </section>
+      )}
+
       {/* ----- INTEGRITY TIMELINE ----- */}
       {integrityTimeline.length > 0 && (
         <section className="panel p-6">
@@ -282,6 +336,34 @@ export default async function DebriefPage(
 }
 
 // ----------------------------------------------------------------------------
+
+function TelemetryTile({
+  label,
+  value,
+  tone,
+  hint,
+}: {
+  label: string;
+  value: number;
+  tone: "good" | "bad" | "neutral";
+  hint?: string;
+}) {
+  const color =
+    tone === "good" ? "text-good" : tone === "bad" ? "text-bad" : "text-foreground";
+  return (
+    <div className="panel-flat p-3.5">
+      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+        {label}
+      </div>
+      <div className={`mt-1 digit text-2xl ${color}`}>{value}</div>
+      {hint && (
+        <div className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+          {hint}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function BigTile({
   label,
@@ -469,6 +551,12 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
             variant{q.angleLabel ? ` · ${q.angleLabel}` : ""}
           </Badge>
         )}
+        {q.timingCategory && (
+          <Badge tone={q.timingCategory.endsWith("correct") ? "neutral" : "bad"}>
+            {q.timingCategory.replace(/_/g, " ")}
+          </Badge>
+        )}
+        {q.errorType && <Badge tone="warn">{q.errorType.replace(/_/g, " ")}</Badge>}
         {q.marked && <Badge tone="warn">marked</Badge>}
         {picked === -1 && <Badge tone="bad">unanswered</Badge>}
       </div>

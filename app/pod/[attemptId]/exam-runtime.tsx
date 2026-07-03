@@ -26,6 +26,9 @@ type RuntimeQuestion = {
   id: string;
   stem: string;
   displayChoices: string[];
+  /** Advisory adaptive time budget (seconds), or null. */
+  recommendedSec?: number | null;
+  type?: string | null;
 };
 
 type Props = {
@@ -100,6 +103,27 @@ export function ExamRuntime({
   const lastFlushRef = useRef(0);
   const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ---------- Telemetry metrics (per question) ----------
+  type Metrics = {
+    clicks: number;
+    changes: number;
+    revisits: number;
+    timeMs: number;
+  };
+  const metricsRef = useRef<Record<string, Metrics>>({});
+  const enterRef = useRef<{ qid: string; at: number } | null>(null);
+  const visitedRef = useRef<Set<string>>(new Set());
+  const ensureMetrics = useCallback((qid: string): Metrics => {
+    const m = metricsRef.current[qid] ?? {
+      clicks: 0,
+      changes: 0,
+      revisits: 0,
+      timeMs: 0,
+    };
+    metricsRef.current[qid] = m;
+    return m;
+  }, []);
+
   const totalMs = durationMs;
   const elapsedMs = examStartMs ? now - examStartMs : 0;
   const remainingMs = Math.max(0, totalMs - elapsedMs);
@@ -159,6 +183,24 @@ export function ExamRuntime({
       // Force a final flush before computing time.
       if (flushTimerRef.current) clearTimeout(flushTimerRef.current);
       const timeUsedMs = examStartMs ? Date.now() - examStartMs : 0;
+
+      // Snapshot per-question interaction metrics (fold in the open item's time).
+      const telemetry: Record<
+        string,
+        { timeTakenMs: number; clickCount: number; answerChangeCount: number; revisitCount: number }
+      > = {};
+      const openAdd = enterRef.current ? Date.now() - enterRef.current.at : 0;
+      for (const q of questions) {
+        const m = metricsRef.current[q.id];
+        const extra = enterRef.current?.qid === q.id ? openAdd : 0;
+        telemetry[q.id] = {
+          timeTakenMs: (m?.timeMs ?? 0) + extra,
+          clickCount: m?.clicks ?? 0,
+          answerChangeCount: m?.changes ?? 0,
+          revisitCount: m?.revisits ?? 0,
+        };
+      }
+
       try {
         const res = await fetch(`/api/attempts/${attemptId}/submit`, {
           method: "POST",
@@ -167,6 +209,7 @@ export function ExamRuntime({
             picks,
             marked,
             timeUsedMs,
+            telemetry,
             aborted: !!opts?.aborted,
             abortReason: opts?.reason ?? null,
           }),
@@ -353,15 +396,33 @@ export function ExamRuntime({
   // ---------- Answer handlers ----------
   const pick = useCallback(
     (questionId: string, idx: number) => {
+      const m = ensureMetrics(questionId);
+      m.clicks += 1;
       setPicks((p) => {
+        const prev = p[questionId];
+        if (prev != null && prev >= 0 && prev !== idx) m.changes += 1;
         const next = { ...p, [questionId]: idx };
         pendingPicksRef.current = { ...pendingPicksRef.current, [questionId]: idx };
         return next;
       });
       scheduleFlush();
     },
-    [scheduleFlush],
+    [scheduleFlush, ensureMetrics],
   );
+
+  // Accumulate time-on-question and count revisits as the current item changes.
+  useEffect(() => {
+    if (!armed || !cur) return;
+    const qid = cur.id;
+    const m = ensureMetrics(qid);
+    if (visitedRef.current.has(qid)) m.revisits += 1;
+    visitedRef.current.add(qid);
+    const enteredAt = Date.now();
+    enterRef.current = { qid, at: enteredAt };
+    return () => {
+      m.timeMs += Date.now() - enteredAt;
+    };
+  }, [armed, cur, ensureMetrics]);
 
   const toggleMark = useCallback(
     (questionId: string) => {
@@ -535,6 +596,11 @@ export function ExamRuntime({
             question={cur}
             picked={picks[cur.id] ?? -1}
             isMarked={!!marked[cur.id]}
+            questionElapsedSec={Math.floor(
+              ((metricsRef.current[cur.id]?.timeMs ?? 0) +
+                (enterRef.current?.qid === cur.id ? now - enterRef.current.at : 0)) /
+                1000,
+            )}
             onPick={(i) => pick(cur.id, i)}
             onToggleMark={() => toggleMark(cur.id)}
           />
@@ -817,6 +883,7 @@ function QuestionView({
   question,
   picked,
   isMarked,
+  questionElapsedSec,
   onPick,
   onToggleMark,
 }: {
@@ -825,9 +892,13 @@ function QuestionView({
   question: RuntimeQuestion;
   picked: number;
   isMarked: boolean;
+  questionElapsedSec: number;
   onPick: (i: number) => void;
   onToggleMark: () => void;
 }) {
+  const budget = question.recommendedSec ?? null;
+  const over = budget != null && questionElapsedSec > budget;
+  const near = budget != null && !over && questionElapsedSec > budget * 0.75;
   return (
     <article key={question.id} className="panel p-7 pop-in">
       <div className="flex items-center justify-between border-b border-border/70 pb-4">
@@ -841,6 +912,22 @@ function QuestionView({
               /{String(total).padStart(2, "0")}
             </span>
           </span>
+          {budget != null && (
+            <span
+              className={cn(
+                "flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold tabular tracking-[0.06em] shadow-[var(--clay-chip)]",
+                over
+                  ? "bg-bad-soft text-bad"
+                  : near
+                    ? "bg-warn-soft text-warn"
+                    : "bg-surface-2 text-muted",
+              )}
+              title="Advisory time budget for this question type"
+            >
+              <Hourglass className="h-3 w-3" />
+              {questionElapsedSec}s / {budget}s
+            </span>
+          )}
         </div>
         <Button
           size="sm"

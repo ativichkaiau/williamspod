@@ -3,12 +3,21 @@ import { z } from "zod";
 import { findAttemptForUser, submitAttempt } from "@/lib/attempts";
 import { apiAuth } from "@/lib/auth";
 
+const Metrics = z.object({
+  timeTakenMs: z.number().int().min(0).max(24 * 60 * 60 * 1000).optional(),
+  clickCount: z.number().int().min(0).max(1000).optional(),
+  answerChangeCount: z.number().int().min(0).max(1000).optional(),
+  revisitCount: z.number().int().min(0).max(1000).optional(),
+  confidence: z.number().int().min(1).max(5).nullable().optional(),
+});
+
 const Body = z.object({
   picks: z.record(z.string(), z.number().int().min(-1).max(10).nullable()),
   marked: z.record(z.string(), z.boolean()),
   timeUsedMs: z.number().int().min(0),
   aborted: z.boolean().optional(),
   abortReason: z.string().max(200).nullable().optional(),
+  telemetry: z.record(z.string(), Metrics).optional(),
 });
 
 export async function POST(
@@ -36,6 +45,7 @@ export async function POST(
       timeUsedMs: parsed.data.timeUsedMs,
       aborted: parsed.data.aborted,
       abortReason: parsed.data.abortReason,
+      telemetry: parsed.data.telemetry,
     });
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {

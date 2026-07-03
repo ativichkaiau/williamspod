@@ -25,6 +25,8 @@ export default async function PodRuntimePage(
         id: q.id,
         stem: q.stem,
         displayChoices: q.displayChoices,
+        recommendedSec: q.recommendedSec ?? null,
+        type: q.type ?? null,
       }))}
       initialPicks={Object.fromEntries(
         loaded.answers.map((a) => [a.questionId, a.pickedShownIndex]),

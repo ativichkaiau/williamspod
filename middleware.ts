@@ -10,6 +10,9 @@ const PUBLIC_PATHS = [
   "/api/auth/login",
   "/api/auth/signup",
   "/api/auth/check-invite",
+  // WilliamsSync export is token-gated inside the route (not session-gated), so
+  // it must bypass the cookie middleware to be reachable cross-origin.
+  "/api/sync/export",
 ];
 
 function toHex(buf: ArrayBuffer): string {

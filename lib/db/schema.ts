@@ -110,6 +110,50 @@ export const questions = sqliteTable(
   ],
 );
 
+// Question variants — AI-generated re-framings of a base question that test
+// the SAME concept from a different angle. Additive: the base question is never
+// modified. `provider` records how it was produced; provenance is baseQuestionId.
+export const questionVariants = sqliteTable(
+  "question_variants",
+  {
+    id: text("id").primaryKey(),
+    baseQuestionId: text("base_question_id")
+      .notNull()
+      .references(() => questions.id, { onDelete: "cascade" }),
+    angle: text("angle", {
+      enum: [
+        "recall",
+        "mechanism",
+        "clinical_vignette",
+        "physical_exam",
+        "diagnosis",
+        "management",
+        "trap",
+        "integration",
+      ],
+    }).notNull(),
+    difficulty: text("difficulty", {
+      enum: ["easier", "same", "harder"],
+    }).notNull(),
+    stem: text("stem").notNull(),
+    choices: text("choices", { mode: "json" }).$type<string[]>().notNull(),
+    correctIndex: integer("correct_index").notNull(),
+    explanation: text("explanation"),
+    learningObjective: text("learning_objective"),
+    conceptTag: text("concept_tag"),
+    provider: text("provider").notNull(),
+    model: text("model"),
+    createdById: text("created_by_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => [index("question_variants_base_idx").on(t.baseQuestionId)],
+);
+
 // An attempt = one WilliamsPod training run. Now scoped to a user.
 // userId is nullable to allow backfilling legacy single-user data via the
 // setup-admin script; once backfilled all new rows always set it.
@@ -204,6 +248,8 @@ export type Lecture = typeof lectures.$inferSelect;
 export type NewLecture = typeof lectures.$inferInsert;
 export type Question = typeof questions.$inferSelect;
 export type NewQuestion = typeof questions.$inferInsert;
+export type QuestionVariantRow = typeof questionVariants.$inferSelect;
+export type NewQuestionVariantRow = typeof questionVariants.$inferInsert;
 export type Attempt = typeof attempts.$inferSelect;
 export type NewAttempt = typeof attempts.$inferInsert;
 export type AttemptAnswer = typeof attemptAnswers.$inferSelect;

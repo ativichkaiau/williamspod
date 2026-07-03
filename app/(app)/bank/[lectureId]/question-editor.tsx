@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { QuestionContent } from "@/components/question-content";
+import { VariantPanel } from "@/components/variations/variant-panel";
 import { Pencil, X, Save, Trash2, Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -177,6 +178,7 @@ export function QuestionEditor({
                 </Badge>
               )}
             </div>
+            <VariantPanel baseQuestionId={question.id} canManage={canEdit} />
           </div>
           {canEdit && (
             <div className="flex shrink-0 items-center gap-0.5 opacity-50 transition-opacity group-hover:opacity-100">

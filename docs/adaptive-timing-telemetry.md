@@ -2,10 +2,12 @@
 
 The **WilliamsPod Upgrade**: per-question time budgets that adapt to the
 question and the runner, per-question behavioural telemetry, a heuristic error
-classifier, and a clean outbound packet ready to sync to **WilliamsHub** over
-**WilliamsSync**. Everything here is additive — existing attempts, grading, and
-the overall run timer are untouched. Telemetry is only recorded when the runtime
-supplies metrics, so old attempts and API-only submissions still work unchanged.
+classifier, and a clean `PodTelemetryPacket` that syncs to **WilliamsHub** over
+**WilliamsSync** — either **pushed** to a hub ingest URL or **pulled** by the
+hub from a token-gated export. Everything here is additive — existing attempts,
+grading, and the overall run timer are untouched. Telemetry is only recorded
+when the runtime supplies metrics, so old attempts and API-only submissions
+still work unchanged.
 
 > Note on stack: the spec mentioned Postgres/Supabase/Prisma, but WilliamsPod
 > runs on **libSQL (Turso) + Drizzle**. Built on the existing stack (additive,
@@ -32,9 +34,12 @@ lib/timing/service.ts    exam-runtime.tsx tracks, per question:
                                               │
              ┌────────────────────────────────┼─────────────────────────────────┐
              ▼                                                                    ▼
-   /run/[attemptId]/debrief                                    POST /api/williams-sync/pod-telemetry
-   summarize() → timing tiles,                                 buildPodTelemetryPacket()
-   error mix, per-wrong badges                                 enqueuePacket() ─► WilliamsHub (WILLIAMS_SYNC_URL)
+   /run/[attemptId]/debrief                                    buildPodTelemetryPacket()  ── one shared shape
+   summarize() → timing tiles,                                    │
+   error mix, per-wrong badges              PUSH ◄────────────────┴────────────────► PULL
+                                            enqueuePacket()                          GET /api/sync/export
+                                            POST /api/williams-sync/pod-telemetry    (token-gated, CORS)
+                                            ─► WilliamsHub (WILLIAMS_SYNC_URL)        ◄─ WilliamsHub reads
 ```
 
 ## Files
@@ -48,9 +53,13 @@ lib/timing/service.ts    exam-runtime.tsx tracks, per question:
 | `lib/telemetry/store.ts` | `saveTelemetry()` (idempotent), list/summarize helpers, `recentErrorCountsByType()` |
 | `lib/sync/types.ts` | `PodTelemetryPacket` (v1.0), `MistakeClassification`, `QuestionPerformanceSummary`, `RepairRecommendation` |
 | `lib/sync/outbound.ts` | `buildPodTelemetryPacket()`, `enqueuePacket()` (logs by default, POSTs if `WILLIAMS_SYNC_URL` set, never throws) |
+| `lib/sync/exportToken.ts` | per-user export token — `issueExportToken()` / `verifyExportToken()`, HMAC of userId with `WILLIAMSPOD_AUTH_SECRET` (format `exp1.<userId>.<sig>`) |
 | `lib/db/schema.ts` | `question_telemetry` table (+ migration `0005_*`) |
 | `app/api/attempts/[id]/submit/route.ts` | accepts optional `telemetry[]` alongside `answers[]` |
-| `app/api/williams-sync/pod-telemetry/route.ts` | `POST` — builds + enqueues the packet for an attempt (placeholder transport) |
+| `app/api/williams-sync/pod-telemetry/route.ts` | **push** — `POST` builds + enqueues the packet for one attempt |
+| `app/api/sync/export/route.ts` | **pull** — token-gated, CORS-enabled `GET` returns a user's recent runs as `PodTelemetryPacket[]` (WilliamsHub reads this) |
+| `app/api/sync/token/route.ts` | session-authed `GET` — a logged-in user mints their own export token |
+| `middleware.ts` | lets `/api/sync/export` bypass the session-cookie gate (it enforces its own token) |
 | `app/pod/[attemptId]/exam-runtime.tsx` | instrumentation + advisory per-question timer pill |
 | `app/(app)/run/[attemptId]/debrief/page.tsx` | timing tiles, error mix, per-wrong-answer badges |
 | `scripts/telemetry-test.ts` | offline unit checks (no DB / no key) |
@@ -130,10 +139,11 @@ Error type layers intent on top:
 Plus behavioural `signals[]`: `many_clicks` · `many_changes` · `many_revisits` ·
 `not_fluent` · `impulsive` · `decisive` · `trap_risk`.
 
-## 4) WilliamsSync readiness (placeholder)
+## 4) WilliamsSync
 
+The single shared contract between the two apps is the `PodTelemetryPacket`.
 `buildPodTelemetryPacket(attemptId, userId, telemetry)` produces a stable,
-versioned `PodTelemetryPacket` (v1.0) with:
+versioned (v1.0) packet with:
 
 - `performance[]` — per-question summaries (type, timing category, time),
 - `mistakes[]` — rollup grouped by `errorType`,
@@ -141,9 +151,26 @@ versioned `PodTelemetryPacket` (v1.0) with:
   and priority (e.g. `mechanism_error → high`), each tracing back to its
   `sourceQuestionId` (the **base** question, via `originalQuestionId`).
 
-`enqueuePacket(packet)` **logs by default** and only POSTs to WilliamsHub when
-`WILLIAMS_SYNC_URL` is set — it never throws into the request path. This is the
-clean seam; the actual WilliamsHub ingestion is **not** implemented here.
+There are **two transports**, and both build the exact same packet:
+
+**Push** (WilliamsPod → WilliamsHub). `enqueuePacket(packet)` **logs by default**
+and only POSTs to WilliamsHub when `WILLIAMS_SYNC_URL` is set — it never throws
+into the request path. `POST /api/williams-sync/pod-telemetry` drives it for one
+attempt. This is the seam for when WilliamsHub can receive; hub-side ingestion is
+**not** implemented here.
+
+**Pull** (WilliamsHub ← WilliamsPod). `GET /api/sync/export` is token-gated and
+CORS-enabled, returning a user's recent runs as `PodTelemetryPacket[]` (bounded
+by `?limit`, default 25). It bypasses the session-cookie middleware because a
+cross-origin caller has no cookie — instead it requires an **export token**
+(`?token=` or `Authorization: Bearer`). The token is an HMAC of the userId signed
+with the existing `WILLIAMSPOD_AUTH_SECRET` (`lib/sync/exportToken.ts`), so no new
+env var is needed. A logged-in user mints their own token at
+`GET /api/sync/token` and pastes it into WilliamsHub.
+
+> The export token is long-lived and read-only (it exposes that one user's
+> telemetry). Rotate it by rotating `WILLIAMSPOD_AUTH_SECRET` — which also
+> invalidates sessions, so treat rotation as a full re-login event.
 
 ```bash
 # When WilliamsHub is ready, point WilliamsPod at its ingest endpoint:
@@ -174,23 +201,35 @@ DATABASE_URL=file:/tmp/wp-teltest.db npx tsx scripts/telemetry-run-test.ts
 #      fast/slow × correct/wrong tiles, the error mix, median time,
 #      and each wrong answer tagged with its timing category + error type.
 
-# 4) Inspect the outbound packet without WilliamsHub:
+# 4) Inspect the PUSH packet without WilliamsHub:
 #    POST /api/williams-sync/pod-telemetry { "attemptId": "<id>" }
 #    → returns the built PodTelemetryPacket + repair recommendations.
 #    With no WILLIAMS_SYNC_URL set, enqueuePacket just logs (transport: "logged").
+
+# 5) Exercise the PULL export (what WilliamsHub reads):
+#    GET /api/sync/token           (logged in) → { token, origin, exportUrl }
+#    GET /api/sync/export?token=…  → { packets: PodTelemetryPacket[] }   (no cookie needed)
+#    GET /api/sync/export?token=bad → 401
 ```
 
 ## Connecting to WilliamsHub
 
 WilliamsPod is the **wind tunnel**; WilliamsHub is where repair happens. The
-contract between them is the `PodTelemetryPacket`:
+contract between them is the `PodTelemetryPacket`, and it can flow either way —
+pick whichever the deployment makes easy:
 
-1. WilliamsPod records telemetry per question and classifies mistakes.
-2. On demand (or, later, automatically at submit) it builds a packet and calls
-   `enqueuePacket()`.
-3. Set `WILLIAMS_SYNC_URL` (+ optional `WILLIAMS_SYNC_TOKEN`) and the packet
-   POSTs to WilliamsHub, which consumes `mistakes[]` + `repairRecommendations[]`
-   to seed its repair queue and concept-depth work.
+**Pull (works today, zero config on the hub).** The user opens
+`GET /api/sync/token` in WilliamsPod, copies the `token` + `origin`, and pastes
+them into WilliamsHub → Repair → Connect WilliamsPod. WilliamsHub then polls
+`GET /api/sync/export?token=…&limit=25` and consumes the returned
+`mistakes[]` + `repairRecommendations[]` to seed its repair queue and
+concept-depth work. No env var on the WilliamsPod side beyond the
+`WILLIAMSPOD_AUTH_SECRET` it already has.
 
-Until that URL is set, the whole path runs safely offline — building and logging
-packets without any external dependency.
+**Push (for when the hub can receive).** Set `WILLIAMS_SYNC_URL` (+ optional
+`WILLIAMS_SYNC_TOKEN`); `enqueuePacket()` then POSTs each attempt's packet to
+that ingest endpoint. Until the URL is set, the push path runs safely offline —
+building and logging packets without any external dependency.
+
+Both directions build the identical packet via `buildPodTelemetryPacket`, so
+whichever WilliamsHub adopts, it reads the same shape.

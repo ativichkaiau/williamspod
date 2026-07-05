@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { inviteStatus } from "@/lib/users";
 import { AdminTools } from "./admin-tools";
 
-export const metadata = { title: "Admin — WilliamsPod" };
+export const metadata = { title: "Race control — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {

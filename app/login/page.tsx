@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 import { BrandLockup } from "@/components/brand/williamspod-logo";
 
-export const metadata = { title: "WilliamsPod — Auth" };
+export const metadata = { title: "WilliamsPod — Driver sign-on" };
 
 export default function LoginPage() {
   return (
@@ -16,9 +16,9 @@ export default function LoginPage() {
         <div className="panel-deep p-8">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <p className="eyebrow">Pre-flight check</p>
+              <p className="eyebrow">Driver sign-on</p>
               <h1 className="mt-1 display-lg text-foreground">
-                Enter the pod
+                Take the <span className="race-lean text-signal">wheel</span>
               </h1>
             </div>
             <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.2em] text-muted">

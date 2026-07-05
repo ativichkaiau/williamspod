@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { ExamRuntime } from "./exam-runtime";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Pod run — WilliamsPod" };
+export const metadata = { title: "On track — WilliamsPod" };
 
 export default async function PodRuntimePage(
   props: { params: Promise<{ attemptId: string }> },

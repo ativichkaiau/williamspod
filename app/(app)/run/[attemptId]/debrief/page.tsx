@@ -21,7 +21,7 @@ import { WeakAreaRetryButton } from "./retry-actions";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Debrief — WilliamsPod" };
+export const metadata = { title: "Pit wall debrief — WilliamsPod" };
 
 export default async function DebriefPage(
   props: { params: Promise<{ attemptId: string }> },
@@ -62,12 +62,13 @@ export default async function DebriefPage(
         href="/run"
         className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
       >
-        <ChevronLeft className="h-3 w-3" /> Runs
+        <ChevronLeft className="h-3 w-3" /> Races
       </Link>
 
       {/* ----- HERO ----- */}
       <section className="relative overflow-hidden panel-deep p-8 pop-in">
         <div className="pointer-events-none absolute inset-0 bg-scanlines opacity-40" />
+        <div className="chequer pointer-events-none absolute inset-x-0 top-0 h-2 opacity-70" />
         <div
           className={`pointer-events-none absolute -right-20 -top-32 h-72 w-72 rounded-full blur-3xl ${
             tone === "good"
@@ -83,11 +84,11 @@ export default async function DebriefPage(
           <div>
             <div className="flex items-center gap-2">
               <span className={`dot ${scoreColor}`} />
-              <p className="eyebrow">Debrief</p>
-              {attempt.aborted && <Badge tone="bad">Aborted</Badge>}
+              <p className="eyebrow">Pit wall debrief</p>
+              {attempt.aborted && <Badge tone="bad">Retired</Badge>}
             </div>
             <h1 className="mt-2 display-lg text-foreground">
-              {attempt.label ?? "Pod run"}
+              {attempt.label ?? "Race"}
             </h1>
             <p className="mt-2 text-sm text-foreground-dim">
               {new Date(attempt.startedAt).toLocaleString()} ·{" "}
@@ -149,12 +150,12 @@ export default async function DebriefPage(
           />
           <Button asChild variant="ghost" size="sm" className="ml-auto">
             <Link href="/run/new">
-              New run
+              Race entry
             </Link>
           </Button>
           <DeleteAttemptButton
             attemptId={attemptId}
-            label={attempt.label ?? "Pod run"}
+            label={attempt.label ?? "Race"}
             redirectTo="/run"
           />
         </div>
@@ -190,7 +191,7 @@ export default async function DebriefPage(
               correct={weakestSector.correct}
               total={weakestSector.total}
               pct={weakestSector.pct}
-              hint="Recommend reviewing this lecture before next run."
+              hint="Take this one back to the garage before the next stint."
             />
           )}
           {weakestTopic && weakestTopic.name !== "Untagged" && (
@@ -265,9 +266,12 @@ export default async function DebriefPage(
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-3.5 w-3.5 text-warn" />
-              <p className="eyebrow text-warn">Integrity timeline</p>
+              <p className="eyebrow text-warn">Stewards&apos; report</p>
             </div>
-            <Badge tone="warn">{integrityTimeline.length} events</Badge>
+            <Badge tone="warn">
+              {integrityTimeline.length} incident
+              {integrityTimeline.length === 1 ? "" : "s"}
+            </Badge>
           </div>
           <ol className="space-y-1.5">
             {integrityTimeline.map((e) => (
@@ -294,7 +298,7 @@ export default async function DebriefPage(
           <div className="flex items-center gap-2">
             <XCircle className="h-4 w-4 text-bad" />
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              Wrong-answer review
+              Incident review
             </h2>
           </div>
           <Badge tone={wrongAnswers.length === 0 ? "good" : "bad"}>
@@ -302,10 +306,11 @@ export default async function DebriefPage(
           </Badge>
         </div>
         {wrongAnswers.length === 0 ? (
-          <div className="panel flex items-center gap-3 p-6">
+          <div className="panel relative overflow-hidden flex items-center gap-3 p-6">
+            <div className="chequer pointer-events-none absolute inset-y-0 right-0 w-16 opacity-50" />
             <CheckCircle2 className="h-5 w-5 text-good" />
             <p className="text-sm text-foreground">
-              Clean run. No wrong answers to review.
+              Clean stint — no incidents to review. Chequered flag.
             </p>
           </div>
         ) : (
@@ -321,13 +326,13 @@ export default async function DebriefPage(
         <Button asChild variant="outline">
           <Link href="/run">
             <ChevronLeft className="h-4 w-4" />
-            Back to runs
+            Back to the pits
           </Link>
         </Button>
         <Button asChild variant="signal">
           <Link href="/run/new">
             <Repeat className="h-4 w-4" />
-            New run
+            Race again
           </Link>
         </Button>
       </div>
@@ -389,7 +394,7 @@ function BigTile({
       <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
         {label}
       </div>
-      <div className="mt-1 flex items-baseline gap-1.5">
+      <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
         <span className={`digit text-2xl ${color}`}>{value}</span>
         {sub && (
           <span className="font-mono text-[11px] tabular text-muted">{sub}</span>
@@ -464,9 +469,9 @@ function SectorBars({
           tone === "good"
             ? "shadow-[0_0_10px_-2px_rgba(78,194,127,0.5)]"
             : tone === "signal"
-              ? "shadow-[0_0_10px_-2px_rgba(45,212,241,0.5)]"
+              ? "shadow-[0_0_10px_-2px_rgba(255,204,0,0.5)]"
               : tone === "warn"
-                ? "shadow-[0_0_10px_-2px_rgba(233,176,51,0.5)]"
+                ? "shadow-[0_0_10px_-2px_rgba(255,146,51,0.5)]"
                 : "shadow-[0_0_10px_-2px_rgba(239,83,80,0.5)]";
         return (
           <li key={r.key} className="space-y-1.5">
@@ -557,12 +562,12 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
           </Badge>
         )}
         {q.errorType && <Badge tone="warn">{q.errorType.replace(/_/g, " ")}</Badge>}
-        {q.marked && <Badge tone="warn">marked</Badge>}
+        {q.marked && <Badge tone="warn">yellow flag</Badge>}
         {picked === -1 && <Badge tone="bad">unanswered</Badge>}
       </div>
       {q.isVariant && (
         <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-muted">
-          Modified from original question bank
+          Same chassis, new bodywork — modified from the bank original
         </p>
       )}
       <QuestionContent

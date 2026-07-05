@@ -55,12 +55,14 @@ export function WilliamsPodMark({
   return (
     <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center bg-[linear-gradient(135deg,#2E5BFF_0%,#0A1A7A_100%)] text-white shadow-[0_8px_18px_-8px_rgba(46,91,255,0.8),inset_0_1px_1px_rgba(255,255,255,0.22)]",
+        "relative flex shrink-0 items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#2E5BFF_0%,#0A1A7A_100%)] text-white shadow-[0_8px_18px_-8px_rgba(46,91,255,0.8),inset_0_1px_1px_rgba(255,255,255,0.22)]",
         TILE_SIZE[size],
         className,
       )}
     >
       <WilliamsWMark className={MARK_SIZE[size]} />
+      {/* FW15C nose stripe across the tile's floor */}
+      <span className="livery-stripe pointer-events-none absolute inset-x-0 bottom-0 h-[3px]" />
     </span>
   );
 }
@@ -91,7 +93,7 @@ export function WilliamsPodLogo({
           )}
         >
           Williams
-          <span className="text-[#2E5BFF] dark:text-[#7AA0FF]">Pod</span>
+          <span className="race-lean text-signal">Pod</span>
         </span>
         {subtitle && (
           <span className="mt-[5px] whitespace-nowrap text-[8.5px] font-bold uppercase leading-none tracking-[0.36em] text-muted">
@@ -118,8 +120,8 @@ export function BrandLockup({ className }: { className?: string }) {
           VESTRIPPN<span className="text-brand">3.0</span>
         </span>
       </div>
-      <div className="h-px w-40 bg-border-strong" />
-      <WilliamsPodLogo size="lg" subtitle="Exam Telemetry" />
+      <div className="livery-stripe h-[3px] w-40 rounded-full" />
+      <WilliamsPodLogo size="lg" subtitle="Exam Telemetry · 1993 spec" />
     </div>
   );
 }

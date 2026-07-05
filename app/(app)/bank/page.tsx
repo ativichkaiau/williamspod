@@ -10,7 +10,7 @@ import {
 } from "@/lib/bank";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Bank — WilliamsPod" };
+export const metadata = { title: "Garage — WilliamsPod" };
 
 export default async function BankPage() {
   const rows = await loadBankLectures();
@@ -36,9 +36,11 @@ export default async function BankPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="dot text-signal" />
-            <p className="eyebrow">Question bank</p>
+            <p className="eyebrow">The garage</p>
           </div>
-          <h1 className="mt-2 display-lg text-foreground">Subjects</h1>
+          <h1 className="mt-2 display-lg text-foreground">
+            Garage <span className="race-lean text-signal">bays</span>
+          </h1>
           <p className="mt-2 text-sm text-foreground-dim">
             <span className="digit text-foreground">{groupOrder.length}</span>{" "}
             subject{groupOrder.length === 1 ? "" : "s"} ·{" "}
@@ -51,7 +53,7 @@ export default async function BankPage() {
         <Button asChild variant="outline">
           <Link href="/upload">
             <Upload className="h-4 w-4" />
-            Load more
+            Deliver parts
           </Link>
         </Button>
       </header>
@@ -59,11 +61,13 @@ export default async function BankPage() {
       {rows.length === 0 ? (
         <div className="panel bg-grid flex flex-col items-center gap-3 py-14 text-center">
           <LibraryBig className="h-8 w-8 text-muted" />
-          <p className="text-sm text-muted">No subjects yet.</p>
+          <p className="text-sm text-muted">
+            Empty bays — no subjects in the garage yet.
+          </p>
           <Button asChild variant="signal" className="mt-2">
             <Link href="/upload">
               <Upload className="h-4 w-4" />
-              Upload Excel
+              Deliver parts
             </Link>
           </Button>
         </div>

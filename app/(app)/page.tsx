@@ -57,11 +57,16 @@ export default async function DashboardPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="dot text-signal" />
-              <p className="eyebrow">Pre-race telemetry</p>
+              <p className="eyebrow">Pit wall · race week</p>
             </div>
-            <h1 className="mt-3 display-xl text-foreground">
-              Williams<span className="text-signal">Pod</span>
-            </h1>
+            <div className="mt-3 flex items-center gap-4">
+              <h1 className="display-xl text-foreground">
+                Williams<span className="race-lean text-signal">Pod</span>
+              </h1>
+              <span className="roundel h-10 w-10 text-lg" aria-hidden="true">
+                0
+              </span>
+            </div>
             <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-foreground-dim">
               Wind tunnel before the Exam Pod race. Tighter timing, harder recall,
               stricter conditions than the official simulator. Train under worse
@@ -72,7 +77,7 @@ export default async function DashboardPage() {
                 <Button asChild variant="signal" size="lg">
                   <Link href="/run/new">
                     <Play className="h-4 w-4" />
-                    Start training run
+                    Lights out
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -82,12 +87,12 @@ export default async function DashboardPage() {
                   {empty ? (
                     <>
                       <Upload className="h-4 w-4" />
-                      Load bank
+                      Stock the garage
                     </>
                   ) : (
                     <>
                       <BookOpen className="h-4 w-4" />
-                      Open bank
+                      Open the garage
                     </>
                   )}
                 </Link>
@@ -97,10 +102,10 @@ export default async function DashboardPage() {
 
           {/* Live instrument cluster */}
           <div className="relative">
-            <div className="panel p-5">
+            <div className="panel livery-edge p-5">
               <div className="mb-4 flex items-center justify-between">
-                <p className="eyebrow">Last sector</p>
-                {lastAttempt?.aborted && <Badge tone="bad">Aborted</Badge>}
+                <p className="eyebrow">Last stint</p>
+                {lastAttempt?.aborted && <Badge tone="bad">Retired</Badge>}
               </div>
               {lastAttempt ? (
                 <div className="space-y-3">
@@ -131,14 +136,14 @@ export default async function DashboardPage() {
                     href={`/run/${lastAttempt.id}/debrief`}
                     className="mt-2 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-signal hover:text-signal-strong"
                   >
-                    Open debrief
+                    Pit wall debrief
                     <ArrowRight className="h-3 w-3" />
                   </Link>
                 </div>
               ) : (
                 <div className="space-y-2">
                   <span className="digit text-5xl text-muted">—</span>
-                  <p className="text-xs text-muted">No runs yet.</p>
+                  <p className="text-xs text-muted">No stints on the board yet.</p>
                 </div>
               )}
             </div>
@@ -160,12 +165,12 @@ export default async function DashboardPage() {
         />
         <StatTile
           icon={<Activity className="h-3.5 w-3.5" />}
-          label="Training runs"
+          label="Stints"
           value={attemptCount}
         />
         <StatTile
           icon={<Target className="h-3.5 w-3.5" />}
-          label="Best %"
+          label="Last result"
           value={lastP != null ? `${lastP}%` : "—"}
           tone={lastP != null && lastP >= 70 ? "good" : undefined}
         />
@@ -176,12 +181,12 @@ export default async function DashboardPage() {
         <div className="panel bg-grid p-8 pop-in">
           <div className="flex items-center gap-2">
             <span className="dot text-warn" />
-            <p className="eyebrow">Pod empty</p>
+            <p className="eyebrow">Garage empty</p>
           </div>
-          <h2 className="mt-3 display-lg text-foreground">No questions loaded</h2>
+          <h2 className="mt-3 display-lg text-foreground">No car to run yet</h2>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground-dim">
-            Upload an <span className="font-mono text-foreground">.xlsx</span> with
-            one sheet per lecture. Expected columns:{" "}
+            Deliver parts as an <span className="font-mono text-foreground">.xlsx</span>{" "}
+            with one sheet per lecture. Expected columns:{" "}
             <span className="font-mono text-foreground">
               question, A, B, C, D, E, correct, explanation, topic, difficulty
             </span>
@@ -191,7 +196,7 @@ export default async function DashboardPage() {
             <Button asChild variant="signal" size="lg">
               <Link href="/upload">
                 <Upload className="h-4 w-4" />
-                Upload Excel
+                Deliver parts
               </Link>
             </Button>
           </div>
@@ -200,26 +205,26 @@ export default async function DashboardPage() {
         <section className="grid gap-4 lg:grid-cols-2">
           <ActionCard
             href="/run/new"
-            eyebrow="Quick launch"
-            title="Configure a training run"
-            body="Pick lectures, set a shorter-than-real timer, enter the pod."
+            eyebrow="Race entry"
+            title="Take your grid slot"
+            body="Pick lectures, set a tighter-than-race clock, line up on the grid."
             cta={
               <>
                 <Play className="h-4 w-4" />
-                Configure
+                To the grid
               </>
             }
             variant="signal"
           />
           <ActionCard
             href="/bank"
-            eyebrow="Manage bank"
-            title="Browse loaded lectures"
-            body="Edit stems, choices, topics, or reorganize before the next run."
+            eyebrow="The garage"
+            title="Work on the car"
+            body="Tune stems, choices and topics — get the setup right before the next stint."
             cta={
               <>
                 <BookOpen className="h-4 w-4" />
-                Open
+                Open garage
               </>
             }
           />

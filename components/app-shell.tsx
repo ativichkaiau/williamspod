@@ -7,10 +7,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { WilliamsPodLogo } from "@/components/brand/williamspod-logo";
 import {
   Gauge,
-  BookOpen,
+  Warehouse,
   Upload,
-  Play,
-  History,
+  Flag,
+  Trophy,
   LogOut,
   Shield,
 } from "lucide-react";
@@ -18,15 +18,15 @@ import {
 type ShellUser = { id: string; name: string; role: "admin" | "member" };
 
 const MEMBER_LINKS = [
-  { href: "/", label: "Telemetry", icon: Gauge },
-  { href: "/bank", label: "Bank", icon: BookOpen },
-  { href: "/run", label: "Run", icon: Play },
-  { href: "/history", label: "History", icon: History },
+  { href: "/", label: "Pit wall", icon: Gauge },
+  { href: "/bank", label: "Garage", icon: Warehouse },
+  { href: "/run", label: "Race", icon: Flag },
+  { href: "/history", label: "Season", icon: Trophy },
 ];
 
 const ADMIN_EXTRA = [
-  { href: "/upload", label: "Upload", icon: Upload },
-  { href: "/admin", label: "Admin", icon: Shield },
+  { href: "/upload", label: "Parts", icon: Upload },
+  { href: "/admin", label: "Control", icon: Shield },
 ];
 
 export function AppShell({
@@ -43,11 +43,12 @@ export function AppShell({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
+        <div className="livery-stripe h-[3px] w-full" />
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-4">
           <Link href="/" className="group flex shrink-0 items-center gap-3">
             <WilliamsPodLogo
               size="md"
-              subtitle="Study Pod"
+              subtitle="Wind Tunnel"
               wordmarkClassName="hidden sm:flex"
             />
             <span className="hidden items-center rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted-strong shadow-[var(--clay-chip)] lg:inline-flex">
@@ -74,16 +75,13 @@ export function AppShell({
                   <Icon className="h-3.5 w-3.5" />
                   {label}
                   {active && (
-                    <span className="pointer-events-none absolute -bottom-[7px] left-1/2 h-[3px] w-4 -translate-x-1/2 rounded-full bg-signal shadow-[0_0_10px_0_rgba(45,212,241,0.7)]" />
+                    <span className="pointer-events-none absolute -bottom-[7px] left-1/2 h-[3px] w-4 -translate-x-1/2 rounded-full bg-wm-yellow shadow-[0_0_10px_0_rgba(255,204,0,0.7)]" />
                   )}
                 </Link>
               );
             })}
           </nav>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="hidden text-[10px] font-bold uppercase tracking-[0.18em] text-muted xl:inline">
-              Mode
-            </span>
             <ThemeToggle labeled />
             <span className="mx-0.5 hidden h-5 w-px bg-border sm:inline-block" />
             <div className="hidden items-center gap-2 sm:flex">
@@ -121,7 +119,7 @@ export function AppShell({
             <span className="dot text-signal" />
             <span>Wind tunnel — not the race</span>
           </div>
-          <span className="font-mono tabular">v0.2</span>
+          <span className="font-mono tabular">FW15C spec · v0.2</span>
         </div>
       </footer>
     </div>

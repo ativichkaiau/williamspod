@@ -22,8 +22,8 @@ import { cn } from "@/lib/utils";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
-/** The provenance label the spec asks for. */
-const PROVENANCE_LABEL = "Modified from original question bank";
+/** The provenance label the spec asks for — in livery voice, meaning intact. */
+const PROVENANCE_LABEL = "Same chassis, new bodywork — modified from the bank original";
 
 const DIFF_TONE: Record<VariationDifficulty, "good" | "neutral" | "bad"> = {
   easier: "good",

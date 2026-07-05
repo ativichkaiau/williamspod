@@ -50,7 +50,7 @@ export function WeakAreaRetryButton({
           shuffleChoices: true,
           label:
             mode === "weak"
-              ? `Weak-area run · ${lectureIds.length} lecture${lectureIds.length === 1 ? "" : "s"}`
+              ? `Weak-sector repair · ${lectureIds.length} lecture${lectureIds.length === 1 ? "" : "s"}`
               : "Reshuffled retry",
         }),
       });
@@ -76,12 +76,12 @@ export function WeakAreaRetryButton({
         onClick={() => setOpen("weak")}
         title={
           canWeak
-            ? "Start a new run from the lectures you scored worst on"
-            : "No weak lectures detected — try a regular reshuffle"
+            ? "Start a stint built from the sectors you lost time in"
+            : "No weak sectors detected — try a regular reshuffle"
         }
       >
         <Target className="h-3.5 w-3.5" />
-        Train weak areas
+        Repair weak sectors
       </Button>
       <Button variant="outline" size="sm" onClick={() => setOpen("retry")}>
         <Repeat className="h-3.5 w-3.5" />
@@ -92,16 +92,16 @@ export function WeakAreaRetryButton({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {open === "weak" ? "Train weak areas" : "Reshuffled retry"}
+              {open === "weak" ? "Repair weak sectors" : "Reshuffled retry"}
             </DialogTitle>
             <DialogDescription>
               {open === "weak"
-                ? `Builds a new run from ${weakLectureIds.length} weak lecture${weakLectureIds.length === 1 ? "" : "s"} (below 70%).`
-                : "Same lectures as the original run, new shuffle seed, new pod."}
+                ? `Builds a new stint from ${weakLectureIds.length} weak lecture${weakLectureIds.length === 1 ? "" : "s"} (below 70%).`
+                : "Same lectures as the original race, new shuffle seed, new pod."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label>Pod timer (min)</Label>
+            <Label>Pod clock (min)</Label>
             <Input
               type="number"
               min={1}
@@ -122,7 +122,7 @@ export function WeakAreaRetryButton({
               onClick={() => start(open ?? "retry")}
               disabled={busy}
             >
-              {busy ? "Starting…" : "Enter pod"}
+              {busy ? "Forming up…" : "Lights out"}
             </Button>
           </DialogFooter>
         </DialogContent>

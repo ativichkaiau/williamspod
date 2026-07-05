@@ -68,17 +68,20 @@ export function AdminTools({
       <header>
         <div className="flex items-center gap-2">
           <span className="dot text-signal pod-pulse" />
-          <p className="eyebrow">Operator console</p>
+          <p className="eyebrow">Race control</p>
         </div>
-        <h1 className="mt-2 display-lg text-foreground">Admin</h1>
+        <h1 className="mt-2 display-lg text-foreground">
+          Race <span className="race-lean text-signal">control</span>
+        </h1>
         <p className="mt-2 text-sm text-foreground-dim">
-          Generate invite codes, manage runners. Bank is shared; scores are private.
+          Issue paddock passes, manage drivers. The garage is shared; scores are
+          private.
         </p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Active runners" value={String(totalRunners)} />
-        <Stat label="Pending invites" value={String(activeInvites)} />
+        <Stat label="Active drivers" value={String(totalRunners)} />
+        <Stat label="Passes outstanding" value={String(activeInvites)} />
         <Stat
           label="Lifetime users"
           value={String(users.length)}
@@ -161,7 +164,7 @@ function InviteSection({
   }
 
   async function revoke(id: string) {
-    if (!confirm("Revoke this invite? Anyone holding the code won't be able to use it.")) {
+    if (!confirm("Revoke this paddock pass? Anyone holding the code won't be able to use it.")) {
       return;
     }
     const res = await fetch(`/api/admin/invites/${id}`, { method: "DELETE" });
@@ -173,7 +176,7 @@ function InviteSection({
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <Shield className="h-3.5 w-3.5 text-signal" />
-          <p className="eyebrow">Invites</p>
+          <p className="eyebrow">Paddock passes</p>
         </div>
         <Dialog
           open={open}
@@ -191,12 +194,12 @@ function InviteSection({
           <DialogTrigger asChild>
             <Button variant="signal" size="sm">
               <Plus className="h-3.5 w-3.5" />
-              New invite
+              New pass
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Generate invite</DialogTitle>
+              <DialogTitle>Issue a paddock pass</DialogTitle>
               <DialogDescription>
                 Hand the link or code to a friend. Single-use.
               </DialogDescription>
@@ -238,14 +241,14 @@ function InviteSection({
                     Cancel
                   </Button>
                   <Button variant="signal" onClick={generate} disabled={busy}>
-                    {busy ? "Generating…" : "Generate"}
+                    {busy ? "Printing…" : "Print pass"}
                   </Button>
                 </DialogFooter>
               </div>
             ) : (
               <div className="space-y-4 pop-in">
                 <div>
-                  <Label>Invite code</Label>
+                  <Label>Pass code</Label>
                   <div className="mt-1.5 rounded-md border border-signal/40 bg-signal-soft p-4 text-center">
                     <p className="digit text-3xl text-signal tracking-[0.18em]">
                       {createdCode}
@@ -294,7 +297,7 @@ function InviteSection({
 
       {invites.length === 0 ? (
         <div className="p-10 text-center text-sm text-muted">
-          No invites yet. Generate one to add a friend.
+          No passes issued. Print one to add a driver to the team.
         </div>
       ) : (
         <ul className="divide-y divide-border">
@@ -382,7 +385,7 @@ function UserSection({
   return (
     <section className="panel overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
-        <p className="eyebrow">Runners</p>
+        <p className="eyebrow">Drivers</p>
         <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
           {users.length} total
         </span>

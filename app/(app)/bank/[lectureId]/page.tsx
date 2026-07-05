@@ -63,7 +63,7 @@ export default async function LecturePage(
 
       {qs.length === 0 ? (
         <div className="panel flex flex-col items-center gap-3 py-14 text-center text-sm text-muted">
-          No questions in this lecture yet.
+          This bay is empty — no questions in the lecture yet.
         </div>
       ) : (
         <ol className="space-y-3">

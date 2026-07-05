@@ -89,7 +89,7 @@ export function SignupForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="code">Invite code</Label>
+        <Label htmlFor="code">Paddock pass</Label>
         <div className="relative">
           <Input
             id="code"
@@ -116,13 +116,13 @@ export function SignupForm() {
         </div>
         {check.kind === "error" && (
           <p className="text-[10px] uppercase tracking-[0.14em] text-bad">
-            Invite {check.reason === "network" ? "could not be verified" : check.reason}.
+            Pass {check.reason === "network" ? "could not be verified" : check.reason}.
           </p>
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="name">Display name</Label>
+        <Label htmlFor="name">Driver name</Label>
         <Input
           id="name"
           type="text"
@@ -187,14 +187,14 @@ export function SignupForm() {
         className="w-full"
         disabled={!canSubmit}
       >
-        {submitting ? "Creating…" : "Join the pod"}
+        {submitting ? "Signing you on…" : "Join the team"}
         <ArrowRight className="h-4 w-4" />
       </Button>
 
       <p className="text-center text-[10px] uppercase tracking-[0.18em] text-muted">
-        Already in?{" "}
+        Already on the team?{" "}
         <Link href="/login" className="text-signal hover:text-signal-strong">
-          Sign in
+          Sign on
         </Link>
       </p>
     </form>

@@ -511,20 +511,25 @@ export function ExamRuntime({
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="dot text-signal pod-pulse" />
-              <p className="eyebrow">Pre-flight check</p>
+              <p className="eyebrow">Formation lap</p>
             </div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted">
-              Pod · armed when ready
+            <div className="flex items-center gap-1.5" aria-hidden="true">
+              <span className="start-lamp lit" />
+              <span className="start-lamp lit" />
+              <span className="start-lamp lit" />
+              <span className="start-lamp lit" />
+              <span className="start-lamp lit" />
             </div>
           </div>
 
           <div className="panel-deep p-8">
             <h1 className="display-lg text-foreground">
-              Ready to enter the pod
+              On the <span className="race-lean text-signal">grid</span>
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-foreground-dim">
-              Timer starts when you arm. Fullscreen engages where supported. You
-              can&apos;t rejoin a run mid-stream — treat this like the real exam.
+              The clock starts at lights out. Fullscreen engages where supported.
+              You can&apos;t rejoin a stint mid-race — treat this like the real
+              exam.
             </p>
 
             <ul className="mt-6 space-y-3">
@@ -533,13 +538,13 @@ export function ExamRuntime({
                 value={String(questions.length)}
               />
               <Spec
-                label="Pod timer"
+                label="Race clock"
                 value={formatDuration(durationMs)}
                 tone="signal"
               />
               <Spec
-                label="Abort threshold"
-                value={`${ABORT_THRESHOLD} flags → auto-submit`}
+                label="Stewards"
+                value={`${ABORT_THRESHOLD} flags → retired`}
                 tone="bad"
               />
             </ul>
@@ -550,7 +555,7 @@ export function ExamRuntime({
                 size="lg"
                 onClick={() => router.replace("/run")}
               >
-                Cancel
+                Back to the pits
               </Button>
               <Button
                 variant="signal"
@@ -558,7 +563,7 @@ export function ExamRuntime({
                 className="flex-1"
                 onClick={arm}
               >
-                Arm pod &amp; start
+                Lights out
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -616,7 +621,7 @@ export function ExamRuntime({
             </Button>
             <div className="flex flex-col items-center">
               <span className="text-[9px] uppercase tracking-[0.22em] text-muted">
-                progress
+                lap
               </span>
               <span className="digit text-sm text-foreground">
                 {String(currentIdx + 1).padStart(2, "0")}
@@ -654,10 +659,10 @@ export function ExamRuntime({
       <Dialog open={confirmSubmit} onOpenChange={(o) => !submitting && setConfirmSubmit(o)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Submit run?</DialogTitle>
+            <DialogTitle>Box, box — take the chequered flag?</DialogTitle>
             <DialogDescription>
-              Locks the attempt and jumps to debrief. You won&apos;t be able to come
-              back to it.
+              Ends the stint and rolls straight into the pit-wall debrief.
+              There&apos;s no going back out.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
@@ -675,14 +680,14 @@ export function ExamRuntime({
               onClick={() => setConfirmSubmit(false)}
               disabled={submitting}
             >
-              Keep going
+              Stay out
             </Button>
             <Button
               variant="signal"
               onClick={() => submitAttempt()}
               disabled={submitting}
             >
-              {submitting ? "Submitting…" : "Submit run"}
+              {submitting ? "Boxing…" : "Box, box"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -695,11 +700,11 @@ export function ExamRuntime({
               <ShieldAlert className="h-6 w-6" />
             </div>
             <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-bad">
-              Run aborted
+              Retired from the race
             </p>
             <p className="mt-2 text-sm text-foreground-dim">{abortReason}</p>
             <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-              Submitting to debrief…
+              Rolling into the pit-wall debrief…
             </p>
           </div>
         </div>
@@ -736,18 +741,18 @@ function TopBar({
     <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="flex items-center gap-6 px-6 py-2.5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[5px] border border-signal/40 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.25)]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[5px] border border-signal/40 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_rgba(255,204,0,0.25)]">
             <span className="font-mono text-[10px] font-bold tracking-[0.18em]">WP</span>
           </div>
           <div className="flex flex-col leading-none">
             <div className="flex items-center gap-1.5">
               <span className="dot text-bad pod-pulse" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-bad">
-                lockdown
+                parc fermé
               </span>
             </div>
             <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted">
-              pod · live run
+              pod · car 0 · live
             </span>
           </div>
         </div>
@@ -774,7 +779,7 @@ function TopBar({
                   "h-full rounded-full transition-[width] duration-700",
                   danger
                     ? "bg-bad shadow-[0_0_8px_0_rgba(239,83,80,0.6)]"
-                    : "bg-signal shadow-[0_0_8px_0_rgba(45,212,241,0.5)]",
+                    : "bg-wm-yellow shadow-[0_0_8px_0_rgba(255,204,0,0.5)]",
                 )}
                 style={{ width: `${pctLeft}%` }}
               />
@@ -792,9 +797,15 @@ function TopBar({
             value={`${integrityCount}/${ABORT_THRESHOLD}`}
             accent={integrityCount > 0 ? "bad" : undefined}
           />
-          <Button size="sm" variant="signal" className="ml-2" onClick={onSubmit}>
+          <Button
+            size="sm"
+            variant="signal"
+            className="ml-2"
+            onClick={onSubmit}
+            title="Submit the run"
+          >
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Submit
+            Box, box
           </Button>
         </div>
       </div>
@@ -922,7 +933,7 @@ function QuestionView({
                     ? "bg-warn-soft text-warn"
                     : "bg-surface-2 text-muted",
               )}
-              title="Advisory time budget for this question type"
+              title="Advisory sector time for this question type"
             >
               <Hourglass className="h-3 w-3" />
               {questionElapsedSec}s / {budget}s
@@ -937,10 +948,10 @@ function QuestionView({
           <Flag
             className={cn(
               "h-3.5 w-3.5",
-              isMarked ? "text-warn fill-warn/40" : "text-muted",
+              isMarked ? "text-wm-yellow fill-wm-yellow/40" : "text-muted",
             )}
           />
-          {isMarked ? "Marked" : "Mark"}
+          {isMarked ? "Yellow flag" : "Flag it"}
         </Button>
       </div>
       <QuestionContent
@@ -957,7 +968,7 @@ function QuestionView({
                 className={cn(
                   "flex w-full items-start gap-3.5 rounded-md border px-4 py-3.5 text-left transition-all duration-150",
                   selected
-                    ? "border-signal/70 bg-signal-soft shadow-[inset_0_1px_0_0_rgba(45,212,241,0.18),0_0_0_1px_rgba(45,212,241,0.25),0_0_18px_-8px_rgba(45,212,241,0.6)]"
+                    ? "border-signal/70 bg-signal-soft shadow-[inset_0_1px_0_0_rgba(255,204,0,0.18),0_0_0_1px_rgba(255,204,0,0.25),0_0_18px_-8px_rgba(255,204,0,0.6)]"
                     : "border-border bg-surface hover:border-border-bright hover:bg-surface-2",
                 )}
               >
@@ -965,7 +976,7 @@ function QuestionView({
                   className={cn(
                     "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] border font-mono text-[11px] font-bold transition-colors",
                     selected
-                      ? "border-signal bg-signal text-black"
+                      ? "border-signal bg-wm-yellow text-wm-navy"
                       : "border-border-strong bg-surface-2 text-muted",
                   )}
                 >
@@ -1007,7 +1018,7 @@ function Navigator({
   return (
     <aside className="panel sticky top-20 self-start p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="eyebrow">Navigator</p>
+        <p className="eyebrow">Pit board</p>
         <span className="digit text-sm text-foreground">
           {answeredCount}
           <span className="text-muted">/{questions.length}</span>
@@ -1026,16 +1037,16 @@ function Navigator({
               className={cn(
                 "relative flex h-9 w-full items-center justify-center rounded-[4px] border font-mono text-[10px] tabular transition-all duration-150 hover:scale-[1.04]",
                 isCurrent
-                  ? "border-signal bg-signal/20 text-signal shadow-[0_0_0_1px_rgba(45,212,241,0.4),0_0_12px_-4px_rgba(45,212,241,0.7)]"
+                  ? "border-signal bg-signal/20 text-signal shadow-[0_0_0_1px_rgba(255,204,0,0.4),0_0_12px_-4px_rgba(255,204,0,0.7)]"
                   : answered
                     ? "border-good/40 bg-good-soft text-foreground"
                     : "border-border bg-surface-2 text-muted hover:border-border-bright",
               )}
-              aria-label={`Question ${i + 1}${answered ? " (answered)" : ""}${isMarked ? " (marked)" : ""}`}
+              aria-label={`Question ${i + 1}${answered ? " (answered)" : ""}${isMarked ? " (yellow flag)" : ""}`}
             >
               {i + 1}
               {isMarked && (
-                <Flag className="absolute -right-1 -top-1 h-2.5 w-2.5 fill-warn text-warn" />
+                <Flag className="absolute -right-1 -top-1 h-2.5 w-2.5 fill-wm-yellow text-wm-yellow" />
               )}
             </button>
           );
@@ -1045,7 +1056,7 @@ function Navigator({
       <div className="mt-5 space-y-2 border-t border-border pt-4 text-[10px] uppercase tracking-[0.16em] text-muted">
         <LegendDot color="bg-good-soft border-good/40">answered</LegendDot>
         <LegendDot color="bg-signal/20 border-signal/60">current</LegendDot>
-        <LegendDot color="bg-warn">marked</LegendDot>
+        <LegendDot color="bg-wm-yellow">yellow flag</LegendDot>
       </div>
 
       <div className="mt-4 space-y-1.5 border-t border-border pt-4">

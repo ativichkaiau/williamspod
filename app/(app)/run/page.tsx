@@ -9,7 +9,7 @@ import { Play, ChevronRight, Activity } from "lucide-react";
 import { formatDuration, pct } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
 
-export const metadata = { title: "Runs — WilliamsPod" };
+export const metadata = { title: "Races — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 export default async function RunsHubPage() {
@@ -27,17 +27,19 @@ export default async function RunsHubPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="dot text-signal" />
-            <p className="eyebrow">Training runs</p>
+            <p className="eyebrow">Race weekends</p>
           </div>
-          <h1 className="mt-2 display-lg text-foreground">Pod runs</h1>
+          <h1 className="mt-2 display-lg text-foreground">
+            Races<span className="race-lean text-signal">.</span>
+          </h1>
           <p className="mt-2 text-sm text-foreground-dim">
-            Configure a new training run or review past ones.
+            Enter a new race or walk back through past stints.
           </p>
         </div>
         <Button asChild variant="signal" size="lg">
           <Link href="/run/new">
             <Play className="h-4 w-4" />
-            Configure run
+            Race entry
           </Link>
         </Button>
       </header>
@@ -45,18 +47,20 @@ export default async function RunsHubPage() {
       {recent.length === 0 ? (
         <div className="panel flex flex-col items-center gap-3 py-14 text-center">
           <Activity className="h-8 w-8 text-muted" />
-          <p className="text-sm text-muted">No runs yet. Start your first.</p>
+          <p className="text-sm text-muted">
+            No races on the board. Lights out when you are.
+          </p>
           <Button asChild variant="signal" className="mt-2">
             <Link href="/run/new">
               <Play className="h-4 w-4" />
-              Configure run
+              Race entry
             </Link>
           </Button>
         </div>
       ) : (
         <div className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
-            <p className="eyebrow">Recent runs</p>
+            <p className="eyebrow">Recent stints</p>
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
               {recent.length} shown
             </span>
@@ -103,8 +107,8 @@ export default async function RunsHubPage() {
                         {a.label && (
                           <span className="font-bold text-foreground">{a.label}</span>
                         )}
-                        {!submitted && <Badge tone="warn">In progress</Badge>}
-                        {a.aborted && <Badge tone="bad">Aborted</Badge>}
+                        {!submitted && <Badge tone="warn">On track</Badge>}
+                        {a.aborted && <Badge tone="bad">Retired</Badge>}
                         {a.integrityFlagCount > 0 && submitted && (
                           <Badge tone="warn">
                             {a.integrityFlagCount} flag
@@ -131,7 +135,7 @@ export default async function RunsHubPage() {
                   </Link>
                   <DeleteAttemptButton
                     attemptId={a.id}
-                    label={a.label ?? "Pod run"}
+                    label={a.label ?? "Race"}
                   />
                 </li>
               );

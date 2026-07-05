@@ -13,8 +13,9 @@ const buttonVariants = cva(
         // Puffy clay: soft top highlight + outer lift; press collapses it.
         default:
           "bg-foreground text-background shadow-[0_10px_20px_-10px_rgba(0,0,0,0.6),inset_0_2px_2px_-1px_rgba(255,255,255,0.25),inset_0_-4px_8px_-4px_rgba(0,0,0,0.35)] hover:brightness-110 active:shadow-[inset_0_2px_5px_0_rgba(0,0,0,0.4)]",
+        // Camel-yellow paint with Williams-navy lettering — the hero CTA in both modes.
         signal:
-          "bg-signal text-black shadow-[0_12px_22px_-10px_rgba(45,212,241,0.55),inset_0_2px_2px_-1px_rgba(255,255,255,0.55),inset_0_-5px_10px_-5px_rgba(0,0,0,0.25)] hover:bg-signal-strong hover:shadow-[0_16px_28px_-10px_rgba(45,212,241,0.7),inset_0_2px_3px_-1px_rgba(255,255,255,0.6),inset_0_-5px_10px_-5px_rgba(0,0,0,0.25)] active:shadow-[inset_0_2px_6px_0_rgba(0,0,0,0.3)]",
+          "bg-wm-yellow text-wm-navy shadow-[0_12px_22px_-10px_rgba(255,204,0,0.55),inset_0_2px_2px_-1px_rgba(255,255,255,0.55),inset_0_-5px_10px_-5px_rgba(0,0,0,0.25)] hover:bg-[#f2c200] hover:shadow-[0_16px_28px_-10px_rgba(255,204,0,0.7),inset_0_2px_3px_-1px_rgba(255,255,255,0.6),inset_0_-5px_10px_-5px_rgba(0,0,0,0.25)] active:shadow-[inset_0_2px_6px_0_rgba(0,0,0,0.3)]",
         outline:
           "bg-surface text-foreground shadow-[var(--clay-chip)] hover:text-foreground hover:brightness-105 active:shadow-[var(--clay-inset)]",
         ghost:

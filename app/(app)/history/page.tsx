@@ -9,7 +9,7 @@ import { formatDuration, pct } from "@/lib/utils";
 import { Activity, ChevronRight, Play } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 
-export const metadata = { title: "History — WilliamsPod" };
+export const metadata = { title: "Season — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 export default async function HistoryPage() {
@@ -29,17 +29,21 @@ export default async function HistoryPage() {
         <header>
           <div className="flex items-center gap-2">
             <span className="dot text-signal" />
-            <p className="eyebrow">History</p>
+            <p className="eyebrow">Season</p>
           </div>
-          <h1 className="mt-2 display-lg text-foreground">Past training runs</h1>
+          <h1 className="mt-2 display-lg text-foreground">
+            The season so <span className="race-lean text-signal">far</span>
+          </h1>
         </header>
         <div className="panel flex flex-col items-center gap-3 py-14 text-center">
           <Activity className="h-8 w-8 text-muted" />
-          <p className="text-sm text-muted">No submitted runs yet.</p>
+          <p className="text-sm text-muted">
+            No completed races this season. Lights out when you are.
+          </p>
           <Button asChild variant="signal" className="mt-2">
             <Link href="/run/new">
               <Play className="h-4 w-4" />
-              Configure run
+              Race entry
             </Link>
           </Button>
         </div>
@@ -59,25 +63,27 @@ export default async function HistoryPage() {
       <header>
         <div className="flex items-center gap-2">
           <span className="dot text-signal" />
-          <p className="eyebrow">History</p>
+          <p className="eyebrow">Season</p>
         </div>
-        <h1 className="mt-2 display-lg text-foreground">Past training runs</h1>
+        <h1 className="mt-2 display-lg text-foreground">
+          The season so <span className="race-lean text-signal">far</span>
+        </h1>
         <p className="mt-1 text-sm text-foreground-dim">
-          <span className="digit text-foreground">{totalRuns}</span> submitted run
+          <span className="digit text-foreground">{totalRuns}</span> completed race
           {totalRuns === 1 ? "" : "s"}
         </p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-4">
-        <Stat label="Submitted runs" value={String(totalRuns)} />
+        <Stat label="Races" value={String(totalRuns)} />
         <Stat
           label="Average score"
           value={`${avgPct}%`}
           tone={avgPct >= 70 ? "good" : avgPct < 50 ? "bad" : undefined}
         />
-        <Stat label="Total in pod" value={formatDuration(totalTime)} />
+        <Stat label="Time on track" value={formatDuration(totalTime)} />
         <Stat
-          label="Total flags"
+          label="Stewards' flags"
           value={String(totalFlags)}
           tone={totalFlags > 0 ? "warn" : undefined}
         />
@@ -85,7 +91,7 @@ export default async function HistoryPage() {
 
       <div className="panel overflow-hidden">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <p className="eyebrow">All runs</p>
+          <p className="eyebrow">Race log</p>
         </div>
         <ul className="divide-y divide-border">
           {rows.map((a) => {
@@ -115,8 +121,8 @@ export default async function HistoryPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="font-bold text-foreground">{a.label ?? "Pod run"}</span>
-                      {a.aborted && <Badge tone="bad">Aborted</Badge>}
+                      <span className="font-bold text-foreground">{a.label ?? "Race"}</span>
+                      {a.aborted && <Badge tone="bad">Retired</Badge>}
                       {a.integrityFlagCount > 0 && (
                         <Badge tone="warn">
                           {a.integrityFlagCount} flag
@@ -144,7 +150,7 @@ export default async function HistoryPage() {
                 </Link>
                 <DeleteAttemptButton
                   attemptId={a.id}
-                  label={a.label ?? "Pod run"}
+                  label={a.label ?? "Race"}
                 />
               </li>
             );

@@ -1,60 +1,70 @@
 @import "tailwindcss";
 
 /*
- * WilliamsPod — instrument clay.
- * Soft, puffy claymorphic surfaces (dual inner light/shadow + soft outer lift,
- * chunky radii) hosting glowing cyan telemetry readouts. Night by default,
- * day on demand. Premium soft-touch cockpit — not a childish quiz app.
+ * WilliamsPod — FW15C livery (Williams 1993).
+ * Canon · Williams · Renault. Clean white bodywork by day, navy night race
+ * under the floodlights by dark — Camel-yellow signal, a Canon-red flash,
+ * carried on the navy / red / yellow racing stripe. Claymorphic cockpit
+ * surfaces host the telemetry. Premium race-team hardware — not a quiz app.
  */
+
+/* ---- Constant livery colours (fixed across day/night — they're the car) ---- */
+:root {
+  --wm-navy: #0a2472;
+  --wm-blue: #2e5bff;
+  --wm-red: #e4002b;
+  --wm-yellow: #ffcc00;
+  --wm-white: #ffffff;
+}
 
 :root, :root.dark {
   color-scheme: dark;
 
-  /* Background stack — deep soft navy so clay panels lift off it */
-  --background: #070b11;
-  --background-tint: #0a0f16;
-  --surface: #121822;
-  --surface-2: #1a212d;
-  --surface-3: #232c3a;
+  /* Background stack — deep Williams navy so clay panels lift off it (night race) */
+  --background: #05122e;
+  --background-tint: #081a38;
+  --surface: #0e2247;
+  --surface-2: #163257;
+  --surface-3: #20406e;
 
   /* Borders / dividers (mostly hairlines — clay shadows define most edges) */
-  --border: #212a37;
-  --border-strong: #2c3746;
-  --border-bright: #3d4a5c;
+  --border: #1e3a63;
+  --border-strong: #2a4c7d;
+  --border-bright: #3b64a0;
 
   /* Text */
-  --foreground: #e9edf3;
-  --foreground-dim: #b4bcc8;
-  --muted: #7b8593;
-  --muted-strong: #99a4b3;
+  --foreground: #eef3fc;
+  --foreground-dim: #bccbe6;
+  --muted: #8091b3;
+  --muted-strong: #a4b2cf;
 
-  /* App signal — Williams cyan */
-  --signal: #2dd4f1;
-  --signal-strong: #12bcdc;
-  --signal-soft: rgba(45, 212, 241, 0.14);
-  --signal-glow: 0 0 0 1px rgba(45, 212, 241, 0.35), 0 0 26px -6px rgba(45, 212, 241, 0.65);
+  /* App signal — Camel yellow under the floodlights */
+  --signal: #ffcc00;
+  --signal-strong: #e6b800;
+  --signal-soft: rgba(255, 204, 0, 0.14);
+  --signal-glow: 0 0 0 1px rgba(255, 204, 0, 0.38), 0 0 26px -6px rgba(255, 204, 0, 0.6);
 
-  /* Parent brand — VESTRIPPN green */
+  /* Parent brand — VESTRIPPN green (sponsors keep their own colours) */
   --brand: #2fc46e;
   --brand-strong: #24a85a;
-  --brand-soft: rgba(47, 196, 110, 0.14);
+  --brand-soft: rgba(47, 196, 110, 0.15);
 
-  /* Status */
-  --good: #4ec27f;
-  --good-soft: rgba(78, 194, 127, 0.14);
-  --warn: #e9b033;
-  --warn-soft: rgba(233, 176, 51, 0.14);
-  --bad: #ef5350;
-  --bad-soft: rgba(239, 83, 80, 0.14);
+  /* Status — green flag / orange caution / Canon red */
+  --good: #35c76f;
+  --good-soft: rgba(53, 199, 111, 0.15);
+  --warn: #ff9233;
+  --warn-soft: rgba(255, 146, 51, 0.15);
+  --bad: #ff4757;
+  --bad-soft: rgba(255, 71, 87, 0.15);
 
   /* Instrument grid */
-  --grid: rgba(255, 255, 255, 0.022);
-  --grid-strong: rgba(255, 255, 255, 0.05);
-  --scanline: rgba(255, 255, 255, 0.012);
+  --grid: rgba(255, 255, 255, 0.025);
+  --grid-strong: rgba(255, 255, 255, 0.055);
+  --scanline: rgba(255, 255, 255, 0.014);
 
-  /* Ambient light */
-  --ambient-top: rgba(45, 212, 241, 0.055);
-  --ambient-bottom: rgba(45, 212, 241, 0.03);
+  /* Ambient light — Camel glow over the pit straight, a whisper of Canon red */
+  --ambient-top: rgba(255, 204, 0, 0.055);
+  --ambient-bottom: rgba(228, 0, 43, 0.045);
 
   /* ---- Claymorphism shadow recipes ---- */
   /* Raised puffy surface: crisp contact + soft lift + inner top light + inner bottom depth */
@@ -83,36 +93,42 @@
     0 4px 10px -6px rgba(0, 0, 0, 0.7),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
     inset 0 -3px 6px -4px rgba(0, 0, 0, 0.5);
-  --clay-border: rgba(255, 255, 255, 0.04);
+  --clay-border: rgba(255, 255, 255, 0.05);
 
-  --focus-ring: rgba(45, 212, 241, 0.55);
+  --focus-ring: rgba(255, 204, 0, 0.55);
   --dot-ring: rgba(0, 0, 0, 0.5);
+
+  /* Motif inks */
+  --checker-ink: rgba(238, 243, 252, 0.16);
+  --roundel-face: #f4f6fb;
+  --roundel-ink: #0a2472;
 }
 
 :root.light {
   color-scheme: light;
 
-  /* Soft off-white with a faint cool cast — classic clay canvas */
-  --background: #eef1f7;
-  --background-tint: #e7ebf3;
-  --surface: #fbfcfe;
-  --surface-2: #eef1f7;
-  --surface-3: #e3e8f1;
+  /* Cool white — the FW15C's white bodywork */
+  --background: #eef2f9;
+  --background-tint: #e6ecf6;
+  --surface: #ffffff;
+  --surface-2: #eef2f9;
+  --surface-3: #e2e9f4;
 
-  --border: #dbe2ec;
-  --border-strong: #c4cedb;
-  --border-bright: #9aa9bd;
+  --border: #d9e1ee;
+  --border-strong: #c3d0e2;
+  --border-bright: #93a6c4;
 
-  --foreground: #1a232f;
-  --foreground-dim: #445264;
-  --muted: #697687;
-  --muted-strong: #4a5869;
+  /* Williams navy ink */
+  --foreground: #0b2c5e;
+  --foreground-dim: #3f5170;
+  --muted: #6b7a92;
+  --muted-strong: #47597a;
 
-  /* Daylight teal tuned for soft surfaces */
-  --signal: #0891b2;
-  --signal-strong: #0e7490;
-  --signal-soft: rgba(8, 145, 178, 0.14);
-  --signal-glow: 0 0 0 1px rgba(8, 145, 178, 0.28), 0 0 20px -8px rgba(8, 145, 178, 0.5);
+  /* Camel gold — yellow tuned to stay readable on white paint */
+  --signal: #8a6a00;
+  --signal-strong: #6f5500;
+  --signal-soft: rgba(255, 204, 0, 0.22);
+  --signal-glow: 0 0 0 1px rgba(184, 134, 11, 0.3), 0 0 20px -8px rgba(255, 204, 0, 0.55);
 
   /* Parent brand — VESTRIPPN green (daylight) */
   --brand: #17a34a;
@@ -121,19 +137,19 @@
 
   --good: #1f9d57;
   --good-soft: rgba(31, 157, 87, 0.14);
-  --warn: #b07400;
-  --warn-soft: rgba(176, 116, 0, 0.14);
-  --bad: #d23f39;
-  --bad-soft: rgba(210, 63, 57, 0.14);
+  --warn: #b45309;
+  --warn-soft: rgba(180, 83, 9, 0.15);
+  --bad: #d81f33;
+  --bad-soft: rgba(216, 31, 51, 0.14);
 
-  --grid: rgba(26, 35, 47, 0.04);
-  --grid-strong: rgba(26, 35, 47, 0.075);
-  --scanline: rgba(26, 35, 47, 0.02);
+  --grid: rgba(11, 44, 94, 0.045);
+  --grid-strong: rgba(11, 44, 94, 0.08);
+  --scanline: rgba(11, 44, 94, 0.02);
 
-  --ambient-top: rgba(8, 145, 178, 0.08);
-  --ambient-bottom: rgba(31, 157, 87, 0.05);
+  --ambient-top: rgba(255, 204, 0, 0.12);
+  --ambient-bottom: rgba(228, 0, 43, 0.05);
 
-  /* ---- Claymorphism (light): soft pastel puff, bright top highlight ---- */
+  /* ---- Claymorphism (light): white-bodywork puff, bright top highlight ---- */
   --clay-raised:
     0 1px 1px 0 rgba(70, 90, 130, 0.05),
     0 20px 38px -18px rgba(70, 90, 130, 0.34),
@@ -158,8 +174,12 @@
     inset 0 -3px 6px -4px rgba(70, 90, 130, 0.14);
   --clay-border: rgba(255, 255, 255, 0.6);
 
-  --focus-ring: rgba(8, 145, 178, 0.4);
+  --focus-ring: rgba(138, 106, 0, 0.45);
   --dot-ring: rgba(255, 255, 255, 0.9);
+
+  --checker-ink: rgba(11, 44, 94, 0.2);
+  --roundel-face: #ffffff;
+  --roundel-ink: #0a2472;
 }
 
 @theme inline {
@@ -177,11 +197,22 @@
   --color-muted-strong: var(--muted-strong);
   --color-signal: var(--signal);
   --color-signal-strong: var(--signal-strong);
+  --color-signal-soft: var(--signal-soft);
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
   --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
   --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
   --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+
+  /* Livery colours exposed as utilities (bg-wm-red, text-wm-yellow, …) */
+  --color-wm-navy: var(--wm-navy);
+  --color-wm-blue: var(--wm-blue);
+  --color-wm-red: var(--wm-red);
+  --color-wm-yellow: var(--wm-yellow);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -206,6 +237,7 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
+/* Atmosphere — Camel glow over the start line, Canon red at the far end */
 body {
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -10%, var(--ambient-top), transparent),
@@ -245,6 +277,86 @@ body {
     var(--scanline) 4px
   );
 }
+
+/* ---- FW15C livery motifs ---- */
+/* Signature racing stripe: Williams navy band → Canon red flash → Camel yellow. */
+.livery-stripe {
+  background: linear-gradient(
+    90deg,
+    var(--wm-navy) 0 58%,
+    var(--wm-red) 58% 76%,
+    var(--wm-yellow) 76% 100%
+  );
+}
+.livery-stripe-v {
+  background: linear-gradient(
+    180deg,
+    var(--wm-navy) 0 58%,
+    var(--wm-red) 58% 76%,
+    var(--wm-yellow) 76% 100%
+  );
+}
+/* Left racing accent for cards/rows. */
+.livery-edge { position: relative; }
+.livery-edge::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  background: linear-gradient(180deg, var(--wm-navy), var(--wm-red) 68%, var(--wm-yellow));
+}
+/* Chequered finish flag (success / completed) — mode-aware ink. */
+.chequer {
+  background-image:
+    conic-gradient(var(--checker-ink) 0 25%, transparent 0 50%, var(--checker-ink) 0 75%, transparent 0);
+  background-size: 12px 12px;
+  opacity: 0.9;
+}
+/* Race-number roundel — white disc, navy number, Camel ring (car 0 energy). */
+.roundel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--roundel-face);
+  color: var(--roundel-ink);
+  font-weight: 800;
+  font-style: italic;
+  font-variant-numeric: tabular-nums;
+  box-shadow:
+    0 0 0 2px var(--roundel-ink),
+    0 0 0 4.5px var(--wm-yellow),
+    0 6px 14px -6px rgba(0, 0, 0, 0.5);
+}
+/* Start-lights row — the FIA gantry (loading / countdown). */
+.start-lamp {
+  display: inline-block;
+  width: 0.6rem; height: 0.6rem;
+  border-radius: 50%;
+  background: #3a0000;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.8);
+}
+.start-lamp.lit {
+  background: var(--wm-red);
+  box-shadow: 0 0 9px var(--wm-red), inset 0 0 3px rgba(255, 255, 255, 0.4);
+}
+/* Sliding stripe sheen for hero bars. */
+@keyframes livery-slide {
+  0% { background-position: 0 0; }
+  100% { background-position: 56px 0; }
+}
+.livery-slide {
+  background-size: 56px 100%;
+  animation: livery-slide 2.6s linear infinite;
+}
+/* Start-lights sequential flicker. */
+@keyframes lamp-arm {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+.start-lamp.lit { animation: lamp-arm 1.4s ease-in-out infinite; }
 
 /* ---- Claymorphic surfaces ---- */
 .panel {
@@ -317,12 +429,14 @@ body {
   -webkit-user-select: text !important;
 }
 
-/* Reduced-motion respect */
+/* Reduced-motion respect — stops every keyframe (livery-slide, lamp-arm, pulses…) */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+  .livery-slide, .start-lamp.lit, .pod-pulse, .slow-spin { animation: none !important; }
 }
 
 /* Pulse for live timer */
@@ -388,6 +502,11 @@ body {
   line-height: 1.05;
   letter-spacing: -0.01em;
   font-weight: 700;
+}
+/* Race-lean italics for hero words — the 1993 sponsor-decal slant */
+.race-lean {
+  font-style: italic;
+  letter-spacing: -0.02em;
 }
 
 /* Smooth-scroll within scrollable panels */

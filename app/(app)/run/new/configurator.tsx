@@ -141,7 +141,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
     }
     setSelected(next);
     // Auto-label the run for easy identification in History.
-    if (!label) setLabel(`${subject} mock`);
+    if (!label) setLabel(`${subject} GP`);
   }
 
   // Subjects that should appear as launchable mocks (skip "Other").
@@ -194,11 +194,11 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           <section className="panel-deep p-5 pop-in">
             <div className="mb-3 flex items-center gap-2">
               <Rocket className="h-3.5 w-3.5 text-signal" />
-              <p className="eyebrow">Quick mock</p>
+              <p className="eyebrow">Full race distance</p>
             </div>
             <p className="mb-4 text-xs text-foreground-dim">
-              One click selects every lecture in a subject. Future uploads tagged
-              with the same subject auto-join the mock.
+              One click enters every lecture in a subject — a full mock at race
+              distance. Future uploads tagged with the same subject auto-join.
             </p>
             <div className="flex flex-wrap gap-2">
               {mockSubjects.map((subject) => {
@@ -220,7 +220,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                     onClick={() => launchMock(subject)}
                   >
                     <Rocket className="h-3.5 w-3.5" />
-                    {subject} mock
+                    {subject} GP
                     <span className="ml-1 font-mono text-[10px] tabular text-muted">
                       {lecCount} lec · {qCount} Q
                     </span>
@@ -363,7 +363,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <section className="panel p-6">
           <div className="mb-5 flex items-center gap-2">
             <Timer className="h-3.5 w-3.5 text-signal" />
-            <p className="eyebrow">Timing</p>
+            <p className="eyebrow">Race clock</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <NumberField
@@ -387,10 +387,10 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           {/* visual: real -> pod */}
           <div className="mt-6 rounded-md border border-border bg-surface-2 p-4">
             <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-muted">
-              <span>Real</span>
+              <span>Race</span>
               <span className="flex items-center gap-1 text-signal">
                 <ChevronsRight className="h-3 w-3" />
-                Pod timer
+                Pod clock
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between gap-4">
@@ -401,7 +401,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
               <div className="flex flex-1 items-center px-3">
                 <div className="relative h-1 w-full overflow-hidden rounded-full bg-surface-3">
                   <div
-                    className="absolute inset-y-0 left-0 bg-signal shadow-[0_0_8px_-1px_rgba(45,212,241,0.6)] transition-[width]"
+                    className="absolute inset-y-0 left-0 bg-wm-yellow shadow-[0_0_8px_-1px_rgba(255,204,0,0.6)] transition-[width]"
                     style={{
                       width: `${Math.max(5, (effectiveMin / Math.max(1, realMin)) * 100)}%`,
                     }}
@@ -423,7 +423,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <section className="panel p-6">
           <div className="mb-5 flex items-center gap-2">
             <Gauge className="h-3.5 w-3.5 text-signal" />
-            <p className="eyebrow">Scope</p>
+            <p className="eyebrow">Race distance</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
@@ -436,7 +436,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                 onChange={(e) => setMaxQuestions(e.target.value)}
               />
               <p className="text-[11px] text-muted">
-                Cap the run shorter than the bank.
+                Cap the stint shorter than the full bank.
               </p>
             </div>
             <div className="space-y-2">
@@ -448,7 +448,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                 onChange={(e) => setLabel(e.target.value)}
               />
               <p className="text-[11px] text-muted">
-                Shows in run history.
+                Shows in the season log.
               </p>
             </div>
           </div>
@@ -503,7 +503,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
 
           <div className="mt-5 space-y-1">
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
-              Pod timer
+              Pod clock
             </p>
             <div className="flex items-baseline gap-2">
               <span className="digit display-lg text-signal">{effectiveMin}</span>
@@ -529,16 +529,16 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <div className="panel p-5">
           <div className="flex items-center gap-2 text-bad">
             <AlertTriangle className="h-3.5 w-3.5" />
-            <p className="eyebrow text-bad">Lockdown</p>
+            <p className="eyebrow text-bad">Parc fermé</p>
           </div>
           <ul className="mt-4 space-y-2 text-xs text-foreground-dim">
             <LockLine>Fullscreen engages where supported.</LockLine>
             <LockLine>Leaving the app triggers an integrity flag.</LockLine>
             <LockLine>Copy/paste, right-click, reload blocked.</LockLine>
             <LockLine accent>
-              2 flags → auto-submit and abort.
+              2 flags → the stewards retire the car (auto-submit).
             </LockLine>
-            <LockLine>Timer hitting zero auto-submits.</LockLine>
+            <LockLine>Clock at zero → chequered flag, auto-submit.</LockLine>
           </ul>
         </div>
 
@@ -550,10 +550,10 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           disabled={busy || availableQuestions === 0}
         >
           <Play className="h-4 w-4" />
-          {busy ? "Spinning up pod…" : "Enter pod"}
+          {busy ? "Forming up…" : "Lights out"}
         </Button>
         <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
-          No way back once armed
+          No way back once the lights go out
         </p>
       </aside>
     </div>
@@ -609,7 +609,7 @@ function Toggle({
       className={cn(
         "rounded-md border px-3.5 py-2 text-xs font-semibold transition-all",
         checked
-          ? "border-signal/60 bg-signal-soft text-signal shadow-[inset_0_1px_0_0_rgba(45,212,241,0.18)]"
+          ? "border-signal/60 bg-signal-soft text-signal shadow-[inset_0_1px_0_0_rgba(255,204,0,0.18)]"
           : "border-border-strong bg-surface-2 text-muted-strong hover:border-border-bright hover:text-foreground",
       )}
     >

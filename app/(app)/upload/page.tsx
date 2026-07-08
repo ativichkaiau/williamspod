@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { UploadClient } from "./upload-client";
+import { HubImportClient } from "./hub-import-client";
 import { NotebookLmHelper } from "@/components/notebook-lm-helper";
 import { requireUser } from "@/lib/auth";
 
@@ -28,6 +29,7 @@ export default async function UploadPage() {
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-6">
           <UploadClient />
+          <HubImportClient />
           <NotebookLmHelper />
         </div>
         <div className="panel p-6 self-start">

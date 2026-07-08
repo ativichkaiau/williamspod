@@ -1,11 +1,12 @@
 import type { ErrorType, TimingCategory } from "@/lib/telemetry/types";
 
 /**
- * Race engineer — an on-demand "why did I get this wrong" debrief for a single
- * question. Reuses the same provider seam as the variation system (placeholder
- * by default, OpenAI or Anthropic when a key is present) but returns plain
- * prose, not JSON. It is grounded in the question's own explanation field and
- * the runner's telemetry — it never invents new medical facts.
+ * Answer explanation — an on-demand "why did I get this wrong" write-up for a
+ * single question. Reuses the same provider seam as the variation system
+ * (placeholder by default, OpenAI or Anthropic when a key is present) but
+ * returns plain prose, not JSON. Grounded in the question's own explanation
+ * field and the runner's telemetry — it never invents new medical facts, and
+ * reads as a normal, clear explanation (no metaphors).
  */
 
 export interface ExplainInput {
@@ -35,28 +36,29 @@ const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
 const TELEMETRY_NOTE: Partial<Record<ErrorType, string>> = {
   trap_error:
-    "Telemetry says you braked early and took the tempting line. Before you commit, check whether a finding is specific or merely common.",
+    "You chose a tempting but less-correct option. Before committing, check whether a finding is specific to the diagnosis or just commonly associated with it.",
   overthinking_error:
-    "You changed your line mid-corner. Your first read was likely the right one — trust it and move on.",
-  timing_error: "You rushed the entry. Give this question type a beat more.",
+    "You changed your answer more than once. Your first read is often right — commit to it unless you have a clear reason to switch.",
+  timing_error:
+    "You answered very quickly. Give this type of question a little more time to read it fully.",
   recall_error:
-    "This is a straight-line fact you didn't have loaded. Re-drill it, then re-test.",
+    "This is a fact you didn't have ready. Review it and re-test yourself on it.",
   mechanism_error:
-    "You worked it and still missed — the cause→effect pathway isn't set. Take it back to the garage.",
+    "You reasoned it through and still missed. Go back over the underlying cause-and-effect pathway.",
   frame_error:
-    "You read the clinical frame wrong. Re-read the vignette and mark what's actually being asked.",
+    "You misread what the question was asking. Re-read the scenario and identify the actual question before answering.",
   integration_error:
-    "This links two systems around one lesion. Study the connection, not the endpoints.",
+    "This question links two concepts. Study how they connect, not just each one on its own.",
   confidence_error:
-    "You were sure and wrong — the most expensive kind. Recalibrate before the real exam.",
+    "You were confident but wrong — the costliest kind of error. Review this topic before you rely on it in the exam.",
 };
 
 function timingLine(cat: TimingCategory | null): string {
   switch (cat) {
     case "fast_wrong":
-      return "Sector time: quick — you were off the throttle too early on this one.";
+      return "You answered quickly and missed it, so slow down and read the whole question next time.";
     case "slow_wrong":
-      return "Sector time: long — you burned laps and still missed the apex.";
+      return "You spent a long time and still missed it, which suggests this concept needs more review.";
     default:
       return "";
   }
@@ -73,18 +75,18 @@ function placeholderExplain(input: ExplainInput): string {
 
   const lines: string[] = [];
   lines.push(
-    `The apex here is ${correctLetter} — "${correct}".` +
-      (input.topic ? ` Topic: ${input.topic}.` : ""),
+    `The correct answer is ${correctLetter} — "${correct}".` +
+      (input.topic ? ` (${input.topic})` : ""),
   );
   if (input.explanation && input.explanation.trim()) {
     lines.push(input.explanation.trim());
   }
   if (picked) {
     lines.push(
-      `You went for ${pickedLetter} — "${picked}". That's the line that cost you the corner.`,
+      `You chose ${pickedLetter} — "${picked}", which isn't the best answer here.`,
     );
   } else {
-    lines.push("You left this one unanswered — no lap logged.");
+    lines.push("You left this question unanswered.");
   }
   const t = timingLine(input.timingCategory);
   if (t) lines.push(t);
@@ -97,21 +99,20 @@ function placeholderExplain(input: ExplainInput): string {
 // Prompt for real providers.
 // ---------------------------------------------------------------------------
 
-const SYSTEM_PROMPT = `You are the race engineer for a medical-exam training team. A driver (student) just got a question wrong in a practice race. Debrief them like an F1 race engineer on the pit wall: calm, precise, direct, encouraging but honest.
+const SYSTEM_PROMPT = `You are a medical tutor helping a student understand a question they just got wrong on a practice exam. Be calm, precise, direct, and encouraging.
 
 Rules:
-- Explain WHY the correct answer is right and WHY their pick is wrong.
+- Explain clearly WHY the correct answer is right and WHY the answer they chose is wrong.
 - Ground everything ONLY in the provided explanation and options. NEVER invent new medical facts, numbers, or guidelines.
-- If telemetry about their mistake type is provided, work one short piece of study advice from it into the debrief.
-- 3-5 short sentences. No preamble, no headings, no markdown. Plain prose.
-- A little racing metaphor is welcome but keep the medicine accurate and front and centre.`;
+- If information about their mistake pattern is provided, add one short, practical piece of study advice based on it.
+- 3-5 short sentences. Plain prose — no preamble, no headings, no markdown, no metaphors.`;
 
 function buildUserPrompt(input: ExplainInput): string {
   const opts = input.choices
     .map((c, i) => {
       const tags = [
         i === input.correctIndex ? "CORRECT" : null,
-        i === input.pickedIndex ? "DRIVER PICKED" : null,
+        i === input.pickedIndex ? "STUDENT CHOSE" : null,
       ]
         .filter(Boolean)
         .join(", ");
@@ -132,8 +133,8 @@ function buildUserPrompt(input: ExplainInput): string {
     `Question: ${input.stem}`,
     `Options:\n${opts}`,
     input.explanation ? `Official explanation (ground truth): ${input.explanation}` : null,
-    telemetry ? `Telemetry: ${telemetry}` : null,
-    "Debrief the driver.",
+    telemetry ? `Mistake pattern: ${telemetry}` : null,
+    "Explain why the student's answer was wrong.",
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -196,8 +197,8 @@ async function anthropicExplain(
 /**
  * Explain one wrong answer. Selection mirrors the variation system:
  * explicit override, else key auto-detection, else the offline placeholder.
- * Any provider failure falls back to the placeholder so the driver always
- * gets a debrief.
+ * Any provider failure falls back to the placeholder so the student always
+ * gets an explanation.
  */
 export async function explainMistake(input: ExplainInput): Promise<ExplainResult> {
   const forced = process.env.ENGINEER_PROVIDER?.toLowerCase();
@@ -221,7 +222,7 @@ export async function explainMistake(input: ExplainInput): Promise<ExplainResult
       if (openaiKey) return await openAiExplain(input, openaiKey);
     }
   } catch {
-    // Provider hiccup — never leave the driver without a debrief.
+    // Provider hiccup — never leave the student without an explanation.
     return fallback();
   }
   return fallback();

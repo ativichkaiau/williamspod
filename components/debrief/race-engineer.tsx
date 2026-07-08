@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RadioTower, Loader2 } from "lucide-react";
+import { Lightbulb, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type State =
@@ -11,10 +11,10 @@ type State =
   | { kind: "error"; message: string };
 
 /**
- * "Ask the race engineer" — on-demand AI debrief for one wrong answer. Calls
+ * "Explain this answer" — on-demand explanation for one wrong answer. Calls
  * POST /api/attempts/[id]/explain, which grounds the reply in the question's
  * explanation and the run's telemetry. Offline it still returns a useful
- * placeholder debrief, so the button never dead-ends.
+ * placeholder explanation, so the button never dead-ends.
  */
 export function RaceEngineer({
   attemptId,
@@ -37,13 +37,13 @@ export function RaceEngineer({
       if (!res.ok || !json.text) {
         setState({
           kind: "error",
-          message: json.error ?? "The engineer's radio cut out. Try again.",
+          message: json.error ?? "Couldn't generate an explanation. Try again.",
         });
         return;
       }
       setState({ kind: "done", text: json.text, provider: json.provider });
     } catch {
-      setState({ kind: "error", message: "Radio failure. Try again." });
+      setState({ kind: "error", message: "Couldn't generate an explanation. Try again." });
     }
   }
 
@@ -51,9 +51,9 @@ export function RaceEngineer({
     return (
       <div className="mt-4 rounded-md border border-signal/25 bg-signal-soft p-3.5 pop-in">
         <div className="mb-1.5 flex items-center gap-1.5">
-          <RadioTower className="h-3 w-3 text-signal" />
+          <Lightbulb className="h-3 w-3 text-signal" />
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-signal">
-            Race engineer
+            Explanation
           </p>
           {state.provider === "placeholder" && (
             <span className="text-[9px] uppercase tracking-[0.14em] text-muted">
@@ -86,12 +86,12 @@ export function RaceEngineer({
         {state.kind === "loading" ? (
           <>
             <Loader2 className="h-3.5 w-3.5 animate-spin text-signal" />
-            Engineer is reviewing the data lap…
+            Generating explanation…
           </>
         ) : (
           <>
-            <RadioTower className="h-3.5 w-3.5 text-signal" />
-            Ask the race engineer
+            <Lightbulb className="h-3.5 w-3.5 text-signal" />
+            Explain this answer
           </>
         )}
       </button>

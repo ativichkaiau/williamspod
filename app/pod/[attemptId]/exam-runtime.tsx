@@ -94,6 +94,7 @@ export function ExamRuntime({
   const [integrityCount, setIntegrityCount] = useState(0);
   const [integrityWarning, setIntegrityWarning] = useState<string | null>(null);
   const [abortReason, setAbortReason] = useState<string | null>(null);
+  const [questionElapsedSec, setQuestionElapsedSec] = useState(0);
   const submittedRef = useRef(false);
   const touchLockdownRef = useRef(false);
   const lastNoisyIntegrityRef = useRef<{ kind: IntegrityKind; at: number } | null>(
@@ -243,7 +244,7 @@ export function ExamRuntime({
         setSubmitting(false);
       }
     },
-    [attemptId, picks, marked, examStartMs, router],
+    [attemptId, picks, marked, examStartMs, questions, router],
   );
 
   // ---------- Integrity events ----------
@@ -318,9 +319,26 @@ export function ExamRuntime({
   // ---------- Tick ----------
   useEffect(() => {
     if (!armed) return;
-    const id = window.setInterval(() => setNow(Date.now()), 500);
-    return () => window.clearInterval(id);
-  }, [armed]);
+    const updateClock = () => {
+      const timestamp = Date.now();
+      const qid = questions[currentIdx]?.id;
+      setNow(timestamp);
+      if (!qid) {
+        setQuestionElapsedSec(0);
+        return;
+      }
+      const elapsedForQuestion =
+        (metricsRef.current[qid]?.timeMs ?? 0) +
+        (enterRef.current?.qid === qid ? timestamp - enterRef.current.at : 0);
+      setQuestionElapsedSec(Math.floor(elapsedForQuestion / 1000));
+    };
+    const kickId = window.setTimeout(updateClock, 0);
+    const intervalId = window.setInterval(updateClock, 500);
+    return () => {
+      window.clearTimeout(kickId);
+      window.clearInterval(intervalId);
+    };
+  }, [armed, currentIdx, questions]);
 
   // ---------- Auto-submit on timer expiry ----------
   useEffect(() => {
@@ -624,11 +642,7 @@ export function ExamRuntime({
             question={cur}
             picked={picks[cur.id] ?? -1}
             isMarked={!!marked[cur.id]}
-            questionElapsedSec={Math.floor(
-              ((metricsRef.current[cur.id]?.timeMs ?? 0) +
-                (enterRef.current?.qid === cur.id ? now - enterRef.current.at : 0)) /
-                1000,
-            )}
+            questionElapsedSec={questionElapsedSec}
             confidence={confidence[cur.id] ?? null}
             onSetConfidence={(lvl) => setConf(cur.id, lvl)}
             onPick={(i) => pick(cur.id, i)}

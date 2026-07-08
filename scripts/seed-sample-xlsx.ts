@@ -1,5 +1,4 @@
 import * as XLSX from "xlsx-js-style";
-import { writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 type Row = (string | number)[];

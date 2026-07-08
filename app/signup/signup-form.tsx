@@ -30,12 +30,13 @@ export function SignupForm() {
   // Live-validate code.
   useEffect(() => {
     const clean = code.trim().toUpperCase();
+    let checkingTimer: ReturnType<typeof setTimeout> | null = null;
     if (clean.length < 4) {
-      setCheck({ kind: "idle" });
-      return;
+      const idleTimer = setTimeout(() => setCheck({ kind: "idle" }), 0);
+      return () => clearTimeout(idleTimer);
     }
-    setCheck({ kind: "checking" });
-    const t = setTimeout(async () => {
+    checkingTimer = setTimeout(() => setCheck({ kind: "checking" }), 0);
+    const validateTimer = setTimeout(async () => {
       try {
         const res = await fetch(
           `/api/auth/check-invite?code=${encodeURIComponent(clean)}`,
@@ -47,7 +48,10 @@ export function SignupForm() {
         setCheck({ kind: "error", reason: "network" });
       }
     }, 350);
-    return () => clearTimeout(t);
+    return () => {
+      if (checkingTimer) clearTimeout(checkingTimer);
+      clearTimeout(validateTimer);
+    };
   }, [code]);
 
   const passwordsMatch = password.length > 0 && password === confirm;
@@ -150,7 +154,7 @@ export function SignupForm() {
           className="h-11 font-mono tracking-[0.2em]"
         />
         <p className="text-[10px] uppercase tracking-[0.14em] text-muted">
-          ≥ 6 characters. You can't reset it without admin help.
+          ≥ 6 characters. You can&apos;t reset it without admin help.
         </p>
       </div>
 

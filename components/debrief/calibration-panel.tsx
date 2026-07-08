@@ -36,7 +36,7 @@ export function CalibrationPanel({ report }: { report: CalibrationReport }) {
     <section className="panel p-6">
       <div className="mb-4 flex items-center gap-2">
         <Crosshair className="h-3.5 w-3.5 text-signal" />
-        <p className="eyebrow">Calibration — where your telemetry lies</p>
+        <p className="eyebrow">Confidence calibration</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">

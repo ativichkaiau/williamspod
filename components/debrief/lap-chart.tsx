@@ -13,15 +13,15 @@ const CAT_BAR: Record<TimingCategory, string> = {
 const CAT_LABEL: Record<TimingCategory, string> = {
   fast_correct: "fast + right",
   slow_correct: "slow + right",
-  fast_wrong: "rushed error",
-  slow_wrong: "burned + wrong",
+  fast_wrong: "fast + wrong",
+  slow_wrong: "slow + wrong",
 };
 
 /**
- * Lap-time trace — seconds per question in race order. Bar height is time,
- * colour is the timing category, and a dashed notch marks the adaptive budget
- * for that lap. A dashed line across the chart marks the runner's median lap.
- * Pure presentation of telemetry already stored — no new data.
+ * Time-per-question chart — seconds per question in order. Bar height is time,
+ * colour is the timing category, and a dashed notch marks the suggested budget
+ * for that question. A dashed line across the chart marks the median time.
+ * Pure presentation of data already stored — no new data.
  */
 export function LapChart({ pacing }: { pacing: PacingPoint[] }) {
   if (pacing.length === 0) return null;
@@ -38,12 +38,12 @@ export function LapChart({ pacing }: { pacing: PacingPoint[] }) {
     <section className="panel p-6">
       <div className="mb-1 flex items-center gap-2">
         <Timer className="h-3.5 w-3.5 text-signal" />
-        <p className="eyebrow">Lap times</p>
+        <p className="eyebrow">Time per question</p>
       </div>
       <p className="mb-5 max-w-2xl text-[11px] leading-relaxed text-muted">
-        Seconds per question, in race order. The dashed notch on each lap is its
-        adaptive budget — bars poking above it are laps you ran long. Red bars
-        are rushes into a wrong answer.
+        Seconds spent on each question, in order. The dashed notch on each bar is
+        its suggested time — bars poking above it are questions you spent longer
+        on. Red bars are wrong answers you moved through quickly.
       </p>
 
       <div className="relative h-44 w-full">
@@ -108,7 +108,7 @@ export function LapChart({ pacing }: { pacing: PacingPoint[] }) {
           tone={overBudget > 0 ? "warn" : undefined}
         />
         <PaceStat
-          label="Rushes"
+          label="Fast + wrong"
           value={String(rushes)}
           tone={rushes > 0 ? "bad" : undefined}
         />

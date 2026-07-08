@@ -19,16 +19,16 @@ import {
 type ShellUser = { id: string; name: string; role: "admin" | "member" };
 
 const MEMBER_LINKS = [
-  { href: "/", label: "Pit wall", icon: Gauge },
-  { href: "/bank", label: "Garage", icon: Warehouse },
-  { href: "/run", label: "Race", icon: Flag },
-  { href: "/standings", label: "Championship", icon: Trophy },
-  { href: "/history", label: "Season", icon: History },
+  { href: "/", label: "Dashboard", icon: Gauge },
+  { href: "/bank", label: "Bank", icon: Warehouse },
+  { href: "/run", label: "Practice", icon: Flag },
+  { href: "/standings", label: "Progress", icon: Trophy },
+  { href: "/history", label: "History", icon: History },
 ];
 
 const ADMIN_EXTRA = [
-  { href: "/upload", label: "Parts", icon: Upload },
-  { href: "/admin", label: "Control", icon: Shield },
+  { href: "/upload", label: "Upload", icon: Upload },
+  { href: "/admin", label: "Admin", icon: Shield },
 ];
 
 export function AppShell({
@@ -50,7 +50,7 @@ export function AppShell({
           <Link href="/" className="group flex shrink-0 items-center gap-3">
             <WilliamsPodLogo
               size="md"
-              subtitle="Wind Tunnel"
+              subtitle="Exam Practice"
               wordmarkClassName="hidden sm:flex"
             />
             <span className="hidden items-center rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted-strong shadow-[var(--clay-chip)] lg:inline-flex">
@@ -119,9 +119,9 @@ export function AppShell({
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-muted">
           <div className="flex items-center gap-2">
             <span className="dot text-signal" />
-            <span>Wind tunnel — not the race</span>
+            <span>Practice under exam conditions</span>
           </div>
-          <span className="font-mono tabular">FW15C spec · v0.2</span>
+          <span className="font-mono tabular">v0.2</span>
         </div>
       </footer>
     </div>

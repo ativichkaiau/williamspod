@@ -72,10 +72,10 @@ export function DeleteAttemptButton({
       <Dialog open={open} onOpenChange={(next) => !busy && setOpen(next)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Strike this race from the record?</DialogTitle>
+            <DialogTitle>Delete this test?</DialogTitle>
             <DialogDescription>
-              This removes the race, its answers, and the stewards&apos; report.
-              The garage stays unchanged.
+              This removes the test, its answers, and its integrity events.
+              The question bank stays unchanged.
             </DialogDescription>
           </DialogHeader>
           {error && (
@@ -88,7 +88,7 @@ export function DeleteAttemptButton({
               Cancel
             </Button>
             <Button variant="danger" onClick={remove} disabled={busy}>
-              {busy ? "Striking…" : "Strike it"}
+              {busy ? "Deleting…" : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

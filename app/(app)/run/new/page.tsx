@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, Upload } from "lucide-react";
 import { Configurator } from "./configurator";
 
-export const metadata = { title: "Race entry — WilliamsPod" };
+export const metadata = { title: "New test — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 async function loadLectureChoices() {
@@ -45,34 +45,34 @@ export default async function NewRunPage() {
         href="/run"
         className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
       >
-        <ChevronLeft className="h-3 w-3" /> Races
+        <ChevronLeft className="h-3 w-3" /> Practice
       </Link>
 
       <header>
         <div className="flex items-center gap-2">
           <span className="dot text-signal pod-pulse" />
-          <p className="eyebrow">Race entry</p>
+          <p className="eyebrow">New test</p>
         </div>
         <h1 className="mt-2 display-lg text-foreground">
-          Take your <span className="race-lean text-signal">grid slot</span>
+          Set up a <span className="race-lean text-signal">practice test</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-foreground-dim">
-          Pick lectures, set a clock tighter than the real Exam Pod, choose how
-          many questions. The pod runs parc-fermé lockdown: fullscreen where
-          supported, leaving the app fires an integrity flag,{" "}
-          <span className="text-bad">two flags and the stewards retire the car</span>.
+          Pick lectures, set a timer tighter than the real Exam Pod, and choose
+          how many questions. Tests run in lockdown: fullscreen where supported,
+          leaving the app raises an integrity flag,{" "}
+          <span className="text-bad">two flags auto-submit the test</span>.
         </p>
       </header>
 
       {empty ? (
         <div className="panel bg-grid flex flex-col items-center gap-3 py-14 text-center">
           <p className="text-sm text-muted">
-            The garage is empty — deliver parts (.xlsx) first.
+            The bank is empty — upload questions (.xlsx) first.
           </p>
           <Button asChild className="mt-2" variant="signal">
             <Link href="/upload">
               <Upload className="h-4 w-4" />
-              Deliver parts
+              Upload questions
             </Link>
           </Button>
         </div>

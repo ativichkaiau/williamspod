@@ -534,7 +534,7 @@ export function ExamRuntime({
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="dot text-signal pod-pulse" />
-              <p className="eyebrow">Formation lap</p>
+              <p className="eyebrow">Before you start</p>
             </div>
             <div className="flex items-center gap-1.5" aria-hidden="true">
               <span className="start-lamp lit" />
@@ -547,12 +547,12 @@ export function ExamRuntime({
 
           <div className="panel-deep p-8">
             <h1 className="display-lg text-foreground">
-              On the <span className="race-lean text-signal">grid</span>
+              Ready to <span className="race-lean text-signal">start</span>
             </h1>
             <p className="mt-3 text-sm leading-relaxed text-foreground-dim">
-              The clock starts at lights out. Fullscreen engages where supported.
-              You can&apos;t rejoin a stint mid-race — treat this like the real
-              exam.
+              The timer starts as soon as you begin. Fullscreen engages where
+              supported. You can&apos;t rejoin a test once you leave it — treat
+              this like the real exam.
             </p>
 
             <ul className="mt-6 space-y-3">
@@ -561,13 +561,13 @@ export function ExamRuntime({
                 value={String(questions.length)}
               />
               <Spec
-                label="Race clock"
+                label="Timer"
                 value={formatDuration(durationMs)}
                 tone="signal"
               />
               <Spec
-                label="Stewards"
-                value={`${ABORT_THRESHOLD} flags → retired`}
+                label="Integrity"
+                value={`${ABORT_THRESHOLD} flags → auto-submit`}
                 tone="bad"
               />
             </ul>
@@ -578,7 +578,7 @@ export function ExamRuntime({
                 size="lg"
                 onClick={() => router.replace("/run")}
               >
-                Back to the pits
+                Cancel
               </Button>
               <Button
                 variant="signal"
@@ -586,7 +586,7 @@ export function ExamRuntime({
                 className="flex-1"
                 onClick={arm}
               >
-                Lights out
+                Start test
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -646,7 +646,7 @@ export function ExamRuntime({
             </Button>
             <div className="flex flex-col items-center">
               <span className="text-[9px] uppercase tracking-[0.22em] text-muted">
-                lap
+                question
               </span>
               <span className="digit text-sm text-foreground">
                 {String(currentIdx + 1).padStart(2, "0")}
@@ -684,10 +684,10 @@ export function ExamRuntime({
       <Dialog open={confirmSubmit} onOpenChange={(o) => !submitting && setConfirmSubmit(o)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Box, box — take the chequered flag?</DialogTitle>
+            <DialogTitle>Submit this test?</DialogTitle>
             <DialogDescription>
-              Ends the stint and rolls straight into the pit-wall debrief.
-              There&apos;s no going back out.
+              This ends the test and takes you straight to your results.
+              You can&apos;t come back to it.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
@@ -705,14 +705,14 @@ export function ExamRuntime({
               onClick={() => setConfirmSubmit(false)}
               disabled={submitting}
             >
-              Stay out
+              Keep going
             </Button>
             <Button
               variant="signal"
               onClick={() => submitAttempt()}
               disabled={submitting}
             >
-              {submitting ? "Boxing…" : "Box, box"}
+              {submitting ? "Submitting…" : "Submit test"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -725,11 +725,11 @@ export function ExamRuntime({
               <ShieldAlert className="h-6 w-6" />
             </div>
             <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-bad">
-              Retired from the race
+              Test aborted
             </p>
             <p className="mt-2 text-sm text-foreground-dim">{abortReason}</p>
             <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-              Rolling into the pit-wall debrief…
+              Taking you to your results…
             </p>
           </div>
         </div>
@@ -773,11 +773,11 @@ function TopBar({
             <div className="flex items-center gap-1.5">
               <span className="dot text-bad pod-pulse" />
               <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-bad">
-                parc fermé
+                lockdown
               </span>
             </div>
             <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted">
-              pod · car 0 · live
+              test in progress
             </span>
           </div>
         </div>
@@ -827,10 +827,10 @@ function TopBar({
             variant="signal"
             className="ml-2"
             onClick={onSubmit}
-            title="Submit the run"
+            title="Submit the test"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
-            Box, box
+            Submit
           </Button>
         </div>
       </div>
@@ -962,7 +962,7 @@ function QuestionView({
                     ? "bg-warn-soft text-warn"
                     : "bg-surface-2 text-muted",
               )}
-              title="Advisory sector time for this question type"
+              title="Suggested time for this question type"
             >
               <Hourglass className="h-3 w-3" />
               {questionElapsedSec}s / {budget}s
@@ -980,7 +980,7 @@ function QuestionView({
               isMarked ? "text-wm-yellow fill-wm-yellow/40" : "text-muted",
             )}
           />
-          {isMarked ? "Yellow flag" : "Flag it"}
+          {isMarked ? "Flagged" : "Flag"}
         </Button>
       </div>
       <QuestionContent
@@ -1085,7 +1085,7 @@ function Navigator({
   return (
     <aside className="panel sticky top-20 self-start p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="eyebrow">Pit board</p>
+        <p className="eyebrow">Questions</p>
         <span className="digit text-sm text-foreground">
           {answeredCount}
           <span className="text-muted">/{questions.length}</span>
@@ -1109,7 +1109,7 @@ function Navigator({
                     ? "border-good/40 bg-good-soft text-foreground"
                     : "border-border bg-surface-2 text-muted hover:border-border-bright",
               )}
-              aria-label={`Question ${i + 1}${answered ? " (answered)" : ""}${isMarked ? " (yellow flag)" : ""}`}
+              aria-label={`Question ${i + 1}${answered ? " (answered)" : ""}${isMarked ? " (flagged)" : ""}`}
             >
               {i + 1}
               {isMarked && (
@@ -1123,7 +1123,7 @@ function Navigator({
       <div className="mt-5 space-y-2 border-t border-border pt-4 text-[10px] uppercase tracking-[0.16em] text-muted">
         <LegendDot color="bg-good-soft border-good/40">answered</LegendDot>
         <LegendDot color="bg-signal/20 border-signal/60">current</LegendDot>
-        <LegendDot color="bg-wm-yellow">yellow flag</LegendDot>
+        <LegendDot color="bg-wm-yellow">flagged</LegendDot>
       </div>
 
       <div className="mt-4 space-y-1.5 border-t border-border pt-4">
@@ -1133,7 +1133,7 @@ function Navigator({
         <div className="space-y-1.5 text-[10px] uppercase tracking-[0.14em] text-muted">
           <KeyRow keys={["A", "—", "E"]} label="pick" />
           <KeyRow keys={["←", "→"]} label="nav" />
-          <KeyRow keys={["M"]} label="mark" />
+          <KeyRow keys={["M"]} label="flag" />
           <KeyRow keys={["⌘", "↵"]} label="submit" />
         </div>
       </div>

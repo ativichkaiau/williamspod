@@ -121,7 +121,7 @@ export function BrandLockup({ className }: { className?: string }) {
         </span>
       </div>
       <div className="livery-stripe h-[3px] w-40 rounded-full" />
-      <WilliamsPodLogo size="lg" subtitle="Exam Telemetry · 1993 spec" />
+      <WilliamsPodLogo size="lg" subtitle="Exam Practice" />
     </div>
   );
 }

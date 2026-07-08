@@ -42,7 +42,7 @@ export function LoginForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="name">Driver</Label>
+        <Label htmlFor="name">Name</Label>
         <Input
           id="name"
           type="text"
@@ -80,11 +80,11 @@ export function LoginForm() {
         className="w-full"
         disabled={submitting || !name || !password}
       >
-        {submitting ? "Checking pass…" : "Sign on"}
+        {submitting ? "Signing in…" : "Sign in"}
         <ArrowRight className="h-4 w-4" />
       </Button>
       <p className="pt-1 text-center text-[10px] uppercase tracking-[0.18em] text-muted">
-        Hold a paddock pass?{" "}
+        Have an invite code?{" "}
         <Link
           href="/signup"
           className="text-signal hover:text-signal-strong"

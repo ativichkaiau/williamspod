@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { SignupForm } from "./signup-form";
 import { BrandLockup } from "@/components/brand/williamspod-logo";
 
-export const metadata = { title: "WilliamsPod — Paddock pass" };
+export const metadata = { title: "WilliamsPod — Sign up" };
 
 export default function SignupPage() {
   return (
@@ -15,13 +15,13 @@ export default function SignupPage() {
 
         <div className="panel-deep p-8">
           <div className="mb-6">
-            <p className="eyebrow">New driver</p>
+            <p className="eyebrow">New account</p>
             <h1 className="mt-1 display-lg text-foreground">
-              Join the <span className="race-lean text-signal">team</span>
+              Create your <span className="race-lean text-signal">account</span>
             </h1>
             <p className="mt-2 text-sm text-foreground-dim">
-              A paddock pass from race control gets you in. Your stints, scores
-              and weak-sector telemetry stay private to you.
+              An invite code from an admin gets you in. Your tests, scores and
+              weak-area analytics stay private to you.
             </p>
           </div>
 

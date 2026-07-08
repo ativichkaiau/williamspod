@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "WilliamsPod — Simulator",
-  description: "Private exam telemetry simulator. Wind tunnel before the race.",
+  description: "Private exam practice simulator with per-question analytics.",
 };
 
 const themeInitScript = `

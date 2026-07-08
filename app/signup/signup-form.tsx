@@ -89,7 +89,7 @@ export function SignupForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="code">Paddock pass</Label>
+        <Label htmlFor="code">Invite code</Label>
         <div className="relative">
           <Input
             id="code"
@@ -122,7 +122,7 @@ export function SignupForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="name">Driver name</Label>
+        <Label htmlFor="name">Name</Label>
         <Input
           id="name"
           type="text"
@@ -187,12 +187,12 @@ export function SignupForm() {
         className="w-full"
         disabled={!canSubmit}
       >
-        {submitting ? "Signing you on…" : "Join the team"}
+        {submitting ? "Creating account…" : "Create account"}
         <ArrowRight className="h-4 w-4" />
       </Button>
 
       <p className="text-center text-[10px] uppercase tracking-[0.18em] text-muted">
-        Already on the team?{" "}
+        Already have an account?{" "}
         <Link href="/login" className="text-signal hover:text-signal-strong">
           Sign on
         </Link>

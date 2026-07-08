@@ -3,7 +3,7 @@ import { UploadClient } from "./upload-client";
 import { NotebookLmHelper } from "@/components/notebook-lm-helper";
 import { requireUser } from "@/lib/auth";
 
-export const metadata = { title: "Parts delivery — WilliamsPod" };
+export const metadata = { title: "Upload — WilliamsPod" };
 
 export default async function UploadPage() {
   const user = await requireUser();
@@ -13,13 +13,13 @@ export default async function UploadPage() {
       <header>
         <div className="flex items-center gap-2">
           <span className="dot text-signal" />
-          <p className="eyebrow">Parts delivery</p>
+          <p className="eyebrow">Upload</p>
         </div>
         <h1 className="mt-2 display-lg text-foreground">
-          New parts for the <span className="race-lean text-signal">car</span>
+          Add <span className="race-lean text-signal">questions</span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-foreground-dim">
-          Deliver an <span className="font-mono text-foreground">.xlsx</span>. One
+          Upload an <span className="font-mono text-foreground">.xlsx</span>. One
           sheet per lecture — the sheet name becomes the lecture name. Header row
           maps to the fields below.
         </p>

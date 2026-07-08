@@ -68,20 +68,20 @@ export function AdminTools({
       <header>
         <div className="flex items-center gap-2">
           <span className="dot text-signal pod-pulse" />
-          <p className="eyebrow">Race control</p>
+          <p className="eyebrow">Admin</p>
         </div>
         <h1 className="mt-2 display-lg text-foreground">
-          Race <span className="race-lean text-signal">control</span>
+          Admin <span className="race-lean text-signal">tools</span>
         </h1>
         <p className="mt-2 text-sm text-foreground-dim">
-          Issue paddock passes, manage drivers. The garage is shared; scores are
-          private.
+          Create invite codes and manage members. The question bank is shared;
+          scores are private.
         </p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Active drivers" value={String(totalRunners)} />
-        <Stat label="Passes outstanding" value={String(activeInvites)} />
+        <Stat label="Active members" value={String(totalRunners)} />
+        <Stat label="Pending invites" value={String(activeInvites)} />
         <Stat
           label="Lifetime users"
           value={String(users.length)}
@@ -164,7 +164,7 @@ function InviteSection({
   }
 
   async function revoke(id: string) {
-    if (!confirm("Revoke this paddock pass? Anyone holding the code won't be able to use it.")) {
+    if (!confirm("Revoke this invite? Anyone holding the code won't be able to use it.")) {
       return;
     }
     const res = await fetch(`/api/admin/invites/${id}`, { method: "DELETE" });
@@ -176,7 +176,7 @@ function InviteSection({
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
         <div className="flex items-center gap-2">
           <Shield className="h-3.5 w-3.5 text-signal" />
-          <p className="eyebrow">Paddock passes</p>
+          <p className="eyebrow">Invites</p>
         </div>
         <Dialog
           open={open}
@@ -194,12 +194,12 @@ function InviteSection({
           <DialogTrigger asChild>
             <Button variant="signal" size="sm">
               <Plus className="h-3.5 w-3.5" />
-              New pass
+              New invite
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Issue a paddock pass</DialogTitle>
+              <DialogTitle>Create an invite</DialogTitle>
               <DialogDescription>
                 Hand the link or code to a friend. Single-use.
               </DialogDescription>
@@ -241,14 +241,14 @@ function InviteSection({
                     Cancel
                   </Button>
                   <Button variant="signal" onClick={generate} disabled={busy}>
-                    {busy ? "Printing…" : "Print pass"}
+                    {busy ? "Creating…" : "Create invite"}
                   </Button>
                 </DialogFooter>
               </div>
             ) : (
               <div className="space-y-4 pop-in">
                 <div>
-                  <Label>Pass code</Label>
+                  <Label>Invite code</Label>
                   <div className="mt-1.5 rounded-md border border-signal/40 bg-signal-soft p-4 text-center">
                     <p className="digit text-3xl text-signal tracking-[0.18em]">
                       {createdCode}
@@ -297,7 +297,7 @@ function InviteSection({
 
       {invites.length === 0 ? (
         <div className="p-10 text-center text-sm text-muted">
-          No passes issued. Print one to add a driver to the team.
+          No invites yet. Create one to add a member.
         </div>
       ) : (
         <ul className="divide-y divide-border">
@@ -385,7 +385,7 @@ function UserSection({
   return (
     <section className="panel overflow-hidden">
       <div className="flex items-center justify-between border-b border-border px-5 py-3">
-        <p className="eyebrow">Drivers</p>
+        <p className="eyebrow">Users</p>
         <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
           {users.length} total
         </span>
@@ -418,7 +418,7 @@ function UserSection({
                 </div>
                 <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted">
                   <span className="digit text-foreground-dim">{u.attemptCount}</span>{" "}
-                  run{u.attemptCount === 1 ? "" : "s"}
+                  test{u.attemptCount === 1 ? "" : "s"}
                   {" · "}
                   joined {new Date(u.createdAt).toLocaleDateString()}
                   {u.lastSeenAt &&

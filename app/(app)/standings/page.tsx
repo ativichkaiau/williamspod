@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trophy, Flag, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Championship — WilliamsPod" };
+export const metadata = { title: "Progress — WilliamsPod" };
 
 export default async function StandingsPage() {
   const user = await requireUser();
@@ -19,13 +19,13 @@ export default async function StandingsPage() {
         <div className="panel flex flex-col items-center gap-3 py-14 text-center">
           <Trophy className="h-8 w-8 text-muted" />
           <p className="text-sm text-muted">
-            No championship points yet. Every race you finish scores a rating per
-            subject — go bank some.
+            No progress yet. Every test you finish updates a rating per subject —
+            take one to get started.
           </p>
           <Button asChild variant="signal" className="mt-2">
             <Link href="/run/new">
               <Flag className="h-4 w-4" />
-              Race entry
+              New test
             </Link>
           </Button>
         </div>
@@ -42,7 +42,7 @@ export default async function StandingsPage() {
       {/* Leader spotlight */}
       <section className="panel-deep relative overflow-hidden p-6 pop-in">
         <div className="livery-stripe pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
-        <p className="eyebrow">Championship leader</p>
+        <p className="eyebrow">Top subject</p>
         <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-center gap-4">
             <span className="roundel h-12 w-12 text-xl" aria-hidden="true">
@@ -51,7 +51,7 @@ export default async function StandingsPage() {
             <div>
               <h2 className="display-lg text-foreground">{leader.key}</h2>
               <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted">
-                {leader.races} race{leader.races === 1 ? "" : "s"} ·{" "}
+                {leader.races} test{leader.races === 1 ? "" : "s"} ·{" "}
                 {leader.accuracy}% accuracy
               </p>
             </div>
@@ -66,10 +66,10 @@ export default async function StandingsPage() {
         </div>
       </section>
 
-      {/* Constructors' table — subjects */}
+      {/* Subject standings */}
       <section className="panel overflow-hidden">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <p className="eyebrow">Constructors&apos; standings — by subject</p>
+          <p className="eyebrow">By subject</p>
           <Trophy className="h-3.5 w-3.5 text-signal" />
         </div>
         <ul className="divide-y divide-border">
@@ -79,11 +79,11 @@ export default async function StandingsPage() {
         </ul>
       </section>
 
-      {/* Drivers' table — topics (only when tagged) */}
+      {/* Topic standings (only when tagged) */}
       {topics.length > 0 && (
         <section className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
-            <p className="eyebrow">Drivers&apos; standings — by topic</p>
+            <p className="eyebrow">By topic</p>
             <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
               {topics.length} tracked
             </span>
@@ -97,7 +97,7 @@ export default async function StandingsPage() {
       )}
 
       <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
-        Ratings start at 1000 · beating harder questions pays more
+        Ratings start at 1000 · harder questions are worth more
       </p>
     </div>
   );
@@ -108,14 +108,14 @@ function Header() {
     <header>
       <div className="flex items-center gap-2">
         <span className="dot text-signal" />
-        <p className="eyebrow">Championship</p>
+        <p className="eyebrow">Progress</p>
       </div>
       <h1 className="mt-2 display-lg text-foreground">
-        The <span className="race-lean text-signal">title</span> race
+        Your <span className="race-lean text-signal">progress</span>
       </h1>
       <p className="mt-2 max-w-2xl text-sm text-foreground-dim">
-        A rating per subject and topic that evolves every race — so you can see
-        whether you&apos;re actually gaining pace, not just how one stint went.
+        A rating per subject and topic that updates after every test — so you can
+        see whether you&apos;re actually improving, not just how one test went.
       </p>
     </header>
   );
@@ -146,7 +146,7 @@ function StandingLine({
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-bold text-foreground">{row.key}</div>
         <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted">
-          {row.races} race{row.races === 1 ? "" : "s"} · {row.correct}/
+          {row.races} test{row.races === 1 ? "" : "s"} · {row.correct}/
           {row.answered} · {row.accuracy}%
         </div>
       </div>

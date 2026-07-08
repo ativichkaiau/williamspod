@@ -141,7 +141,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
     }
     setSelected(next);
     // Auto-label the run for easy identification in History.
-    if (!label) setLabel(`${subject} GP`);
+    if (!label) setLabel(`${subject} mock`);
   }
 
   // Subjects that should appear as launchable mocks (skip "Other").
@@ -194,11 +194,11 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           <section className="panel-deep p-5 pop-in">
             <div className="mb-3 flex items-center gap-2">
               <Rocket className="h-3.5 w-3.5 text-signal" />
-              <p className="eyebrow">Full race distance</p>
+              <p className="eyebrow">Full mock</p>
             </div>
             <p className="mb-4 text-xs text-foreground-dim">
-              One click enters every lecture in a subject — a full mock at race
-              distance. Future uploads tagged with the same subject auto-join.
+              One click selects every lecture in a subject — a full-length mock.
+              Future uploads tagged with the same subject auto-join.
             </p>
             <div className="flex flex-wrap gap-2">
               {mockSubjects.map((subject) => {
@@ -220,7 +220,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                     onClick={() => launchMock(subject)}
                   >
                     <Rocket className="h-3.5 w-3.5" />
-                    {subject} GP
+                    {subject} mock
                     <span className="ml-1 font-mono text-[10px] tabular text-muted">
                       {lecCount} lec · {qCount} Q
                     </span>
@@ -363,7 +363,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <section className="panel p-6">
           <div className="mb-5 flex items-center gap-2">
             <Timer className="h-3.5 w-3.5 text-signal" />
-            <p className="eyebrow">Race clock</p>
+            <p className="eyebrow">Timing</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <NumberField
@@ -375,8 +375,8 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
               max={300}
             />
             <NumberField
-              label="Pressure shave (min)"
-              hint="Doctrine: train under worse conditions than the race."
+              label="Time cut (min)"
+              hint="Practise under tighter time than the real exam."
               value={pressureDeltaMin}
               onChange={(v) => setPressureDeltaMin(Math.max(0, v))}
               min={0}
@@ -387,10 +387,10 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           {/* visual: real -> pod */}
           <div className="mt-6 rounded-md border border-border bg-surface-2 p-4">
             <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-muted">
-              <span>Race</span>
+              <span>Real exam</span>
               <span className="flex items-center gap-1 text-signal">
                 <ChevronsRight className="h-3 w-3" />
-                Pod clock
+                Your timer
               </span>
             </div>
             <div className="mt-2 flex items-baseline justify-between gap-4">
@@ -423,7 +423,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <section className="panel p-6">
           <div className="mb-5 flex items-center gap-2">
             <Gauge className="h-3.5 w-3.5 text-signal" />
-            <p className="eyebrow">Race distance</p>
+            <p className="eyebrow">Length</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
@@ -436,7 +436,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                 onChange={(e) => setMaxQuestions(e.target.value)}
               />
               <p className="text-[11px] text-muted">
-                Cap the stint shorter than the full bank.
+                Cap the test shorter than the full bank.
               </p>
             </div>
             <div className="space-y-2">
@@ -498,12 +498,12 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <div className="panel-deep p-5">
           <div className="flex items-center gap-2">
             <span className="dot text-signal pod-pulse" />
-            <p className="eyebrow">Pressure brief</p>
+            <p className="eyebrow">Summary</p>
           </div>
 
           <div className="mt-5 space-y-1">
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
-              Pod clock
+              Your timer
             </p>
             <div className="flex items-baseline gap-2">
               <span className="digit display-lg text-signal">{effectiveMin}</span>
@@ -529,16 +529,16 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
         <div className="panel p-5">
           <div className="flex items-center gap-2 text-bad">
             <AlertTriangle className="h-3.5 w-3.5" />
-            <p className="eyebrow text-bad">Parc fermé</p>
+            <p className="eyebrow text-bad">Lockdown</p>
           </div>
           <ul className="mt-4 space-y-2 text-xs text-foreground-dim">
             <LockLine>Fullscreen engages where supported.</LockLine>
             <LockLine>Leaving the app triggers an integrity flag.</LockLine>
             <LockLine>Copy/paste, right-click, reload blocked.</LockLine>
             <LockLine accent>
-              2 flags → the stewards retire the car (auto-submit).
+              2 flags → the test auto-submits.
             </LockLine>
-            <LockLine>Clock at zero → chequered flag, auto-submit.</LockLine>
+            <LockLine>Timer at zero → the test auto-submits.</LockLine>
           </ul>
         </div>
 
@@ -550,10 +550,10 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           disabled={busy || availableQuestions === 0}
         >
           <Play className="h-4 w-4" />
-          {busy ? "Forming up…" : "Lights out"}
+          {busy ? "Starting…" : "Start test"}
         </Button>
         <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
-          No way back once the lights go out
+          No going back once you start
         </p>
       </aside>
     </div>

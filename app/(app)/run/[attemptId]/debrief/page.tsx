@@ -24,7 +24,7 @@ import { WeakAreaRetryButton } from "./retry-actions";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Pit wall debrief — WilliamsPod" };
+export const metadata = { title: "Results — WilliamsPod" };
 
 export default async function DebriefPage(
   props: { params: Promise<{ attemptId: string }> },
@@ -67,7 +67,7 @@ export default async function DebriefPage(
         href="/run"
         className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
       >
-        <ChevronLeft className="h-3 w-3" /> Races
+        <ChevronLeft className="h-3 w-3" /> Practice
       </Link>
 
       {/* ----- HERO ----- */}
@@ -89,11 +89,11 @@ export default async function DebriefPage(
           <div>
             <div className="flex items-center gap-2">
               <span className={`dot ${scoreColor}`} />
-              <p className="eyebrow">Pit wall debrief</p>
-              {attempt.aborted && <Badge tone="bad">Retired</Badge>}
+              <p className="eyebrow">Results</p>
+              {attempt.aborted && <Badge tone="bad">Aborted</Badge>}
             </div>
             <h1 className="mt-2 display-lg text-foreground">
-              {attempt.label ?? "Race"}
+              {attempt.label ?? "Practice test"}
             </h1>
             <p className="mt-2 text-sm text-foreground-dim">
               {new Date(attempt.startedAt).toLocaleString()} ·{" "}
@@ -155,12 +155,12 @@ export default async function DebriefPage(
           />
           <Button asChild variant="ghost" size="sm" className="ml-auto">
             <Link href="/run/new">
-              Race entry
+              New test
             </Link>
           </Button>
           <DeleteAttemptButton
             attemptId={attemptId}
-            label={attempt.label ?? "Race"}
+            label={attempt.label ?? "Practice test"}
             redirectTo="/run"
           />
         </div>
@@ -169,19 +169,19 @@ export default async function DebriefPage(
       {/* ----- TELEMETRY ----- */}
       <section className="grid gap-4 lg:grid-cols-2">
         <SectorCard
-          title="Sector telemetry"
-          subtitle="By lecture"
+          title="By lecture"
+          subtitle="Accuracy per lecture"
           rows={bySector}
           weakKey={weakestSector?.key}
         />
         <SectorCard
-          title="Topic telemetry"
-          subtitle="By tag"
+          title="By topic"
+          subtitle="Accuracy per topic"
           rows={
             byTopic.length === 1 && byTopic[0].name === "Untagged" ? [] : byTopic
           }
           weakKey={weakestTopic?.key}
-          emptyHint='Tag questions with a "topic" column to unlock topic telemetry.'
+          emptyHint='Tag questions with a "topic" column to see per-topic accuracy.'
         />
       </section>
 
@@ -196,7 +196,7 @@ export default async function DebriefPage(
               correct={weakestSector.correct}
               total={weakestSector.total}
               pct={weakestSector.pct}
-              hint="Take this one back to the garage before the next stint."
+              hint="Review this lecture before your next test."
             />
           )}
           {weakestTopic && weakestTopic.name !== "Untagged" && (
@@ -218,7 +218,7 @@ export default async function DebriefPage(
         <section className="panel p-6">
           <div className="mb-4 flex items-center gap-2">
             <TimerIcon className="h-3.5 w-3.5 text-signal" />
-            <p className="eyebrow">Timing &amp; error telemetry</p>
+            <p className="eyebrow">Timing &amp; errors</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
             <TelemetryTile
@@ -277,10 +277,10 @@ export default async function DebriefPage(
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-3.5 w-3.5 text-warn" />
-              <p className="eyebrow text-warn">Stewards&apos; report</p>
+              <p className="eyebrow text-warn">Integrity report</p>
             </div>
             <Badge tone="warn">
-              {integrityTimeline.length} incident
+              {integrityTimeline.length} event
               {integrityTimeline.length === 1 ? "" : "s"}
             </Badge>
           </div>
@@ -309,7 +309,7 @@ export default async function DebriefPage(
           <div className="flex items-center gap-2">
             <XCircle className="h-4 w-4 text-bad" />
             <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              Incident review
+              Wrong-answer review
             </h2>
           </div>
           <Badge tone={wrongAnswers.length === 0 ? "good" : "bad"}>
@@ -321,7 +321,7 @@ export default async function DebriefPage(
             <div className="chequer pointer-events-none absolute inset-y-0 right-0 w-16 opacity-50" />
             <CheckCircle2 className="h-5 w-5 text-good" />
             <p className="text-sm text-foreground">
-              Clean stint — no incidents to review. Chequered flag.
+              Perfect score — no wrong answers to review.
             </p>
           </div>
         ) : (
@@ -337,13 +337,13 @@ export default async function DebriefPage(
         <Button asChild variant="outline">
           <Link href="/run">
             <ChevronLeft className="h-4 w-4" />
-            Back to the pits
+            Back to practice
           </Link>
         </Button>
         <Button asChild variant="signal">
           <Link href="/run/new">
             <Repeat className="h-4 w-4" />
-            Race again
+            New test
           </Link>
         </Button>
       </div>
@@ -581,12 +581,12 @@ function WrongRow({
           </Badge>
         )}
         {q.errorType && <Badge tone="warn">{q.errorType.replace(/_/g, " ")}</Badge>}
-        {q.marked && <Badge tone="warn">yellow flag</Badge>}
+        {q.marked && <Badge tone="warn">flagged</Badge>}
         {picked === -1 && <Badge tone="bad">unanswered</Badge>}
       </div>
       {q.isVariant && (
         <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-muted">
-          Same chassis, new bodywork — modified from the bank original
+          Modified from the original bank question
         </p>
       )}
       <QuestionContent

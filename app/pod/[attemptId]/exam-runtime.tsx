@@ -85,6 +85,9 @@ export function ExamRuntime({
   const [examStartMs, setExamStartMs] = useState<number | null>(null);
   const [picks, setPicks] = useState<Record<string, number>>(initialPicks);
   const [marked, setMarked] = useState<Record<string, boolean>>(initialMarked);
+  // Optional 1-5 self-rated conviction per question → powers the calibration report.
+  const [confidence, setConfidence] = useState<Record<string, number>>({});
+  const confidenceRef = useRef<Record<string, number>>({});
   const [currentIdx, setCurrentIdx] = useState(0);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -187,7 +190,13 @@ export function ExamRuntime({
       // Snapshot per-question interaction metrics (fold in the open item's time).
       const telemetry: Record<
         string,
-        { timeTakenMs: number; clickCount: number; answerChangeCount: number; revisitCount: number }
+        {
+          timeTakenMs: number;
+          clickCount: number;
+          answerChangeCount: number;
+          revisitCount: number;
+          confidence: number | null;
+        }
       > = {};
       const openAdd = enterRef.current ? Date.now() - enterRef.current.at : 0;
       for (const q of questions) {
@@ -198,6 +207,7 @@ export function ExamRuntime({
           clickCount: m?.clicks ?? 0,
           answerChangeCount: m?.changes ?? 0,
           revisitCount: m?.revisits ?? 0,
+          confidence: confidenceRef.current[q.id] ?? null,
         };
       }
 
@@ -437,6 +447,19 @@ export function ExamRuntime({
     [scheduleFlush],
   );
 
+  // Optional conviction rating — re-tapping the same level clears it. Mirrored to
+  // a ref so the submit snapshot reads the latest without re-creating the submit
+  // callback (which would re-bind the lockdown listeners on every tap).
+  const setConf = useCallback((questionId: string, level: number) => {
+    setConfidence((c) => {
+      const next = { ...c };
+      if (next[questionId] === level) delete next[questionId];
+      else next[questionId] = level;
+      confidenceRef.current = next;
+      return next;
+    });
+  }, []);
+
   // ---------- Keyboard navigation ----------
   // A-E to pick · ←/→ (or [/]) to nav · M to mark · Cmd/Ctrl+Enter to submit.
   // Modifier keys go through the integrity handler (which blocks Cmd+R etc.),
@@ -606,6 +629,8 @@ export function ExamRuntime({
                 (enterRef.current?.qid === cur.id ? now - enterRef.current.at : 0)) /
                 1000,
             )}
+            confidence={confidence[cur.id] ?? null}
+            onSetConfidence={(lvl) => setConf(cur.id, lvl)}
             onPick={(i) => pick(cur.id, i)}
             onToggleMark={() => toggleMark(cur.id)}
           />
@@ -895,6 +920,8 @@ function QuestionView({
   picked,
   isMarked,
   questionElapsedSec,
+  confidence,
+  onSetConfidence,
   onPick,
   onToggleMark,
 }: {
@@ -904,6 +931,8 @@ function QuestionView({
   picked: number;
   isMarked: boolean;
   questionElapsedSec: number;
+  confidence: number | null;
+  onSetConfidence: (level: number) => void;
   onPick: (i: number) => void;
   onToggleMark: () => void;
 }) {
@@ -997,6 +1026,44 @@ function QuestionView({
           );
         })}
       </ul>
+
+      {/* Optional conviction rating — feeds the calibration report. */}
+      <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/60 pt-4">
+        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+          Conviction
+        </span>
+        <div className="flex items-center gap-1.5">
+          {[1, 2, 3, 4, 5].map((lvl) => {
+            const active = confidence === lvl;
+            return (
+              <button
+                key={lvl}
+                type="button"
+                onClick={() => onSetConfidence(lvl)}
+                aria-pressed={active}
+                title={
+                  ["guess", "shaky", "even", "confident", "certain"][lvl - 1]
+                }
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-[6px] font-mono text-[11px] font-bold transition-all",
+                  active
+                    ? "bg-wm-yellow text-wm-navy shadow-[var(--clay-chip)]"
+                    : "bg-surface-2 text-muted hover:text-foreground",
+                )}
+              >
+                {lvl}
+              </button>
+            );
+          })}
+        </div>
+        <span className="text-[10px] uppercase tracking-[0.14em] text-muted">
+          {confidence
+            ? ["gut guess", "shaky", "even money", "confident", "certain"][
+                confidence - 1
+              ]
+            : "optional · guess → certain"}
+        </span>
+      </div>
     </article>
   );
 }

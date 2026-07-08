@@ -12,6 +12,7 @@ import { verifyExportToken } from "@/lib/sync/exportToken";
 import { buildPodTelemetryPacket, } from "@/lib/sync/outbound";
 import { SYNC_PACKET_VERSION } from "@/lib/sync/types";
 import { listTelemetryForUser } from "@/lib/telemetry/store";
+import { masterySummary } from "@/lib/mastery/store";
 import type { TelemetryRecord } from "@/lib/telemetry/types";
 
 export const runtime = "nodejs";
@@ -56,8 +57,11 @@ export async function GET(req: Request) {
     .sort((a, b) => b.last.localeCompare(a.last))
     .slice(0, limit);
 
-  const packets = recentAttempts.map(({ attemptId, recs }) =>
-    buildPodTelemetryPacket(attemptId, userId, recs),
+  // Longitudinal standings ride on the most recent packet only (they're
+  // user-level, not per-attempt) so the hub gets them without duplication.
+  const mastery = await masterySummary(userId);
+  const packets = recentAttempts.map(({ attemptId, recs }, i) =>
+    buildPodTelemetryPacket(attemptId, userId, recs, i === 0 ? mastery : []),
   );
 
   return NextResponse.json(

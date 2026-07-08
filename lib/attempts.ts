@@ -20,6 +20,7 @@ import type { QuestionDifficulty, QuestionType } from "./timing/types";
 import { classifyAttempt } from "./telemetry/classify";
 import { saveTelemetry, type TelemetryInsert } from "./telemetry/store";
 import type { ConfidenceLevel } from "./telemetry/types";
+import { applyMasteryUpdates, type MasteryItem } from "./mastery/store";
 
 export const INTEGRITY_ABORT_THRESHOLD = 2;
 type IntegrityEventKind = typeof integrityEvents.$inferInsert.kind;
@@ -375,6 +376,7 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
   let correct = 0;
   const now = new Date();
   const telemetryRows: TelemetryInsert[] = [];
+  const masteryItems: MasteryItem[] = [];
 
   for (const a of ans) {
     const eff = effective.get(a.id);
@@ -403,6 +405,17 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
         isCorrect,
       })
       .where(eq(attemptAnswers.id, a.id));
+
+    // Championship standings feed — answered questions only (a blank gives no
+    // signal about the concept). Independent of the telemetry block below.
+    if (answered) {
+      masteryItems.push({
+        subject: subjectByLecture.get(eff.lectureId) ?? null,
+        topic: eff.topic,
+        difficulty: eff.difficulty,
+        isCorrect,
+      });
+    }
 
     // ---- Telemetry classification (when the runtime supplied metrics) ----
     const m = input.telemetry?.[a.questionId];
@@ -453,6 +466,15 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
 
   if (telemetryRows.length > 0) {
     await saveTelemetry(telemetryRows);
+  }
+
+  // Update championship standings (derived, best-effort — never break a submit).
+  if (attempt.userId) {
+    try {
+      await applyMasteryUpdates(attempt.userId, masteryItems, now);
+    } catch (err) {
+      console.error("[mastery] update failed:", (err as Error).message);
+    }
   }
 
   await db

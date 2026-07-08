@@ -1,6 +1,7 @@
 import type { TelemetryRecord } from "@/lib/telemetry/types";
 import {
   SYNC_PACKET_VERSION,
+  type MasterySnapshot,
   type MistakeClassification,
   type PodTelemetryPacket,
   type QuestionPerformanceSummary,
@@ -39,6 +40,7 @@ export function buildPodTelemetryPacket(
   attemptId: string,
   userId: string | null,
   telemetry: TelemetryRecord[],
+  mastery: MasterySnapshot[] = [],
 ): PodTelemetryPacket {
   const performance: QuestionPerformanceSummary[] = telemetry.map((t) => ({
     questionId: t.questionId,
@@ -104,6 +106,7 @@ export function buildPodTelemetryPacket(
     mistakes,
     performance,
     repairRecommendations,
+    mastery,
   };
 }
 

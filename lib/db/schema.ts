@@ -4,6 +4,7 @@ import {
   text,
   integer,
   index,
+  uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 
 // Users — multi-tenant identities. Display names are case-preserved for the UI;
@@ -299,6 +300,38 @@ export const integrityEvents = sqliteTable(
   (t) => [index("integrity_events_attempt_idx").on(t.attemptId)],
 );
 
+// Championship standings — one ELO-style rating per (user, scope, key) that
+// evolves across races. Additive: derived from attempts + telemetry, never on
+// the critical grading path. `history` holds the last handful of post-race
+// ratings for a trend sparkline.
+export const masteryRatings = sqliteTable(
+  "mastery_ratings",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    scope: text("scope", { enum: ["subject", "topic"] }).notNull(),
+    key: text("key").notNull(),
+    rating: integer("rating").notNull().default(1000),
+    races: integer("races").notNull().default(0),
+    answered: integer("answered").notNull().default(0),
+    correct: integer("correct").notNull().default(0),
+    lastDelta: integer("last_delta").notNull().default(0),
+    history: text("history", { mode: "json" })
+      .$type<{ at: string; rating: number }[]>()
+      .notNull()
+      .default(sql`'[]'`),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => [
+    index("mastery_user_idx").on(t.userId),
+    uniqueIndex("mastery_user_scope_key_idx").on(t.userId, t.scope, t.key),
+  ],
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Invite = typeof invites.$inferSelect;
@@ -317,3 +350,5 @@ export type IntegrityEvent = typeof integrityEvents.$inferSelect;
 export type NewIntegrityEvent = typeof integrityEvents.$inferInsert;
 export type QuestionTelemetryRow = typeof questionTelemetry.$inferSelect;
 export type NewQuestionTelemetryRow = typeof questionTelemetry.$inferInsert;
+export type MasteryRatingRow = typeof masteryRatings.$inferSelect;
+export type NewMasteryRatingRow = typeof masteryRatings.$inferInsert;

@@ -11,6 +11,7 @@ import {
   Upload,
   Flag,
   Trophy,
+  History,
   LogOut,
   Shield,
 } from "lucide-react";
@@ -21,7 +22,8 @@ const MEMBER_LINKS = [
   { href: "/", label: "Pit wall", icon: Gauge },
   { href: "/bank", label: "Garage", icon: Warehouse },
   { href: "/run", label: "Race", icon: Flag },
-  { href: "/history", label: "Season", icon: Trophy },
+  { href: "/standings", label: "Championship", icon: Trophy },
+  { href: "/history", label: "Season", icon: History },
 ];
 
 const ADMIN_EXTRA = [

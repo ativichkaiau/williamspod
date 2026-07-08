@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { apiAuth } from "@/lib/auth";
 import { listTelemetryForAttempt } from "@/lib/telemetry/store";
+import { masterySummary } from "@/lib/mastery/store";
 import { findAttemptForUser } from "@/lib/attempts";
 import { buildPodTelemetryPacket, enqueuePacket } from "@/lib/sync/outbound";
 import { z } from "zod";
@@ -28,7 +29,13 @@ export async function POST(req: Request) {
   if (!attempt) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   const telemetry = await listTelemetryForAttempt(attempt.id);
-  const packet = buildPodTelemetryPacket(attempt.id, auth.user.id, telemetry);
+  const mastery = await masterySummary(auth.user.id);
+  const packet = buildPodTelemetryPacket(
+    attempt.id,
+    auth.user.id,
+    telemetry,
+    mastery,
+  );
   const result = await enqueuePacket(packet);
 
   return NextResponse.json({

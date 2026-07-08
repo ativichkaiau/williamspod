@@ -5,6 +5,7 @@ import { uid } from "../lib/utils";
 import { createAttempt, submitAttempt } from "../lib/attempts";
 import { loadDebrief } from "../lib/debrief";
 import { listTelemetryForAttempt } from "../lib/telemetry/store";
+import { loadStandings } from "../lib/mastery/store";
 import { buildPodTelemetryPacket, enqueuePacket } from "../lib/sync/outbound";
 
 /**
@@ -145,6 +146,57 @@ async function main() {
   assert(!!wrong, "the integration miss is in wrong answers");
   assert(wrong!.timingCategory === "slow_wrong", "wrong-answer row carries timing category");
   assert(wrong!.errorType === "integration_error", "wrong-answer row carries error type");
+
+  // ---- Lap-time pacing (feature 1) ----
+  assert(debrief!.pacing.length === 2, "debrief pacing has both laps");
+  const recallPace = debrief!.pacing.find((p) => p.questionId === qRecall)!;
+  const integPace = debrief!.pacing.find((p) => p.questionId === qInteg)!;
+  assert(recallPace.order === 1 && integPace.order === 2, "pacing is in run order");
+  assert(
+    integPace.timeSec > integPace.budgetSec,
+    "integration lap ran over its budget",
+  );
+  assert(recallPace.timingCategory === "fast_correct", "pacing carries timing category");
+
+  // ---- Calibration (feature 3) ----
+  assert(!!debrief!.calibration, "calibration report populated from confidence");
+  assert(debrief!.calibration!.rated === 2, "both rated questions counted");
+  assert(
+    debrief!.calibration!.overconfident === 0,
+    "no confidently-wrong here (miss was rated low)",
+  );
+  assert(debrief!.calibration!.brier >= 0 && debrief!.calibration!.brier <= 1, "brier in range");
+
+  // ---- Championship standings (feature 4) ----
+  const { subjects, topics } = await loadStandings(userId);
+  const hen2 = subjects.find((s) => s.key === "HEN-2");
+  assert(!!hen2, "HEN-2 subject rating created");
+  assert(hen2!.races === 1, "one race recorded");
+  assert(hen2!.answered === 2 && hen2!.correct === 1, "answered/correct tallied");
+  assert(hen2!.history.length === 1, "one trend point after the first race");
+  // Beat the easy recall (opp 900) but lost the hard integration (opp 1150):
+  // net rating drift is small; just assert it moved off the 1000 base sanely.
+  assert(hen2!.rating > 900 && hen2!.rating < 1100, `rating sane (${hen2!.rating})`);
+  assert(
+    topics.some((t) => t.key === "valves") && topics.some((t) => t.key === "emergencies"),
+    "topic ratings created for both tagged topics",
+  );
+
+  // Mastery rides on the sync packet too.
+  const packetWithMastery = buildPodTelemetryPacket(
+    setup.attempt.id,
+    userId,
+    rows,
+    subjects.map((s) => ({
+      scope: "subject" as const,
+      key: s.key,
+      rating: s.rating,
+      delta: s.lastDelta,
+      races: s.races,
+      accuracy: s.accuracy,
+    })),
+  );
+  assert(packetWithMastery.mastery.length >= 1, "packet carries mastery snapshot");
 
   // ---- WilliamsSync packet ----
   const packet = buildPodTelemetryPacket(setup.attempt.id, userId, rows);

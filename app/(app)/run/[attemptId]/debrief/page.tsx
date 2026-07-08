@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { QuestionContent } from "@/components/question-content";
 import { DeleteAttemptButton } from "@/components/delete-attempt-button";
+import { LapChart } from "@/components/debrief/lap-chart";
+import { CalibrationPanel } from "@/components/debrief/calibration-panel";
+import { RaceEngineer } from "@/components/debrief/race-engineer";
 import { formatDuration } from "@/lib/utils";
 import {
   ChevronLeft,
@@ -41,6 +44,8 @@ export default async function DebriefPage(
     wrongAnswers,
     integrityTimeline,
     telemetry,
+    pacing,
+    calibration,
   } = debrief;
   const weak = selectWeakAreas(debrief);
 
@@ -260,6 +265,12 @@ export default async function DebriefPage(
         </section>
       )}
 
+      {/* ----- LAP TIMES ----- */}
+      {pacing.length > 0 && <LapChart pacing={pacing} />}
+
+      {/* ----- CALIBRATION ----- */}
+      {calibration && <CalibrationPanel report={calibration} />}
+
       {/* ----- INTEGRITY TIMELINE ----- */}
       {integrityTimeline.length > 0 && (
         <section className="panel p-6">
@@ -316,7 +327,7 @@ export default async function DebriefPage(
         ) : (
           <div className="space-y-3">
             {wrongAnswers.map((w, i) => (
-              <WrongRow key={w.questionId} q={w} index={i} />
+              <WrongRow key={w.questionId} q={w} index={i} attemptId={attemptId} />
             ))}
           </div>
         )}
@@ -538,7 +549,15 @@ function WeakestCard({
   );
 }
 
-function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
+function WrongRow({
+  q,
+  index,
+  attemptId,
+}: {
+  q: WrongAnswer;
+  index: number;
+  attemptId: string;
+}) {
   const picked = q.pickedSourceIndex;
   return (
     <article
@@ -629,6 +648,7 @@ function WrongRow({ q, index }: { q: WrongAnswer; index: number }) {
           />
         </div>
       )}
+      <RaceEngineer attemptId={attemptId} questionId={q.questionId} />
     </article>
   );
 }

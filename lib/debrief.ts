@@ -14,7 +14,10 @@ import {
   summarize,
   type TelemetrySummary,
 } from "./telemetry/store";
+import { computeCalibration, type CalibrationReport } from "./telemetry/calibration";
 import type { ErrorType, TimingCategory } from "./telemetry/types";
+import { computeTiming } from "./timing/service";
+import type { QuestionDifficulty, QuestionType } from "./timing/types";
 
 export type SectorRow = {
   key: string;
@@ -47,6 +50,21 @@ export type WrongAnswer = {
   errorType: ErrorType | null;
 };
 
+/** One question's pace, in the order the runner drove it. */
+export type PacingPoint = {
+  /** 1-based question order. */
+  order: number;
+  questionId: string;
+  /** Actual seconds spent on the question. */
+  timeSec: number;
+  /** Adaptive time budget for this question type/difficulty (seconds). */
+  budgetSec: number;
+  questionType: QuestionType;
+  timingCategory: TimingCategory | null;
+  isCorrect: boolean;
+  answered: boolean;
+};
+
 export type DebriefData = {
   attempt: Attempt;
   totals: { correct: number; total: number; unanswered: number; pct: number };
@@ -64,6 +82,10 @@ export type DebriefData = {
   }[];
   /** Timing + error-classification telemetry (null when the run recorded none). */
   telemetry: TelemetrySummary | null;
+  /** Per-question pace in run order (empty when the run recorded no telemetry). */
+  pacing: PacingPoint[];
+  /** Confidence calibration (null unless the runner rated confidence). */
+  calibration: CalibrationReport | null;
 };
 
 export async function loadDebrief(
@@ -91,6 +113,8 @@ export async function loadDebrief(
       wrongAnswers: [],
       integrityTimeline: [],
       telemetry: null,
+      pacing: [],
+      calibration: null,
     };
   }
 
@@ -121,6 +145,7 @@ export async function loadDebrief(
   const sectorAcc = new Map<string, { name: string; total: number; correct: number }>();
   const topicAcc = new Map<string, { name: string; total: number; correct: number }>();
   const wrong: WrongAnswer[] = [];
+  const pacing: PacingPoint[] = [];
   let correct = 0;
   let unanswered = 0;
 
@@ -129,6 +154,25 @@ export async function loadDebrief(
     const isCorrect = a.isCorrect === true;
     if (isCorrect) correct++;
     if (a.pickedShownIndex < 0) unanswered++;
+
+    // Lap-time pace (in run order) — only for questions the run instrumented.
+    const tel = eff && !eff.missing ? telByQuestion.get(eff.questionId) : undefined;
+    if (tel) {
+      pacing.push({
+        order: a.questionOrder + 1,
+        questionId: tel.questionId,
+        timeSec: Math.round(tel.timeTakenMs / 1000),
+        budgetSec: computeTiming({
+          questionType: tel.questionType,
+          difficulty:
+            (eff!.difficulty as QuestionDifficulty | null) ?? undefined,
+        }).recommendedSeconds,
+        questionType: tel.questionType,
+        timingCategory: tel.timingCategory,
+        isCorrect: tel.isCorrect,
+        answered: tel.selectedIndex >= 0,
+      });
+    }
 
     const lecKey = eff && !eff.missing ? eff.lectureId : "unknown";
     const lecName =
@@ -223,6 +267,8 @@ export async function loadDebrief(
       detail: e.detail,
     })),
     telemetry: telemetryRecords.length > 0 ? summarize(telemetryRecords) : null,
+    pacing,
+    calibration: computeCalibration(telemetryRecords),
   };
 }
 

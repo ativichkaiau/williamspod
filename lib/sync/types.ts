@@ -31,6 +31,18 @@ export interface MistakeClassification {
   lectures: { lectureId: string | null; count: number }[];
 }
 
+/** A longitudinal mastery-rating snapshot — the runner's standing per subject. */
+export interface MasterySnapshot {
+  scope: "subject" | "topic";
+  key: string;
+  rating: number;
+  /** Rating change from the most recent race. */
+  delta: number;
+  races: number;
+  /** Accuracy 0-100. */
+  accuracy: number;
+}
+
 export interface PodTelemetryPacket {
   version: typeof SYNC_PACKET_VERSION;
   source: "williamspod";
@@ -45,6 +57,8 @@ export interface PodTelemetryPacket {
   performance: QuestionPerformanceSummary[];
   /** Repair recommendations WilliamsHub can enqueue (advisory). */
   repairRecommendations: RepairRecommendation[];
+  /** Championship standings — the longitudinal signal (empty if none yet). */
+  mastery: MasterySnapshot[];
 }
 
 /** A recommendation the hub can turn into a RepairQueueItem. */

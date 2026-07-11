@@ -332,6 +332,56 @@ export const masteryRatings = sqliteTable(
   ],
 );
 
+// Spaced-repetition schedule — one row per (user, base question). SM-2-lite:
+// each answered question sets a next-due date from an interval ladder scaled by
+// how well it was answered. The "Recommended test" reads due + lapsing rows.
+// Additive: derived on submit, never on the grading path.
+export const reviewSchedule = sqliteTable(
+  "review_schedule",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    questionId: text("question_id").notNull(),
+    subject: text("subject"),
+    lectureId: text("lecture_id"),
+    /** Consecutive good reviews (resets to 0 on a miss). */
+    reps: integer("reps").notNull().default(0),
+    /** SM-2 ease factor ×1000 (2500 = 2.5). */
+    ease: integer("ease").notNull().default(2500),
+    /** Current interval in days. */
+    intervalDays: integer("interval_days").notNull().default(0),
+    /** Times this question was missed after being learned. */
+    lapses: integer("lapses").notNull().default(0),
+    lastCorrect: integer("last_correct", { mode: "boolean" }),
+    dueAt: integer("due_at", { mode: "timestamp_ms" }).notNull(),
+    lastReviewedAt: integer("last_reviewed_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (t) => [
+    index("review_user_due_idx").on(t.userId, t.dueAt),
+    uniqueIndex("review_user_question_idx").on(t.userId, t.questionId),
+  ],
+);
+
+// Observed difficulty — aggregate answer stats per base question across all
+// users. Feeds "real difficulty" back into adaptive timing + rating opponents.
+// Additive: incremented on submit.
+export const questionStats = sqliteTable(
+  "question_stats",
+  {
+    questionId: text("question_id").primaryKey(),
+    attempts: integer("attempts").notNull().default(0),
+    correct: integer("correct").notNull().default(0),
+    sumTimeMs: integer("sum_time_ms").notNull().default(0),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Invite = typeof invites.$inferSelect;
@@ -352,3 +402,7 @@ export type QuestionTelemetryRow = typeof questionTelemetry.$inferSelect;
 export type NewQuestionTelemetryRow = typeof questionTelemetry.$inferInsert;
 export type MasteryRatingRow = typeof masteryRatings.$inferSelect;
 export type NewMasteryRatingRow = typeof masteryRatings.$inferInsert;
+export type ReviewScheduleRow = typeof reviewSchedule.$inferSelect;
+export type NewReviewScheduleRow = typeof reviewSchedule.$inferInsert;
+export type QuestionStatsRow = typeof questionStats.$inferSelect;
+export type NewQuestionStatsRow = typeof questionStats.$inferInsert;

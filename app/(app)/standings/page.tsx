@@ -1,16 +1,21 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { loadStandings, type StandingRow } from "@/lib/mastery/store";
+import { loadWeakConcepts, type WeakConcept } from "@/lib/review/concepts";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Flag, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { RecommendedTestButton } from "@/components/recommended-test-button";
+import { Trophy, Flag, TrendingUp, TrendingDown, Minus, Target } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Progress — WilliamsPod" };
 
 export default async function StandingsPage() {
   const user = await requireUser();
-  const { subjects, topics } = await loadStandings(user.id);
+  const [{ subjects, topics }, weakConcepts] = await Promise.all([
+    loadStandings(user.id),
+    loadWeakConcepts(user.id),
+  ]);
 
   if (subjects.length === 0) {
     return (
@@ -96,10 +101,61 @@ export default async function StandingsPage() {
         </section>
       )}
 
+      {/* Concepts to review — cross-test weak concepts */}
+      {weakConcepts.length > 0 && (
+        <section className="panel p-6">
+          <div className="mb-1 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Target className="h-3.5 w-3.5 text-signal" />
+              <p className="eyebrow">Concepts to review</p>
+            </div>
+            <RecommendedTestButton size="sm" label="Review these" />
+          </div>
+          <p className="mb-5 max-w-2xl text-[11px] leading-relaxed text-muted">
+            Ideas you keep missing across tests, however they&apos;re framed —
+            ranked by how often. A review test targets these first.
+          </p>
+          <ul className="space-y-3">
+            {weakConcepts.map((c) => (
+              <ConceptRow key={c.concept} concept={c} />
+            ))}
+          </ul>
+        </section>
+      )}
+
       <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
         Ratings start at 1000 · harder questions are worth more
       </p>
     </div>
+  );
+}
+
+function ConceptRow({ concept }: { concept: WeakConcept }) {
+  return (
+    <li className="space-y-1.5">
+      <div className="flex items-center justify-between gap-2 text-sm">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate font-bold text-foreground">
+            {concept.concept}
+          </span>
+          {concept.subjects.length > 0 && (
+            <span className="hidden shrink-0 text-[10px] uppercase tracking-[0.16em] text-muted sm:inline">
+              {concept.subjects.join(" · ")}
+            </span>
+          )}
+        </div>
+        <span className="shrink-0 font-mono tabular text-xs text-muted">
+          <span className="text-bad">{concept.wrong}</span> missed / {concept.total}{" "}
+          · {concept.missRate}%
+        </span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-surface-2 ring-1 ring-inset ring-border">
+        <div
+          className="h-full rounded-full bg-bad"
+          style={{ width: `${Math.min(100, concept.missRate)}%` }}
+        />
+      </div>
+    </li>
   );
 }
 
@@ -144,7 +200,17 @@ function StandingLine({
         </span>
       </span>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-bold text-foreground">{row.key}</div>
+        <div className="flex items-center gap-2">
+          <span className="truncate text-sm font-bold text-foreground">{row.key}</span>
+          {row.rusty && (
+            <span
+              className="shrink-0 text-[9px] font-bold uppercase tracking-[0.16em] text-warn"
+              title="Rating has faded from lack of practice — review to recover it"
+            >
+              rusty
+            </span>
+          )}
+        </div>
         <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted">
           {row.races} test{row.races === 1 ? "" : "s"} · {row.correct}/
           {row.answered} · {row.accuracy}%

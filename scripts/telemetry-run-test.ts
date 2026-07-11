@@ -6,6 +6,10 @@ import { createAttempt, submitAttempt } from "../lib/attempts";
 import { loadDebrief } from "../lib/debrief";
 import { listTelemetryForAttempt } from "../lib/telemetry/store";
 import { loadStandings } from "../lib/mastery/store";
+import { countDue, listScheduledQuestionIds } from "../lib/review/store";
+import { recommend } from "../lib/review/recommend";
+import { loadWeakConcepts } from "../lib/review/concepts";
+import { loadQuestionStats } from "../lib/difficulty/store";
 import { buildPodTelemetryPacket, enqueuePacket } from "../lib/sync/outbound";
 
 /**
@@ -197,6 +201,57 @@ async function main() {
     })),
   );
   assert(packetWithMastery.mastery.length >= 1, "packet carries mastery snapshot");
+
+  // ---- Spaced repetition (feature 1) ----
+  const scheduled = await listScheduledQuestionIds(userId);
+  assert(scheduled.size === 2, "both answered questions entered the review schedule");
+  assert((await countDue(userId, new Date())) === 0, "nothing due immediately (scheduled ahead)");
+  const future = new Date(Date.now() + 3 * 86_400_000);
+  assert((await countDue(userId, future)) === 2, "both due after a few days");
+  const rec = await recommend(userId, { now: future });
+  assert(
+    rec.questionIds.length === 2 && rec.dueCount === 2,
+    "recommend() surfaces the due questions",
+  );
+
+  // ---- Observed difficulty (feature 2) ----
+  const qstats = await loadQuestionStats([qRecall, qInteg]);
+  assert(
+    qstats.get(qRecall)?.attempts === 1 && qstats.get(qRecall)?.correct === 1,
+    "recall answer stat recorded (correct)",
+  );
+  assert(
+    qstats.get(qInteg)?.attempts === 1 && qstats.get(qInteg)?.correct === 0,
+    "integration answer stat recorded (wrong)",
+  );
+
+  // ---- Weak-concept clustering (feature 3) ----
+  const weak = await loadWeakConcepts(userId, { minSeen: 1 });
+  assert(
+    weak.some((c) => c.concept === "emergencies" && c.wrong === 1),
+    "emergencies flagged as a weak concept",
+  );
+  assert(
+    !weak.some((c) => c.concept === "valves"),
+    "valves (answered correctly) is not flagged",
+  );
+
+  // ---- createAttempt from an explicit question set (Recommended path) ----
+  const recSetup = await createAttempt({
+    userId,
+    mode: "weak",
+    lectureIds: [],
+    questionIds: [qInteg, qRecall],
+    durationMs: 120_000,
+    shuffleQuestions: false,
+    shuffleChoices: false,
+    useVariants: false,
+  });
+  assert(recSetup.questions.length === 2, "explicit-question test built");
+  assert(
+    recSetup.questions[0].id === qInteg && recSetup.questions[1].id === qRecall,
+    "explicit priority order preserved (no reshuffle)",
+  );
 
   // ---- WilliamsSync packet ----
   const packet = buildPodTelemetryPacket(setup.attempt.id, userId, rows);

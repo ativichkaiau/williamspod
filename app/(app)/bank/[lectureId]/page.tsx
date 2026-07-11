@@ -8,6 +8,8 @@ import { LectureToolbar } from "./toolbar";
 import { QuestionEditor } from "./question-editor";
 import { requireUser } from "@/lib/auth";
 import { subjectHref, subjectLabel } from "@/lib/bank";
+import { loadQuestionStats } from "@/lib/difficulty/store";
+import { observedDifficulty, difficultyLabel } from "@/lib/difficulty/service";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,21 @@ export default async function LecturePage(
       and(eq(questions.lectureId, lectureId), isNull(questions.archivedAt)),
     )
     .orderBy(asc(questions.createdAt));
+
+  // Observed difficulty (from everyone's answers) for the self-correcting bank.
+  const statsMap = await loadQuestionStats(qs.map((q) => q.id));
+  const observedByQuestion = new Map(
+    qs.map((q) => {
+      const stats = statsMap.get(q.id) ?? null;
+      const d = observedDifficulty(stats);
+      return [
+        q.id,
+        d != null && stats
+          ? { difficulty: d, label: difficultyLabel(d), attempts: stats.attempts }
+          : null,
+      ] as const;
+    }),
+  );
 
   return (
     <div className="space-y-8">
@@ -69,7 +86,12 @@ export default async function LecturePage(
         <ol className="space-y-3">
           {qs.map((q, i) => (
             <li key={q.id}>
-              <QuestionEditor index={i + 1} question={q} canEdit={isAdmin} />
+              <QuestionEditor
+                index={i + 1}
+                question={q}
+                canEdit={isAdmin}
+                observed={observedByQuestion.get(q.id) ?? null}
+              />
             </li>
           ))}
         </ol>

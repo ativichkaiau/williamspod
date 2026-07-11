@@ -19,10 +19,13 @@ export function QuestionEditor({
   index,
   question,
   canEdit = false,
+  observed = null,
 }: {
   index: number;
   question: Question;
   canEdit?: boolean;
+  /** Observed difficulty from telemetry (null until enough answers). */
+  observed?: { difficulty: number; label: string; attempts: number } | null;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -113,6 +116,22 @@ export function QuestionEditor({
               className="text-[14.5px] font-semibold leading-relaxed text-foreground"
               imageClassName="max-w-2xl"
             />
+            {observed && (
+              <div className="-mt-1">
+                <Badge
+                  tone={
+                    observed.label === "hard"
+                      ? "bad"
+                      : observed.label === "medium"
+                        ? "warn"
+                        : "good"
+                  }
+                  title={`Actual accuracy across ${observed.attempts} answers`}
+                >
+                  observed {observed.difficulty.toFixed(1)} · {observed.label}
+                </Badge>
+              </div>
+            )}
             <ul className="space-y-1.5">
               {question.choices.map((c, i) => {
                 const isCorrect = i === question.correctIndex;

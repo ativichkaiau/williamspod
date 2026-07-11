@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { masteryRatings, type MasteryRatingRow } from "@/lib/db/schema";
 import { uid } from "@/lib/utils";
-import { BASE_RATING, difficultyToOpponent, eloStep } from "./elo";
+import { BASE_RATING, decayRating, difficultyToOpponent, eloStep } from "./elo";
 
 export type MasteryScope = "subject" | "topic";
 
@@ -65,7 +65,11 @@ export async function applyMasteryUpdates(
   const atIso = at.toISOString();
   for (const [id, { bucket, items: bucketItems }] of perBucket) {
     const prev = byKey.get(id) ?? null;
-    const startRating = prev?.rating ?? BASE_RATING;
+    // Start from the DECAYED prior rating so idle time erodes gains before the
+    // new result is applied (keeps stored + displayed ratings consistent).
+    const startRating = prev
+      ? decayRating(prev.rating, new Date(prev.updatedAt).getTime(), at.getTime())
+      : BASE_RATING;
 
     let rating = startRating;
     let correct = 0;
@@ -124,12 +128,15 @@ export interface StandingRow {
   accuracy: number;
   lastDelta: number;
   history: { at: string; rating: number }[];
+  /** True when idle-time decay has pulled the rating noticeably below its peak. */
+  rusty: boolean;
 }
 
-function toRow(r: MasteryRatingRow): StandingRow {
+function toRow(r: MasteryRatingRow, nowMs: number): StandingRow {
+  const decayed = decayRating(r.rating, new Date(r.updatedAt).getTime(), nowMs);
   return {
     key: r.key,
-    rating: r.rating,
+    rating: decayed,
     races: r.races,
     answered: r.answered,
     correct: r.correct,
@@ -137,10 +144,11 @@ function toRow(r: MasteryRatingRow): StandingRow {
       r.answered > 0 ? Math.round((r.correct / r.answered) * 1000) / 10 : 0,
     lastDelta: r.lastDelta,
     history: (r.history as { at: string; rating: number }[]) ?? [],
+    rusty: r.rating - decayed >= 10,
   };
 }
 
-/** The runner's full standings, each scope ranked by rating (P1 first). */
+/** The user's full standings, each scope ranked by rating (top first). */
 export async function loadStandings(
   userId: string,
 ): Promise<{ subjects: StandingRow[]; topics: StandingRow[] }> {
@@ -148,10 +156,12 @@ export async function loadStandings(
     .select()
     .from(masteryRatings)
     .where(eq(masteryRatings.userId, userId));
+  const now = Date.now();
+  const map = (r: MasteryRatingRow) => toRow(r, now);
   const byRating = (a: StandingRow, b: StandingRow) => b.rating - a.rating;
   return {
-    subjects: rows.filter((r) => r.scope === "subject").map(toRow).sort(byRating),
-    topics: rows.filter((r) => r.scope === "topic").map(toRow).sort(byRating),
+    subjects: rows.filter((r) => r.scope === "subject").map(map).sort(byRating),
+    topics: rows.filter((r) => r.scope === "topic").map(map).sort(byRating),
   };
 }
 

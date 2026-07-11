@@ -35,3 +35,24 @@ export function eloStep(
   const score = correct ? 1 : 0;
   return rating + K * (score - expected);
 }
+
+/** Days of no practice for a rating's distance-from-base to halve (forgetting). */
+const DECAY_HALF_LIFE_DAYS = 60;
+const DAY_MS = 86_400_000;
+
+/**
+ * Skill fades without practice: pull a rating toward BASE_RATING by how long
+ * it's gone untouched. A gain of +200 loses half its edge after ~60 idle days.
+ * Applied both when displaying a rating and as the starting point of the next
+ * update, so the stored value and the shown value stay consistent.
+ */
+export function decayRating(
+  rating: number,
+  updatedAtMs: number,
+  nowMs: number,
+): number {
+  const days = Math.max(0, (nowMs - updatedAtMs) / DAY_MS);
+  if (days === 0) return rating;
+  const factor = Math.pow(0.5, days / DECAY_HALF_LIFE_DAYS);
+  return Math.round(BASE_RATING + (rating - BASE_RATING) * factor);
+}

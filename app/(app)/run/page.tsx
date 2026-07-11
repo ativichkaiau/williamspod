@@ -5,24 +5,59 @@ import { attempts } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DeleteAttemptButton } from "@/components/delete-attempt-button";
-import { Play, ChevronRight, Activity } from "lucide-react";
+import { RecommendedTestButton } from "@/components/recommended-test-button";
+import { Play, ChevronRight, Activity, RefreshCw } from "lucide-react";
 import { formatDuration, pct } from "@/lib/utils";
 import { requireUser } from "@/lib/auth";
+import { countDue } from "@/lib/review/store";
 
 export const metadata = { title: "Practice — WilliamsPod" };
 export const dynamic = "force-dynamic";
 
 export default async function RunsHubPage() {
   const user = await requireUser();
-  const recent = await db
-    .select()
-    .from(attempts)
-    .where(eq(attempts.userId, user.id))
-    .orderBy(desc(attempts.startedAt))
-    .limit(20);
+  const [recent, dueCount] = await Promise.all([
+    db
+      .select()
+      .from(attempts)
+      .where(eq(attempts.userId, user.id))
+      .orderBy(desc(attempts.startedAt))
+      .limit(20),
+    countDue(user.id),
+  ]);
 
   return (
     <div className="space-y-8">
+      {/* Spaced-repetition prompt */}
+      <section className="panel-deep relative overflow-hidden p-6 pop-in">
+        <div className="livery-stripe pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-signal shadow-[var(--clay-chip)]">
+              <RefreshCw className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="eyebrow">Review test</p>
+              <p className="mt-1 text-sm text-foreground-dim">
+                {dueCount > 0 ? (
+                  <>
+                    <span className="digit text-foreground">{dueCount}</span>{" "}
+                    question{dueCount === 1 ? "" : "s"} due for review — plus your
+                    weak spots, picked automatically.
+                  </>
+                ) : (
+                  "Nothing due yet — a mix of your weak spots and fresh questions."
+                )}
+              </p>
+            </div>
+          </div>
+          <RecommendedTestButton
+            size="lg"
+            label={dueCount > 0 ? `Review ${dueCount} due` : "Start review test"}
+          />
+        </div>
+      </section>
+
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">

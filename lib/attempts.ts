@@ -16,11 +16,14 @@ import { mulberry32, randomSeed, seededShuffle } from "./rng";
 import { resolveEffectiveItems } from "./variations/effective";
 import type { QuestionAngle } from "./variations/types";
 import { computeTiming, inferQuestionType } from "./timing/service";
-import type { QuestionDifficulty, QuestionType } from "./timing/types";
+import type { QuestionType } from "./timing/types";
 import { classifyAttempt } from "./telemetry/classify";
 import { saveTelemetry, type TelemetryInsert } from "./telemetry/store";
-import type { ConfidenceLevel } from "./telemetry/types";
+import type { ConfidenceLevel, TimingCategory } from "./telemetry/types";
 import { applyMasteryUpdates, type MasteryItem } from "./mastery/store";
+import { effectiveDifficulty } from "./difficulty/service";
+import { bumpQuestionStats, loadQuestionStats, type StatBump } from "./difficulty/store";
+import { applyReviews, type ReviewItem } from "./review/store";
 
 export const INTEGRITY_ABORT_THRESHOLD = 2;
 type IntegrityEventKind = typeof integrityEvents.$inferInsert.kind;
@@ -35,6 +38,11 @@ export type CreateAttemptInput = {
   userId: string;
   mode: "full" | "lecture" | "weak" | "custom";
   lectureIds: string[];
+  /**
+   * When set, build the test from exactly these base questions (priority order
+   * preserved) instead of pulling whole lectures. Used by the Recommended test.
+   */
+  questionIds?: string[];
   durationMs: number;
   maxQuestions?: number;
   label?: string;
@@ -70,32 +78,47 @@ export type AttemptSetup = {
 };
 
 export async function createAttempt(input: CreateAttemptInput): Promise<AttemptSetup> {
-  if (input.lectureIds.length === 0) {
-    throw new Error("at least one lecture required");
-  }
-  // Sanity check that lectures exist + not archived.
-  const lecs = await db
-    .select({ id: lectures.id })
-    .from(lectures)
-    .where(and(inArray(lectures.id, input.lectureIds), isNull(lectures.archivedAt)));
-  const validLectureIds = lecs.map((l) => l.id);
-  if (validLectureIds.length === 0) {
-    throw new Error("no valid lectures");
-  }
+  const explicitIds = input.questionIds?.length ? input.questionIds : null;
 
-  const pool = await db
-    .select()
-    .from(questions)
-    .where(
-      and(inArray(questions.lectureId, validLectureIds), isNull(questions.archivedAt)),
-    );
-
-  if (pool.length === 0) {
-    throw new Error("no questions in selected lectures");
+  let pool: Question[];
+  let validLectureIds: string[];
+  if (explicitIds) {
+    // Build from an exact question set (Recommended test), preserving priority.
+    const qs = await db
+      .select()
+      .from(questions)
+      .where(and(inArray(questions.id, explicitIds), isNull(questions.archivedAt)));
+    if (qs.length === 0) throw new Error("no valid questions");
+    const rank = new Map(explicitIds.map((id, i) => [id, i] as const));
+    pool = qs.sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0));
+    validLectureIds = Array.from(new Set(qs.map((q) => q.lectureId)));
+  } else {
+    if (input.lectureIds.length === 0) {
+      throw new Error("at least one lecture required");
+    }
+    // Sanity check that lectures exist + not archived.
+    const lecs = await db
+      .select({ id: lectures.id })
+      .from(lectures)
+      .where(and(inArray(lectures.id, input.lectureIds), isNull(lectures.archivedAt)));
+    validLectureIds = lecs.map((l) => l.id);
+    if (validLectureIds.length === 0) {
+      throw new Error("no valid lectures");
+    }
+    pool = await db
+      .select()
+      .from(questions)
+      .where(
+        and(inArray(questions.lectureId, validLectureIds), isNull(questions.archivedAt)),
+      );
+    if (pool.length === 0) {
+      throw new Error("no questions in selected lectures");
+    }
   }
 
   const seed = input.seed ?? randomSeed();
-  const shuffleQ = input.shuffleQuestions !== false;
+  // An explicit set arrives already prioritised — don't reshuffle unless asked.
+  const shuffleQ = explicitIds ? input.shuffleQuestions === true : input.shuffleQuestions !== false;
   const shuffleC = input.shuffleChoices !== false;
 
   let ordered: Question[] = shuffleQ ? seededShuffle(pool, seed) : pool.slice();
@@ -170,6 +193,9 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
   const choiceShuffleSeed = seed ^ 0x9e3779b9;
   const choiceRng = mulberry32(choiceShuffleSeed);
 
+  // Observed difficulty (from everyone's answers) sharpens the time budget.
+  const statsMap = await loadQuestionStats(ordered.map((q) => q.id));
+
   const setupQuestions: AttemptSetup["questions"] = [];
   for (let i = 0; i < ordered.length; i++) {
     const q = ordered[i];
@@ -204,10 +230,11 @@ export async function createAttempt(input: CreateAttemptInput): Promise<AttemptS
       timeOnQuestionMs: 0,
     });
 
-    const qType = inferQuestionType(q.difficulty, variant?.angle ?? null);
+    const effDifficulty = effectiveDifficulty(q.difficulty, statsMap.get(q.id) ?? null);
+    const qType = inferQuestionType(effDifficulty, variant?.angle ?? null);
     const timing = computeTiming({
       questionType: qType,
-      difficulty: (q.difficulty as QuestionDifficulty | null) ?? undefined,
+      difficulty: effDifficulty,
     });
 
     setupQuestions.push({
@@ -271,13 +298,18 @@ export async function loadAttemptForRuntime(
 
   // Resolve each answer to its effective item (variant or base question).
   const effective = await resolveEffectiveItems(ans);
+  const statsMap = await loadQuestionStats(ans.map((a) => a.questionId));
 
   const setupQuestions: AttemptSetup["questions"] = ans.map((a) => {
     const eff = effective.get(a.id)!;
-    const qType = inferQuestionType(eff.difficulty, eff.angle);
+    const effDifficulty = effectiveDifficulty(
+      eff.difficulty,
+      statsMap.get(a.questionId) ?? null,
+    );
+    const qType = inferQuestionType(effDifficulty, eff.angle);
     const timing = computeTiming({
       questionType: qType,
-      difficulty: (eff.difficulty as QuestionDifficulty | null) ?? undefined,
+      difficulty: effDifficulty,
     });
     return {
       id: a.questionId,
@@ -377,6 +409,10 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
   const now = new Date();
   const telemetryRows: TelemetryInsert[] = [];
   const masteryItems: MasteryItem[] = [];
+  const reviewItems: ReviewItem[] = [];
+  const statBumps: StatBump[] = [];
+  // Observed difficulty per base question — sharpens timing, ratings + review.
+  const statsMap = await loadQuestionStats(ans.map((a) => a.questionId));
 
   for (const a of ans) {
     const eff = effective.get(a.id);
@@ -406,27 +442,39 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
       })
       .where(eq(attemptAnswers.id, a.id));
 
-    // Championship standings feed — answered questions only (a blank gives no
-    // signal about the concept). Independent of the telemetry block below.
+    const effDifficulty = effectiveDifficulty(
+      eff.difficulty,
+      statsMap.get(a.questionId) ?? null,
+    );
+    const subject = subjectByLecture.get(eff.lectureId) ?? null;
+
+    // Standings feed — answered questions only (a blank gives no concept signal).
     if (answered) {
       masteryItems.push({
-        subject: subjectByLecture.get(eff.lectureId) ?? null,
+        subject,
         topic: eff.topic,
-        difficulty: eff.difficulty,
+        difficulty: effDifficulty,
         isCorrect,
+      });
+      // Observed-difficulty stats accumulate on the base question.
+      statBumps.push({
+        questionId: eff.questionId,
+        isCorrect,
+        timeMs: input.telemetry?.[a.questionId]?.timeTakenMs ?? 0,
       });
     }
 
     // ---- Telemetry classification (when the runtime supplied metrics) ----
     const m = input.telemetry?.[a.questionId];
+    let timingCategory: TimingCategory | null = null;
+    const confidence = (m?.confidence ?? null) as ConfidenceLevel | null;
     if (input.telemetry) {
-      const qType = inferQuestionType(eff.difficulty, eff.angle);
+      const qType = inferQuestionType(effDifficulty, eff.angle);
       const expectedMs = computeTiming({
         questionType: qType,
-        difficulty: (eff.difficulty as QuestionDifficulty | null) ?? undefined,
+        difficulty: effDifficulty,
       }).recommendedMs;
       const timeTakenMs = Math.max(0, Math.round(m?.timeTakenMs ?? 0));
-      const confidence = (m?.confidence ?? null) as ConfidenceLevel | null;
       const cls = classifyAttempt({
         isCorrect,
         answered,
@@ -440,6 +488,7 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
           confidence,
         },
       });
+      timingCategory = cls.timingCategory;
       telemetryRows.push({
         attemptId: input.attemptId,
         userId: attempt.userId,
@@ -462,19 +511,42 @@ export async function submitAttempt(input: SubmitInput): Promise<SubmitResult> {
         trapType: cls.trapType,
       });
     }
+
+    // Spaced-repetition feed — answered questions get a next-due date.
+    if (answered) {
+      reviewItems.push({
+        questionId: eff.questionId,
+        subject,
+        lectureId: eff.lectureId || null,
+        answered,
+        isCorrect,
+        confidence,
+        timingCategory,
+      });
+    }
   }
 
   if (telemetryRows.length > 0) {
     await saveTelemetry(telemetryRows);
   }
 
-  // Update championship standings (derived, best-effort — never break a submit).
+  // Derived, best-effort updates — a failure here must never break a submit.
   if (attempt.userId) {
     try {
       await applyMasteryUpdates(attempt.userId, masteryItems, now);
     } catch (err) {
       console.error("[mastery] update failed:", (err as Error).message);
     }
+    try {
+      await applyReviews(attempt.userId, reviewItems, now);
+    } catch (err) {
+      console.error("[review] update failed:", (err as Error).message);
+    }
+  }
+  try {
+    await bumpQuestionStats(statBumps);
+  } catch (err) {
+    console.error("[stats] update failed:", (err as Error).message);
   }
 
   await db

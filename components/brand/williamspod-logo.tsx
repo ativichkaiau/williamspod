@@ -1,25 +1,5 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
-
-/** Shared Williams family mark used by WilliamsHub and WilliamsPod. */
-export function WilliamsWMark({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 64 58"
-      className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M6 9 L19 49 L32 26 L45 49 L58 9"
-        stroke="currentColor"
-        strokeWidth="9"
-        strokeLinejoin="miter"
-        strokeLinecap="butt"
-      />
-    </svg>
-  );
-}
 
 type Size = "sm" | "md" | "lg" | "xl";
 
@@ -29,12 +9,6 @@ const TILE_SIZE: Record<Size, string> = {
   lg: "h-12 w-12 rounded-[12px]",
   xl: "h-16 w-16 rounded-[16px]",
 };
-const MARK_SIZE: Record<Size, string> = {
-  sm: "h-5 w-5",
-  md: "h-6 w-6",
-  lg: "h-7 w-7",
-  xl: "h-10 w-10",
-};
 const WORD_SIZE: Record<Size, string> = {
   sm: "text-[15px]",
   md: "text-[19px]",
@@ -43,7 +17,9 @@ const WORD_SIZE: Record<Size, string> = {
 };
 
 /**
- * A Williams-blue clay tile carrying the white W mark. Reusable app icon.
+ * The WilliamsPod mark: the Williams "W" on a white app-icon tile. White keeps
+ * the navy strokes readable on the navy header (and the tile's hairline + soft
+ * shadow define it on light backgrounds).
  */
 export function WilliamsPodMark({
   size = "md",
@@ -55,14 +31,19 @@ export function WilliamsPodMark({
   return (
     <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#2E5BFF_0%,#0A1A7A_100%)] text-white shadow-[0_8px_18px_-8px_rgba(46,91,255,0.8),inset_0_1px_1px_rgba(255,255,255,0.22)]",
+        "relative flex shrink-0 items-center justify-center overflow-hidden bg-white shadow-[0_8px_18px_-8px_rgba(20,30,70,0.55),inset_0_0_0_1px_rgba(20,30,70,0.08)]",
         TILE_SIZE[size],
         className,
       )}
     >
-      <WilliamsWMark className={MARK_SIZE[size]} />
-      {/* FW15C nose stripe across the tile's floor */}
-      <span className="livery-stripe pointer-events-none absolute inset-x-0 bottom-0 h-[3px]" />
+      <Image
+        src="/williams-logo.png"
+        alt="WilliamsPod"
+        width={64}
+        height={64}
+        priority
+        className="h-full w-full object-contain p-[13%]"
+      />
     </span>
   );
 }

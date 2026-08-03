@@ -48,3 +48,6 @@ williamspod-test.db
 williamspod-test.db-journal
 sample-bank.xlsx
 
+
+# Local working dir for bank extraction (source docx/pdf must never be committed)
+.work/

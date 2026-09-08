@@ -55,7 +55,7 @@ export default async function StandingsPage() {
             </span>
             <div>
               <h2 className="display-lg text-foreground">{leader.key}</h2>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-muted">
+              <p className="mt-1 text-xs text-muted">
                 {leader.races} test{leader.races === 1 ? "" : "s"} ·{" "}
                 {leader.accuracy}% accuracy
               </p>
@@ -89,7 +89,7 @@ export default async function StandingsPage() {
         <section className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <p className="eyebrow">By topic</p>
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+            <span className="text-xs text-muted">
               {topics.length} tracked
             </span>
           </div>
@@ -123,7 +123,7 @@ export default async function StandingsPage() {
         </section>
       )}
 
-      <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
+      <p className="text-center text-xs text-muted">
         Ratings start at 1000 · harder questions are worth more
       </p>
     </div>
@@ -135,11 +135,11 @@ function ConceptRow({ concept }: { concept: WeakConcept }) {
     <li className="space-y-1.5">
       <div className="flex items-center justify-between gap-2 text-sm">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate font-bold text-foreground">
+          <span className="truncate font-medium text-foreground">
             {concept.concept}
           </span>
           {concept.subjects.length > 0 && (
-            <span className="hidden shrink-0 text-[10px] uppercase tracking-[0.16em] text-muted sm:inline">
+            <span className="hidden shrink-0 text-xs text-muted sm:inline">
               {concept.subjects.join(" · ")}
             </span>
           )}
@@ -162,10 +162,7 @@ function ConceptRow({ concept }: { concept: WeakConcept }) {
 function Header() {
   return (
     <header>
-      <div className="flex items-center gap-2">
-        <span className="dot text-signal" />
-        <p className="eyebrow">Progress</p>
-      </div>
+      <p className="eyebrow">Progress</p>
       <h1 className="mt-2 display-lg text-foreground">
         Your <span className="race-lean text-signal">progress</span>
       </h1>
@@ -192,7 +189,7 @@ function StandingLine({
         <span
           className={
             pos <= 3
-              ? "digit text-sm font-bold text-signal"
+              ? "digit text-sm font-semibold text-signal"
               : "digit text-sm text-muted"
           }
         >
@@ -201,17 +198,17 @@ function StandingLine({
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-bold text-foreground">{row.key}</span>
+          <span className="truncate text-sm font-medium text-foreground">{row.key}</span>
           {row.rusty && (
             <span
-              className="shrink-0 text-[9px] font-bold uppercase tracking-[0.16em] text-warn"
+              className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.08em] text-warn"
               title="Rating has faded from lack of practice — review to recover it"
             >
               rusty
             </span>
           )}
         </div>
-        <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted">
+        <div className="mt-0.5 text-xs text-muted">
           {row.races} test{row.races === 1 ? "" : "s"} · {row.correct}/
           {row.answered} · {row.accuracy}%
         </div>
@@ -220,7 +217,7 @@ function StandingLine({
         <Sparkline history={row.history} className="hidden h-8 w-24 sm:block" />
       )}
       <DeltaChip delta={row.lastDelta} />
-      <div className="w-14 shrink-0 text-right digit text-base font-bold text-foreground">
+      <div className="w-14 shrink-0 text-right digit text-base font-medium text-foreground">
         {row.rating}
       </div>
     </li>

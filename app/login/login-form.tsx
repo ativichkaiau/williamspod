@@ -83,7 +83,7 @@ export function LoginForm() {
         {submitting ? "Signing in…" : "Sign in"}
         <ArrowRight className="h-4 w-4" />
       </Button>
-      <p className="pt-1 text-center text-[10px] uppercase tracking-[0.18em] text-muted">
+      <p className="pt-1 text-center text-xs text-muted">
         Have an invite code?{" "}
         <Link
           href="/signup"

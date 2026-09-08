@@ -33,7 +33,7 @@ export default async function RunsHubPage() {
         <div className="livery-stripe pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-signal shadow-[var(--clay-chip)]">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface-2 text-signal">
               <RefreshCw className="h-5 w-5" />
             </span>
             <div>
@@ -60,10 +60,7 @@ export default async function RunsHubPage() {
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="dot text-signal" />
-            <p className="eyebrow">Practice tests</p>
-          </div>
+          <p className="eyebrow">Practice tests</p>
           <h1 className="mt-2 display-lg text-foreground">
             Practice<span className="race-lean text-signal">.</span>
           </h1>
@@ -96,7 +93,7 @@ export default async function RunsHubPage() {
         <div className="panel overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <p className="eyebrow">Recent tests</p>
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+            <span className="text-xs text-muted">
               {recent.length} shown
             </span>
           </div>
@@ -140,7 +137,7 @@ export default async function RunsHubPage() {
                           })}
                         </span>
                         {a.label && (
-                          <span className="font-bold text-foreground">{a.label}</span>
+                          <span className="font-medium text-foreground">{a.label}</span>
                         )}
                         {!submitted && <Badge tone="warn">In progress</Badge>}
                         {a.aborted && <Badge tone="bad">Aborted</Badge>}
@@ -151,7 +148,7 @@ export default async function RunsHubPage() {
                           </Badge>
                         )}
                       </div>
-                      <div className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-muted">
+                      <div className="mt-0.5 text-xs text-muted">
                         {a.questionCount} Q · {formatDuration(a.durationMs)} budget
                         {a.timeUsedMs != null
                           ? ` · ${formatDuration(a.timeUsedMs)} used`
@@ -159,9 +156,9 @@ export default async function RunsHubPage() {
                       </div>
                     </div>
                     <div className="w-20 text-right">
-                      <div className={`digit text-base font-bold ${scoreColor}`}>{score}</div>
+                      <div className={`digit text-base font-medium ${scoreColor}`}>{score}</div>
                       {scorePct != null && (
-                        <div className="font-mono text-[10px] tabular text-muted">
+                        <div className="font-mono text-xs tabular text-muted">
                           {scorePct}%
                         </div>
                       )}

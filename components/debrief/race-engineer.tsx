@@ -52,11 +52,11 @@ export function RaceEngineer({
       <div className="mt-4 rounded-md border border-signal/25 bg-signal-soft p-3.5 pop-in">
         <div className="mb-1.5 flex items-center gap-1.5">
           <Lightbulb className="h-3 w-3 text-signal" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-signal">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-signal">
             Explanation
           </p>
           {state.provider === "placeholder" && (
-            <span className="text-[9px] uppercase tracking-[0.14em] text-muted">
+            <span className="text-[10px] text-muted">
               · offline
             </span>
           )}
@@ -80,7 +80,7 @@ export function RaceEngineer({
         onClick={ask}
         disabled={state.kind === "loading"}
         className={cn(
-          "inline-flex items-center gap-2 rounded-lg bg-surface-2 px-3.5 py-2 text-xs font-semibold text-foreground shadow-[var(--clay-chip)] transition-all hover:brightness-105 active:shadow-[var(--clay-inset)] disabled:opacity-60",
+          "inline-flex items-center gap-2 rounded-md border border-border bg-surface-2 px-3.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-surface-3 disabled:opacity-60",
         )}
       >
         {state.kind === "loading" ? (
@@ -96,7 +96,7 @@ export function RaceEngineer({
         )}
       </button>
       {state.kind === "error" && (
-        <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-bad">
+        <p className="mt-2 text-[11px] text-bad">
           {state.message}
         </p>
       )}

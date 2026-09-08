@@ -1,29 +1,27 @@
 import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 import { BrandLockup } from "@/components/brand/williamspod-logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata = { title: "WilliamsPod — Sign in" };
 
 export default function LoginPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-grid p-6">
-      <div className="pointer-events-none absolute inset-0 bg-scanlines opacity-50" />
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-signal/8 blur-3xl" />
+    <main className="auth-shell">
+      <div aria-hidden="true" className="racing-stripes auth-stripes" />
+      <ThemeToggle labeled className="absolute right-5 top-5 sm:right-8 sm:top-8" />
 
       <div className="relative w-full max-w-md pop-in">
         <BrandLockup className="mb-8" />
 
-        <div className="panel-deep p-8">
-          <div className="mb-6 flex items-center justify-between">
+        <div className="panel-deep relative overflow-hidden p-6 sm:p-8">
+          <div aria-hidden="true" className="track-hatch absolute inset-x-0 top-0 h-2" />
+          <div className="mb-6">
             <div>
               <p className="eyebrow">Sign in</p>
               <h1 className="mt-1 display-lg text-foreground">
                 Welcome <span className="race-lean text-signal">back</span>
               </h1>
-            </div>
-            <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-[0.2em] text-muted">
-              <span className="dot text-good" />
-              <span>online</span>
             </div>
           </div>
 
@@ -32,10 +30,10 @@ export default function LoginPage() {
           </Suspense>
         </div>
 
-        <p className="mt-6 text-center text-[10px] uppercase tracking-[0.24em] text-muted">
+        <p className="mt-6 text-center text-xs text-muted">
           Practice under exam conditions
         </p>
       </div>
-    </div>
+    </main>
   );
 }

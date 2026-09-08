@@ -41,21 +41,21 @@ export function CalibrationPanel({ report }: { report: CalibrationReport }) {
 
       <div className="grid gap-3 sm:grid-cols-4">
         <div className="clay-inset p-3.5 sm:col-span-1">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+          <div className="text-xs font-medium text-muted">
             Brier score
           </div>
           <div className="mt-1 digit text-2xl text-foreground">
             {report.brier.toFixed(3)}
           </div>
-          <div className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+          <div className="mt-0.5 text-[11px] text-muted">
             0 = perfect
           </div>
         </div>
         <div className="clay-inset p-3.5 sm:col-span-3">
-          <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+          <div className="text-xs font-medium text-muted">
             Verdict
           </div>
-          <div className={cn("mt-1 text-lg font-bold", verdictColor)}>
+          <div className={cn("mt-1 text-lg font-semibold", verdictColor)}>
             {verdict.label}
           </div>
           <p className="mt-0.5 text-xs text-foreground-dim">{verdict.blurb}</p>
@@ -80,7 +80,7 @@ export function CalibrationPanel({ report }: { report: CalibrationReport }) {
 
       {/* Predicted vs actual per conviction level */}
       <div className="mt-5 space-y-3 border-t border-border/70 pt-5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+        <p className="text-xs font-medium text-muted">
           Claimed vs actual
         </p>
         {buckets.map((b) => {
@@ -142,11 +142,11 @@ function QuadTile({
     tone === "bad" ? "text-bad" : tone === "signal" ? "text-signal" : "text-good";
   return (
     <div className="clay-inset p-3.5">
-      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+      <div className="text-xs font-medium text-muted">
         {label}
       </div>
       <div className={cn("mt-1 digit text-2xl", color)}>{value}</div>
-      <div className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+      <div className="mt-0.5 text-[11px] text-muted">
         {hint}
       </div>
     </div>

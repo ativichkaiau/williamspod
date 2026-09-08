@@ -34,10 +34,7 @@ export default async function BankPage() {
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="dot text-signal" />
-            <p className="eyebrow">Question bank</p>
-          </div>
+          <p className="eyebrow">Question bank</p>
           <h1 className="mt-2 display-lg text-foreground">
             Question <span className="race-lean text-signal">bank</span>
           </h1>
@@ -59,7 +56,8 @@ export default async function BankPage() {
       </header>
 
       {rows.length === 0 ? (
-        <div className="panel bg-grid flex flex-col items-center gap-3 py-14 text-center">
+        <div className="panel relative flex flex-col items-center gap-3 overflow-hidden py-14 text-center">
+          <div aria-hidden="true" className="track-hatch absolute inset-x-0 top-0 h-2" />
           <LibraryBig className="h-8 w-8 text-muted" />
           <p className="text-sm text-muted">
             No questions in the bank yet.
@@ -90,14 +88,14 @@ export default async function BankPage() {
                   <span className="digit w-7 shrink-0 text-xs text-muted sm:w-8">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-2 text-signal shadow-[var(--clay-chip)]">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border bg-surface-2 text-signal">
                     <FolderOpen className="h-4 w-4" />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-base font-bold text-foreground">
+                    <div className="truncate text-base font-medium text-foreground">
                       {subject}
                     </div>
-                    <div className="mt-0.5 truncate font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+                    <div className="mt-0.5 truncate text-xs text-muted">
                       {items.length} lecture{items.length === 1 ? "" : "s"}
                     </div>
                   </div>

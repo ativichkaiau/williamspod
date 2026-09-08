@@ -277,7 +277,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                         }`}
                       />
                       <h3
-                        className={`text-[11px] font-bold uppercase tracking-[0.22em] ${
+                        className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${
                           subject === UNGROUPED
                             ? "text-muted"
                             : "text-foreground-dim"
@@ -338,7 +338,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                             <span
                               className={cn(
                                 "flex-1 truncate text-sm",
-                                checked ? "font-bold" : "font-medium",
+                                checked ? "font-semibold" : "font-medium",
                               )}
                             >
                               {l.name}
@@ -386,7 +386,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
 
           {/* visual: real -> pod */}
           <div className="mt-6 rounded-md border border-border bg-surface-2 p-4">
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-muted">
+            <div className="flex items-center justify-between text-[11px] text-muted">
               <span>Real exam</span>
               <span className="flex items-center gap-1 text-signal">
                 <ChevronsRight className="h-3 w-3" />
@@ -401,7 +401,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
               <div className="flex flex-1 items-center px-3">
                 <div className="relative h-1 w-full overflow-hidden rounded-full bg-surface-3">
                   <div
-                    className="absolute inset-y-0 left-0 bg-wm-yellow shadow-[0_0_8px_-1px_rgba(255,204,0,0.6)] transition-[width]"
+                    className="absolute inset-y-0 left-0 bg-wm-yellow transition-[width]"
                     style={{
                       width: `${Math.max(5, (effectiveMin / Math.max(1, realMin)) * 100)}%`,
                     }}
@@ -413,7 +413,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
                 <span className="text-sm text-muted"> min</span>
               </span>
             </div>
-            <p className="mt-3 text-[10px] uppercase tracking-[0.16em] text-muted">
+            <p className="mt-3 text-[11px] text-muted">
               −{pressureDeltaMin} min vs real
             </p>
           </div>
@@ -502,7 +502,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           </div>
 
           <div className="mt-5 space-y-1">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted">
+            <p className="text-[11px] text-muted">
               Your timer
             </p>
             <div className="flex items-baseline gap-2">
@@ -552,7 +552,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
           <Play className="h-4 w-4" />
           {busy ? "Starting…" : "Start test"}
         </Button>
-        <p className="text-center text-[10px] uppercase tracking-[0.22em] text-muted">
+        <p className="text-center text-xs text-muted">
           No going back once you start
         </p>
       </aside>
@@ -607,9 +607,9 @@ function Toggle({
       type="button"
       onClick={() => onChange(!checked)}
       className={cn(
-        "rounded-md border px-3.5 py-2 text-xs font-semibold transition-all",
+        "rounded-md border px-3.5 py-2 text-xs font-medium transition-colors",
         checked
-          ? "border-signal/60 bg-signal-soft text-signal shadow-[inset_0_1px_0_0_rgba(255,204,0,0.18)]"
+          ? "border-signal/60 bg-signal-soft text-signal"
           : "border-border-strong bg-surface-2 text-muted-strong hover:border-border-bright hover:text-foreground",
       )}
     >
@@ -633,7 +633,7 @@ function BriefTile({
     tone === "warn" ? "text-warn" : tone === "bad" ? "text-bad" : "text-foreground";
   return (
     <div className="rounded-md border border-border bg-surface-2 p-2.5">
-      <p className="text-[9px] uppercase tracking-[0.18em] text-muted">
+      <p className="text-[11px] text-muted">
         {label}
       </p>
       <div className="mt-1 flex items-baseline gap-1">

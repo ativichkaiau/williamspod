@@ -46,13 +46,13 @@ export function ThemeToggle({
   labeled = false,
 }: {
   className?: string;
-  /** Render a wider pill showing the CURRENT mode ("Day" / "Night"). */
+  /** Include the current mode ("Day" / "Night") beside the icon. */
   labeled?: boolean;
 }) {
   const theme = useSyncExternalStore(subscribe, getCurrentTheme, () => "dark");
   const nextTheme: Theme = theme === "dark" ? "light" : "dark";
   const isDay = theme === "light";
-  // The pill reflects the CURRENT mode; the icon matches it.
+  // The label reflects the current mode; the icon matches it.
   const Icon = isDay ? Sun : Moon;
 
   if (labeled) {
@@ -60,7 +60,7 @@ export function ThemeToggle({
       <button
         type="button"
         className={cn(
-          "flex h-8 shrink-0 items-center gap-1.5 rounded-full bg-surface px-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground shadow-[var(--clay-chip)] transition-all hover:brightness-105 active:shadow-[var(--clay-inset)]",
+          "flex h-10 shrink-0 items-center gap-2 rounded-md border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-surface-2",
           className,
         )}
         aria-label={isDay ? "Switch to night mode" : "Switch to day mode"}
@@ -79,7 +79,7 @@ export function ThemeToggle({
     <button
       type="button"
       className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-surface-2 text-muted shadow-[var(--clay-chip)] transition-all hover:text-foreground active:shadow-[var(--clay-inset)]",
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-foreground",
         className,
       )}
       aria-label={isDay ? "Switch to night mode" : "Switch to day mode"}

@@ -101,7 +101,7 @@ export function VariantPanel({
       >
         <span className="flex items-center gap-2">
           <Layers className="h-3.5 w-3.5 text-signal" />
-          <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-strong">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-strong">
             Concept variations
           </span>
           {loaded && variants.length > 0 && (
@@ -140,7 +140,7 @@ export function VariantPanel({
                     : "Generate variations"}
               </Button>
               {meta && (
-                <span className="text-[10px] uppercase tracking-[0.14em] text-muted">
+                <span className="text-[10px] text-muted">
                   via {meta.provider}
                 </span>
               )}
@@ -180,12 +180,12 @@ export function VariantCard({
   onRemove?: (id: string) => void;
 }) {
   return (
-    <article className="rounded-md border border-border bg-surface p-3.5 shadow-[var(--clay-chip)]">
+    <article className="rounded-md border border-border bg-surface p-3.5">
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <Badge tone="signal">{ANGLE_META[v.angle as QuestionAngle].label}</Badge>
         <Badge tone={DIFF_TONE[v.difficulty]}>{v.difficulty}</Badge>
         {v.conceptTag && <Badge tone="neutral">{v.conceptTag}</Badge>}
-        <span className="ml-auto flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.14em] text-muted">
+        <span className="ml-auto flex items-center gap-1 text-[10px] text-muted">
           <Sparkles className="h-3 w-3 text-signal" />
           {PROVENANCE_LABEL}
         </span>
@@ -239,7 +239,7 @@ export function VariantCard({
 
       {v.explanation && (
         <div className="mt-2.5 rounded-md border border-signal/25 bg-signal-soft p-2.5">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-signal">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-signal">
             Why
           </p>
           <p className="mt-1 text-[11.5px] font-medium leading-relaxed text-foreground-dim">

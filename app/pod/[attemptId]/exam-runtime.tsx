@@ -545,9 +545,6 @@ export function ExamRuntime({
   if (!armed) {
     return (
       <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-grid p-6">
-        <div className="pointer-events-none absolute inset-0 bg-scanlines opacity-40" />
-        <div className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-signal/8 blur-3xl" />
-
         <div className="relative w-full max-w-xl pop-in">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -628,7 +625,7 @@ export function ExamRuntime({
       />
 
       {integrityWarning && (
-        <div className="border-b border-bad/40 bg-bad-soft px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-bad pop-in flex items-center gap-2">
+        <div className="border-b border-bad/40 bg-bad-soft px-6 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-bad pop-in flex items-center gap-2">
           <ShieldAlert className="h-3.5 w-3.5" />
           {integrityWarning}
         </div>
@@ -659,7 +656,7 @@ export function ExamRuntime({
               Prev
             </Button>
             <div className="flex flex-col items-center">
-              <span className="text-[9px] uppercase tracking-[0.22em] text-muted">
+              <span className="text-[10px] text-muted">
                 question
               </span>
               <span className="digit text-sm text-foreground">
@@ -735,14 +732,14 @@ export function ExamRuntime({
       {abortReason && (
         <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-6 backdrop-blur-sm">
           <div className="panel-deep pop-in max-w-md p-7 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-bad/50 bg-bad-soft text-bad shadow-[0_0_0_1px_rgba(239,83,80,0.3),0_0_24px_-4px_rgba(239,83,80,0.5)]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-bad/50 bg-bad-soft text-bad">
               <ShieldAlert className="h-6 w-6" />
             </div>
-            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-bad">
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-bad">
               Test aborted
             </p>
             <p className="mt-2 text-sm text-foreground-dim">{abortReason}</p>
-            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+            <p className="mt-3 font-mono text-[11px] text-muted">
               Taking you to your results…
             </p>
           </div>
@@ -777,20 +774,20 @@ function TopBar({
   const danger = remainingMs < 60_000;
   const timerColor = danger ? "text-bad" : overtime ? "text-bad" : "text-foreground";
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="flex items-center gap-6 px-6 py-2.5">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[5px] border border-signal/40 bg-signal/8 text-signal shadow-[inset_0_1px_0_0_rgba(255,204,0,0.25)]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md border border-signal/40 bg-signal/8 text-signal">
             <span className="font-mono text-[10px] font-bold tracking-[0.18em]">WP</span>
           </div>
           <div className="flex flex-col leading-none">
             <div className="flex items-center gap-1.5">
               <span className="dot text-bad pod-pulse" />
-              <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-bad">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-bad">
                 lockdown
               </span>
             </div>
-            <span className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-muted">
+            <span className="mt-0.5 font-mono text-[10px] text-muted">
               test in progress
             </span>
           </div>
@@ -808,7 +805,7 @@ function TopBar({
               <span className={cn("digit text-3xl", timerColor, danger && "pod-pulse")}>
                 {formatDuration(remainingMs)}
               </span>
-              <span className="text-[10px] uppercase tracking-[0.22em] text-muted">
+              <span className="text-[11px] text-muted">
                 / {formatDuration(totalMs)}
               </span>
             </div>
@@ -816,9 +813,7 @@ function TopBar({
               <div
                 className={cn(
                   "h-full rounded-full transition-[width] duration-700",
-                  danger
-                    ? "bg-bad shadow-[0_0_8px_0_rgba(239,83,80,0.6)]"
-                    : "bg-wm-yellow shadow-[0_0_8px_0_rgba(255,204,0,0.5)]",
+                  danger ? "bg-bad" : "bg-wm-yellow",
                 )}
                 style={{ width: `${pctLeft}%` }}
               />
@@ -863,7 +858,7 @@ function Stat({
 }) {
   return (
     <div className="flex flex-col items-end leading-tight">
-      <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-muted">{label}</span>
+      <span className="text-[9px] font-medium uppercase tracking-[0.1em] text-muted">{label}</span>
       <span
         className={cn(
           "mt-0.5 digit text-sm",
@@ -893,7 +888,7 @@ function Spec({
         : "text-foreground";
   return (
     <li className="flex items-center justify-between border-b border-border/60 pb-2.5 last:border-0 last:pb-0">
-      <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-muted">
+      <span className="text-xs font-medium text-muted">
         {label}
       </span>
       <span className={cn("font-mono text-sm tabular", color)}>{value}</span>
@@ -912,7 +907,7 @@ function Tile({
 }) {
   return (
     <div className="rounded-md border border-border bg-surface-2 p-3 text-left">
-      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
+      <div className="text-xs font-medium text-muted">
         {label}
       </div>
       <div
@@ -957,7 +952,7 @@ function QuestionView({
     <article key={question.id} className="panel p-7 pop-in">
       <div className="flex items-center justify-between border-b border-border/70 pb-4">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-muted">
+          <span className="font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-muted">
             Question
           </span>
           <span className="digit text-lg text-foreground">
@@ -969,12 +964,12 @@ function QuestionView({
           {budget != null && (
             <span
               className={cn(
-                "flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-bold tabular tracking-[0.06em] shadow-[var(--clay-chip)]",
+                "flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] font-semibold tabular tracking-[0.06em]",
                 over
-                  ? "bg-bad-soft text-bad"
+                  ? "border-bad/30 bg-bad-soft text-bad"
                   : near
-                    ? "bg-warn-soft text-warn"
-                    : "bg-surface-2 text-muted",
+                    ? "border-warn/30 bg-warn-soft text-warn"
+                    : "border-border bg-surface-2 text-muted",
               )}
               title="Suggested time for this question type"
             >
@@ -1009,9 +1004,9 @@ function QuestionView({
               <button
                 onClick={() => onPick(i)}
                 className={cn(
-                  "flex w-full items-start gap-3.5 rounded-md border px-4 py-3.5 text-left transition-all duration-150",
+                  "flex w-full items-start gap-3.5 rounded-md border px-4 py-3.5 text-left transition-colors duration-150",
                   selected
-                    ? "border-signal/70 bg-signal-soft shadow-[inset_0_1px_0_0_rgba(255,204,0,0.18),0_0_0_1px_rgba(255,204,0,0.25),0_0_18px_-8px_rgba(255,204,0,0.6)]"
+                    ? "border-signal bg-signal-soft"
                     : "border-border bg-surface hover:border-border-bright hover:bg-surface-2",
                 )}
               >
@@ -1043,7 +1038,7 @@ function QuestionView({
 
       {/* Optional conviction rating — feeds the calibration report. */}
       <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/60 pt-4">
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
+        <span className="text-xs font-medium text-muted">
           Conviction
         </span>
         <div className="flex items-center gap-1.5">
@@ -1059,10 +1054,10 @@ function QuestionView({
                   ["guess", "shaky", "even", "confident", "certain"][lvl - 1]
                 }
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-[6px] font-mono text-[11px] font-bold transition-all",
+                  "flex h-7 w-7 items-center justify-center rounded-md border font-mono text-[11px] font-semibold transition-colors",
                   active
-                    ? "bg-wm-yellow text-wm-navy shadow-[var(--clay-chip)]"
-                    : "bg-surface-2 text-muted hover:text-foreground",
+                    ? "border-signal bg-wm-yellow text-wm-navy"
+                    : "border-border bg-surface-2 text-muted hover:text-foreground",
                 )}
               >
                 {lvl}
@@ -1070,7 +1065,7 @@ function QuestionView({
             );
           })}
         </div>
-        <span className="text-[10px] uppercase tracking-[0.14em] text-muted">
+        <span className="text-[11px] text-muted">
           {confidence
             ? ["gut guess", "shaky", "even money", "confident", "certain"][
                 confidence - 1
@@ -1116,9 +1111,9 @@ function Navigator({
               key={q.id}
               onClick={() => onJump(i)}
               className={cn(
-                "relative flex h-9 w-full items-center justify-center rounded-[4px] border font-mono text-[10px] tabular transition-all duration-150 hover:scale-[1.04]",
+                "relative flex h-9 w-full items-center justify-center rounded-[4px] border font-mono text-[10px] tabular transition-colors duration-150",
                 isCurrent
-                  ? "border-signal bg-signal/20 text-signal shadow-[0_0_0_1px_rgba(255,204,0,0.4),0_0_12px_-4px_rgba(255,204,0,0.7)]"
+                  ? "border-signal bg-signal/20 text-signal"
                   : answered
                     ? "border-good/40 bg-good-soft text-foreground"
                     : "border-border bg-surface-2 text-muted hover:border-border-bright",
@@ -1134,17 +1129,17 @@ function Navigator({
         })}
       </div>
 
-      <div className="mt-5 space-y-2 border-t border-border pt-4 text-[10px] uppercase tracking-[0.16em] text-muted">
+      <div className="mt-5 space-y-2 border-t border-border pt-4 text-[11px] text-muted">
         <LegendDot color="bg-good-soft border-good/40">answered</LegendDot>
         <LegendDot color="bg-signal/20 border-signal/60">current</LegendDot>
         <LegendDot color="bg-wm-yellow">flagged</LegendDot>
       </div>
 
       <div className="mt-4 space-y-1.5 border-t border-border pt-4">
-        <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-muted">
+        <div className="flex items-center justify-between text-[11px] text-muted">
           <span>Keys</span>
         </div>
-        <div className="space-y-1.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+        <div className="space-y-1.5 text-[11px] text-muted">
           <KeyRow keys={["A", "—", "E"]} label="pick" />
           <KeyRow keys={["←", "→"]} label="nav" />
           <KeyRow keys={["M"]} label="flag" />
@@ -1163,7 +1158,7 @@ function KeyRow({ keys, label }: { keys: string[]; label: string }) {
           <kbd
             key={`${k}-${i}`}
             className={cn(
-              "inline-flex h-4 min-w-[16px] items-center justify-center rounded-[3px] border border-border-strong bg-surface-2 px-1 font-mono text-[9px] font-semibold text-foreground-dim shadow-[inset_0_-1px_0_0_rgba(0,0,0,0.4)]",
+              "inline-flex h-4 min-w-[16px] items-center justify-center rounded-[3px] border border-border-strong bg-surface-2 px-1 font-mono text-[9px] font-semibold text-foreground-dim",
               k === "—" && "border-transparent bg-transparent px-0 text-muted shadow-none",
             )}
           >

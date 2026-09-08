@@ -6,27 +6,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold tracking-tight transition-all duration-150 ease-out active:translate-y-0.5 active:scale-[0.98] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-40",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent text-sm font-medium transition-colors duration-150 disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       variant: {
-        // Puffy clay: soft top highlight + outer lift; press collapses it.
         default:
-          "bg-foreground text-background shadow-[0_10px_20px_-10px_rgba(0,0,0,0.6),inset_0_2px_2px_-1px_rgba(255,255,255,0.25),inset_0_-4px_8px_-4px_rgba(0,0,0,0.35)] hover:brightness-110 active:shadow-[inset_0_2px_5px_0_rgba(0,0,0,0.4)]",
+          "bg-foreground text-background hover:bg-foreground-dim",
         // Camel-yellow paint with Williams-navy lettering — the hero CTA in both modes.
         signal:
-          "bg-wm-yellow text-wm-navy shadow-[0_12px_22px_-10px_rgba(255,204,0,0.55),inset_0_2px_2px_-1px_rgba(255,255,255,0.55),inset_0_-5px_10px_-5px_rgba(0,0,0,0.25)] hover:bg-[#f2c200] hover:shadow-[0_16px_28px_-10px_rgba(255,204,0,0.7),inset_0_2px_3px_-1px_rgba(255,255,255,0.6),inset_0_-5px_10px_-5px_rgba(0,0,0,0.25)] active:shadow-[inset_0_2px_6px_0_rgba(0,0,0,0.3)]",
+          "bg-wm-yellow text-wm-navy hover:bg-[#f2c200] active:bg-[#e6b800]",
         outline:
-          "bg-surface text-foreground shadow-[var(--clay-chip)] hover:text-foreground hover:brightness-105 active:shadow-[var(--clay-inset)]",
+          "border-border bg-transparent text-foreground hover:border-border-strong hover:bg-surface-2",
         ghost:
           "bg-transparent text-muted-strong hover:bg-surface-2 hover:text-foreground",
         danger:
-          "bg-bad text-white shadow-[0_12px_22px_-10px_rgba(239,83,80,0.55),inset_0_2px_2px_-1px_rgba(255,255,255,0.3),inset_0_-5px_10px_-5px_rgba(0,0,0,0.3)] hover:brightness-110 active:shadow-[inset_0_2px_6px_0_rgba(0,0,0,0.35)]",
+          "bg-bad text-white hover:bg-bad/85",
         subtle:
-          "bg-surface-2 text-foreground shadow-[var(--clay-chip)] hover:brightness-105 active:shadow-[var(--clay-inset)]",
+          "bg-surface-2 text-foreground hover:bg-surface-3",
       },
       size: {
-        sm: "h-8 rounded-lg px-3 text-[12px]",
+        sm: "h-8 px-3 text-xs",
         md: "h-10 px-4 text-sm",
         lg: "h-12 px-6 text-[15px]",
         icon: "h-10 w-10",

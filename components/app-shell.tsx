@@ -43,23 +43,17 @@ export function AppShell({
   const initial = user.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="livery-stripe h-[3px] w-full" />
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:gap-4">
-          <Link href="/" className="group flex shrink-0 items-center gap-3">
+    <div className="flex min-h-svh flex-col">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+        <div aria-hidden="true" className="livery-stripe h-[3px] w-full" />
+        <div className="mx-auto flex min-h-20 w-full max-w-6xl flex-wrap items-center gap-x-6 px-5 pt-4 sm:px-6 xl:flex-nowrap xl:py-0">
+          <Link href="/" aria-label="WilliamsPod dashboard" className="flex shrink-0 items-center gap-3">
             <WilliamsPodLogo
               size="md"
               subtitle="Exam Practice"
-              wordmarkClassName="hidden sm:flex"
             />
-            <span className="hidden items-center rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-muted-strong shadow-[var(--clay-chip)] lg:inline-flex">
-              <span>VESTRIPPN</span>
-              <span className="text-brand">3.0</span>
-              <span>&nbsp;· M-8</span>
-            </span>
           </Link>
-          <nav className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav aria-label="Main navigation" className="order-last mt-3 flex w-full min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:order-none xl:mt-0 xl:w-auto xl:flex-1 xl:justify-center">
             {links.map(({ href, label, icon: Icon }) => {
               const active =
                 href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -67,42 +61,32 @@ export function AppShell({
                 <Link
                   key={href}
                   href={href}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] transition-all",
+                    "relative flex min-h-11 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[13px] font-medium transition-colors focus-visible:-outline-offset-4",
                     active
-                      ? "bg-surface-2 text-foreground shadow-[var(--clay-chip)]"
-                      : "text-muted hover:bg-surface-2/60 hover:text-foreground-dim",
+                      ? "border-signal text-foreground"
+                      : "border-transparent text-muted hover:border-border-strong hover:text-foreground",
                   )}
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <Icon aria-hidden="true" className="h-3.5 w-3.5" />
                   {label}
-                  {active && (
-                    <span className="pointer-events-none absolute -bottom-[7px] left-1/2 h-[3px] w-4 -translate-x-1/2 rounded-full bg-wm-yellow shadow-[0_0_10px_0_rgba(255,204,0,0.7)]" />
-                  )}
                 </Link>
               );
             })}
           </nav>
-          <div className="flex shrink-0 items-center gap-2">
-            <ThemeToggle labeled />
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+            <ThemeToggle />
             <span className="mx-0.5 hidden h-5 w-px bg-border sm:inline-block" />
             <div className="hidden items-center gap-2 sm:flex">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-[11px] font-bold text-foreground shadow-[var(--clay-chip)]">
+              <div title={user.name} className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-xs font-medium text-foreground">
                 {initial}
-              </div>
-              <div className="hidden flex-col leading-none xl:flex">
-                <span className="text-[11px] font-bold tracking-tight text-foreground">
-                  {user.name}
-                </span>
-                <span className="text-[9px] uppercase tracking-[0.18em] text-muted">
-                  {user.role === "admin" ? "admin" : "member"}
-                </span>
               </div>
             </div>
             <form action="/api/auth/logout" method="post">
               <button
                 type="submit"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+                className="flex h-10 w-10 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
                 aria-label="Sign out"
                 title="Sign out"
               >
@@ -112,16 +96,22 @@ export function AppShell({
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+      <main className="page-frame mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-6 sm:py-12">
         {children}
       </main>
-      <footer className="border-t border-border">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-muted">
+      <footer className="mx-auto w-full max-w-6xl px-5 sm:px-6">
+        <div aria-hidden="true" className="flex h-2 gap-3">
+          <span className="livery-stripe w-16" />
+          <span className="track-hatch flex-1" />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 py-5 text-xs text-muted">
           <div className="flex items-center gap-2">
-            <span className="dot text-signal" />
             <span>Practice under exam conditions</span>
           </div>
-          <span className="font-mono tabular">v0.2</span>
+          <span className="flex items-center gap-3">
+            <span className="text-[11px] tracking-wide">VESTRIPPN<span className="text-brand">3.0</span> · M-8</span>
+            <span className="font-mono tabular">v0.2</span>
+          </span>
         </div>
       </footer>
     </div>

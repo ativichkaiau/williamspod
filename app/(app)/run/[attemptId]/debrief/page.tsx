@@ -65,26 +65,14 @@ export default async function DebriefPage(
     <div className="space-y-10">
       <Link
         href="/run"
-        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-muted hover:text-foreground"
+        className="inline-flex items-center gap-1 text-xs text-muted hover:text-foreground"
       >
         <ChevronLeft className="h-3 w-3" /> Practice
       </Link>
 
       {/* ----- HERO ----- */}
       <section className="relative overflow-hidden panel-deep p-8 pop-in">
-        <div className="pointer-events-none absolute inset-0 bg-scanlines opacity-40" />
         <div className="chequer pointer-events-none absolute inset-x-0 top-0 h-2 opacity-70" />
-        <div
-          className={`pointer-events-none absolute -right-20 -top-32 h-72 w-72 rounded-full blur-3xl ${
-            tone === "good"
-              ? "bg-good/12"
-              : tone === "bad"
-                ? "bg-bad/12"
-                : tone === "warn"
-                  ? "bg-warn/12"
-                  : "bg-signal/8"
-          }`}
-        />
         <div className="relative grid gap-6 lg:grid-cols-[1.4fr_1fr]">
           <div>
             <div className="flex items-center gap-2">
@@ -112,7 +100,7 @@ export default async function DebriefPage(
               <span className="digit text-xl text-foreground-dim">
                 {totals.correct}/{totals.total}
               </span>
-              <span className="text-[11px] uppercase tracking-[0.2em] text-muted">
+              <span className="text-xs text-muted">
                 correct
               </span>
             </div>
@@ -247,7 +235,7 @@ export default async function DebriefPage(
           </div>
           {Object.keys(telemetry.byErrorType).length > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+              <span className="text-xs font-medium text-muted">
                 Error mix
               </span>
               {Object.entries(telemetry.byErrorType).map(([k, n]) => (
@@ -368,12 +356,12 @@ function TelemetryTile({
     tone === "good" ? "text-good" : tone === "bad" ? "text-bad" : "text-foreground";
   return (
     <div className="panel-flat p-3.5">
-      <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted">
+      <div className="text-xs font-medium text-muted">
         {label}
       </div>
       <div className={`mt-1 digit text-2xl ${color}`}>{value}</div>
       {hint && (
-        <div className="mt-0.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+        <div className="mt-0.5 text-[11px] text-muted">
           {hint}
         </div>
       )}
@@ -402,7 +390,7 @@ function BigTile({
           : "text-foreground";
   return (
     <div className="panel-flat p-4">
-      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted">
+      <div className="text-xs font-medium text-muted">
         {label}
       </div>
       <div className="mt-1 flex flex-wrap items-baseline gap-1.5">
@@ -433,7 +421,7 @@ function SectorCard({
       <div className="mb-5 flex items-center justify-between">
         <div>
           <p className="eyebrow">{title}</p>
-          <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-muted-strong">
+          <p className="mt-1 text-xs text-muted">
             {subtitle}
           </p>
         </div>
@@ -476,19 +464,11 @@ function SectorBars({
               : tone === "warn"
                 ? "text-warn"
                 : "text-bad";
-        const glow =
-          tone === "good"
-            ? "shadow-[0_0_10px_-2px_rgba(78,194,127,0.5)]"
-            : tone === "signal"
-              ? "shadow-[0_0_10px_-2px_rgba(255,204,0,0.5)]"
-              : tone === "warn"
-                ? "shadow-[0_0_10px_-2px_rgba(255,146,51,0.5)]"
-                : "shadow-[0_0_10px_-2px_rgba(239,83,80,0.5)]";
         return (
           <li key={r.key} className="space-y-1.5">
             <div className="flex items-center justify-between gap-2 text-sm">
               <div className="flex min-w-0 items-center gap-2">
-                <span className="truncate font-bold text-foreground">{r.name}</span>
+                <span className="truncate font-medium text-foreground">{r.name}</span>
                 {isWeak && <Badge tone="bad">weakest</Badge>}
               </div>
               <div className="flex shrink-0 items-baseline gap-2 text-xs">
@@ -500,7 +480,7 @@ function SectorBars({
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-surface-2 ring-1 ring-inset ring-border">
               <div
-                className={`h-full rounded-full bar-sweep ${colorClass} ${glow}`}
+                className={`h-full rounded-full bar-sweep ${colorClass}`}
                 style={{
                   width: `${r.pct}%`,
                   animationDelay: `${i * 60}ms`,
@@ -564,7 +544,7 @@ function WrongRow({
       className="panel pop-in p-5"
       style={{ animationDelay: `${index * 30}ms` }}
     >
-      <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-muted">
+      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted">
         <span className="digit text-foreground">
           Q{String(q.questionOrder + 1).padStart(3, "0")}
         </span>
@@ -585,7 +565,7 @@ function WrongRow({
         {picked === -1 && <Badge tone="bad">unanswered</Badge>}
       </div>
       {q.isVariant && (
-        <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.16em] text-muted">
+        <p className="mt-1 text-[10px] text-muted">
           Modified from the original bank question
         </p>
       )}
@@ -638,7 +618,7 @@ function WrongRow({
       </ul>
       {q.explanation && (
         <div className="mt-4 rounded-md border border-signal/25 bg-signal-soft p-3.5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-signal">
             Why
           </p>
           <QuestionContent

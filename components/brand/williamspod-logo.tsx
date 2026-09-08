@@ -18,8 +18,8 @@ const WORD_SIZE: Record<Size, string> = {
 
 /**
  * The WilliamsPod mark: the Williams "W" on a white app-icon tile. White keeps
- * the navy strokes readable on the navy header (and the tile's hairline + soft
- * shadow define it on light backgrounds).
+ * the navy strokes readable on the navy header. A hairline defines the tile
+ * on light backgrounds.
  */
 export function WilliamsPodMark({
   size = "md",
@@ -31,7 +31,7 @@ export function WilliamsPodMark({
   return (
     <span
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden bg-white shadow-[0_8px_18px_-8px_rgba(20,30,70,0.55),inset_0_0_0_1px_rgba(20,30,70,0.08)]",
+        "relative flex shrink-0 items-center justify-center overflow-hidden border border-black/10 bg-white",
         TILE_SIZE[size],
         className,
       )}
@@ -69,7 +69,7 @@ export function WilliamsPodLogo({
       <span className={cn("flex flex-col leading-none", wordmarkClassName)}>
         <span
           className={cn(
-            "font-black leading-none text-foreground",
+            "font-bold leading-none tracking-tight text-foreground",
             WORD_SIZE[size],
           )}
         >
@@ -77,7 +77,7 @@ export function WilliamsPodLogo({
           <span className="race-lean text-signal">Pod</span>
         </span>
         {subtitle && (
-          <span className="mt-[5px] whitespace-nowrap text-[8.5px] font-bold uppercase leading-none tracking-[0.36em] text-muted">
+          <span className="mt-1.5 whitespace-nowrap text-[10px] font-medium uppercase leading-none tracking-[0.2em] text-muted">
             {subtitle}
           </span>
         )}
@@ -94,14 +94,14 @@ export function BrandLockup({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
       <div className="flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-brand text-[11px] font-black leading-none text-white shadow-[0_6px_12px_-6px_var(--brand-soft),inset_0_1px_1px_0_rgba(255,255,255,0.4)]">
+        <span className="flex h-5 w-5 items-center justify-center rounded-xs bg-brand text-[10px] font-bold leading-none text-white">
           V
         </span>
-        <span className="text-sm font-black tracking-tight text-foreground">
+        <span className="text-xs font-semibold tracking-tight text-muted-strong">
           VESTRIPPN<span className="text-brand">3.0</span>
         </span>
       </div>
-      <div className="livery-stripe h-[3px] w-40 rounded-full" />
+      <div aria-hidden="true" className="livery-stripe h-[2px] w-16" />
       <WilliamsPodLogo size="lg" subtitle="Exam Practice" />
     </div>
   );

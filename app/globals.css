@@ -1,11 +1,8 @@
 @import "tailwindcss";
 
 /*
- * WilliamsPod — FW15C livery (Williams 1993).
- * Canon · Williams · Renault. Clean white bodywork by day, navy night race
- * under the floodlights by dark — Camel-yellow signal, a Canon-red flash,
- * carried on the navy / red / yellow racing stripe. Claymorphic cockpit
- * surfaces host the telemetry. Premium race-team hardware — not a quiz app.
+ * WilliamsPod — pared-back FW15C livery.
+ * Flat navy / white surfaces, fine rules, and a few decisive racing stripes.
  */
 
 /* ---- Constant livery colours (fixed across day/night — they're the car) ---- */
@@ -20,29 +17,29 @@
 :root, :root.dark {
   color-scheme: dark;
 
-  /* Background stack — deep Williams navy so clay panels lift off it (night race) */
-  --background: #05122e;
-  --background-tint: #081a38;
-  --surface: #0e2247;
-  --surface-2: #163257;
-  --surface-3: #20406e;
+  /* Quiet navy surfaces leave room for the livery colours. */
+  --background: #0a111e;
+  --background-tint: #0d1625;
+  --surface: #111c2d;
+  --surface-2: #18253a;
+  --surface-3: #22334c;
 
-  /* Borders / dividers (mostly hairlines — clay shadows define most edges) */
-  --border: #1e3a63;
-  --border-strong: #2a4c7d;
-  --border-bright: #3b64a0;
+  /* Hairlines define the surfaces. */
+  --border: #263247;
+  --border-strong: #3a4a63;
+  --border-bright: #64748b;
 
   /* Text */
-  --foreground: #eef3fc;
-  --foreground-dim: #bccbe6;
-  --muted: #8091b3;
-  --muted-strong: #a4b2cf;
+  --foreground: #f1f4f9;
+  --foreground-dim: #bbc5d5;
+  --muted: #93a1b7;
+  --muted-strong: #b2bfd2;
 
   /* App signal — Camel yellow under the floodlights */
   --signal: #ffcc00;
   --signal-strong: #e6b800;
   --signal-soft: rgba(255, 204, 0, 0.14);
-  --signal-glow: 0 0 0 1px rgba(255, 204, 0, 0.38), 0 0 26px -6px rgba(255, 204, 0, 0.6);
+  --signal-glow: 0 0 0 1px rgba(255, 204, 0, 0.38);
 
   /* Parent brand — VESTRIPPN green (sponsors keep their own colours) */
   --brand: #2fc46e;
@@ -62,43 +59,20 @@
   --grid-strong: rgba(255, 255, 255, 0.055);
   --scanline: rgba(255, 255, 255, 0.014);
 
-  /* Ambient light — Camel glow over the pit straight, a whisper of Canon red */
-  --ambient-top: rgba(255, 204, 0, 0.055);
-  --ambient-bottom: rgba(228, 0, 43, 0.045);
-
-  /* ---- Claymorphism shadow recipes ---- */
-  /* Raised puffy surface: crisp contact + soft lift + inner top light + inner bottom depth */
-  --clay-raised:
-    0 1px 1px 0 rgba(0, 0, 0, 0.5),
-    0 18px 34px -16px rgba(0, 0, 0, 0.8),
-    inset 0 2px 3px -1px rgba(255, 255, 255, 0.07),
-    inset 0 -16px 26px -18px rgba(0, 0, 0, 0.6);
-  --clay-raised-hover:
-    0 1px 1px 0 rgba(0, 0, 0, 0.5),
-    0 26px 46px -18px rgba(0, 0, 0, 0.85),
-    inset 0 2px 4px -1px rgba(255, 255, 255, 0.09),
-    inset 0 -16px 26px -18px rgba(0, 0, 0, 0.6);
-  /* Deep / hero surface: recessed base with a stronger lift */
-  --clay-deep:
-    0 2px 2px 0 rgba(0, 0, 0, 0.55),
-    0 30px 60px -24px rgba(0, 0, 0, 0.9),
-    inset 0 3px 5px -2px rgba(255, 255, 255, 0.06),
-    inset 0 -20px 40px -24px rgba(0, 0, 0, 0.65);
-  /* Pressed-in well (inputs, tracks) */
-  --clay-inset:
-    inset 0 2px 6px 0 rgba(0, 0, 0, 0.6),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.04);
-  /* Small pill / chip lift */
-  --clay-chip:
-    0 4px 10px -6px rgba(0, 0, 0, 0.7),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -3px 6px -4px rgba(0, 0, 0, 0.5);
-  --clay-border: rgba(255, 255, 255, 0.05);
+  /* Keep existing token names so every route adopts the flat surface system. */
+  --clay-raised: none;
+  --clay-raised-hover: none;
+  --clay-deep: none;
+  --clay-inset: inset 0 0 0 1px var(--border);
+  --clay-chip: none;
+  --clay-border: var(--border);
 
   --focus-ring: rgba(255, 204, 0, 0.55);
   --dot-ring: rgba(0, 0, 0, 0.5);
 
   /* Motif inks */
+  --stripe-blue: #254b9b;
+  --hatch-ink: rgba(147, 161, 183, 0.16);
   --checker-ink: rgba(238, 243, 252, 0.16);
   --roundel-face: #f4f6fb;
   --roundel-ink: #0a2472;
@@ -108,27 +82,27 @@
   color-scheme: light;
 
   /* Cool white — the FW15C's white bodywork */
-  --background: #eef2f9;
-  --background-tint: #e6ecf6;
+  --background: #f7f9fc;
+  --background-tint: #f0f3f8;
   --surface: #ffffff;
-  --surface-2: #eef2f9;
-  --surface-3: #e2e9f4;
+  --surface-2: #f0f3f8;
+  --surface-3: #e6ecf4;
 
-  --border: #d9e1ee;
+  --border: #dce3ed;
   --border-strong: #c3d0e2;
   --border-bright: #93a6c4;
 
   /* Williams navy ink */
-  --foreground: #0b2c5e;
+  --foreground: #152846;
   --foreground-dim: #3f5170;
-  --muted: #6b7a92;
+  --muted: #627189;
   --muted-strong: #47597a;
 
   /* Camel gold — yellow tuned to stay readable on white paint */
   --signal: #8a6a00;
   --signal-strong: #6f5500;
   --signal-soft: rgba(255, 204, 0, 0.22);
-  --signal-glow: 0 0 0 1px rgba(184, 134, 11, 0.3), 0 0 20px -8px rgba(255, 204, 0, 0.55);
+  --signal-glow: 0 0 0 1px rgba(184, 134, 11, 0.3);
 
   /* Parent brand — VESTRIPPN green (daylight) */
   --brand: #17a34a;
@@ -146,37 +120,11 @@
   --grid-strong: rgba(11, 44, 94, 0.08);
   --scanline: rgba(11, 44, 94, 0.02);
 
-  --ambient-top: rgba(255, 204, 0, 0.12);
-  --ambient-bottom: rgba(228, 0, 43, 0.05);
-
-  /* ---- Claymorphism (light): white-bodywork puff, bright top highlight ---- */
-  --clay-raised:
-    0 1px 1px 0 rgba(70, 90, 130, 0.05),
-    0 20px 38px -18px rgba(70, 90, 130, 0.34),
-    inset 0 3px 5px -1px rgba(255, 255, 255, 0.95),
-    inset 0 -14px 24px -16px rgba(70, 90, 130, 0.16);
-  --clay-raised-hover:
-    0 1px 1px 0 rgba(70, 90, 130, 0.05),
-    0 28px 50px -20px rgba(70, 90, 130, 0.4),
-    inset 0 3px 6px -1px rgba(255, 255, 255, 1),
-    inset 0 -14px 24px -16px rgba(70, 90, 130, 0.16);
-  --clay-deep:
-    0 2px 2px 0 rgba(70, 90, 130, 0.06),
-    0 34px 64px -26px rgba(70, 90, 130, 0.42),
-    inset 0 4px 6px -2px rgba(255, 255, 255, 0.95),
-    inset 0 -18px 32px -22px rgba(70, 90, 130, 0.18);
-  --clay-inset:
-    inset 0 3px 7px 0 rgba(70, 90, 130, 0.2),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.85);
-  --clay-chip:
-    0 6px 12px -8px rgba(70, 90, 130, 0.4),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -3px 6px -4px rgba(70, 90, 130, 0.14);
-  --clay-border: rgba(255, 255, 255, 0.6);
-
   --focus-ring: rgba(138, 106, 0, 0.45);
   --dot-ring: rgba(255, 255, 255, 0.9);
 
+  --stripe-blue: var(--wm-navy);
+  --hatch-ink: rgba(11, 44, 94, 0.12);
   --checker-ink: rgba(11, 44, 94, 0.2);
   --roundel-face: #ffffff;
   --roundel-ink: #0a2472;
@@ -218,13 +166,12 @@
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-geist-sans);
 
-  /* Chunky clay radius scale — drives Tailwind rounded-* utilities too */
-  --radius-xs: 5px;
-  --radius-sm: 9px;
-  --radius-md: 13px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-2xl: 36px;
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
 }
 
 html, body {
@@ -235,14 +182,6 @@ html, body {
   font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-}
-
-/* Atmosphere — Camel glow over the start line, Canon red at the far end */
-body {
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, var(--ambient-top), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 110%, var(--ambient-bottom), transparent);
-  background-attachment: fixed;
 }
 
 /* Numeric & code emphasis */
@@ -257,7 +196,7 @@ body {
   background-image:
     linear-gradient(to right, var(--grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-size: 64px 64px;
 }
 .bg-grid-strong {
   background-color: var(--background);
@@ -305,7 +244,71 @@ body {
   width: 4px;
   border-top-left-radius: inherit;
   border-bottom-left-radius: inherit;
-  background: linear-gradient(180deg, var(--wm-navy), var(--wm-red) 68%, var(--wm-yellow));
+  background: linear-gradient(180deg, var(--stripe-blue) 0 60%, var(--wm-red) 60% 78%, var(--wm-yellow) 78%);
+}
+/* Parallel livery bands, contained in the page margins and hero endcap. */
+.racing-stripes {
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0 28%,
+    var(--stripe-blue) 28% 45%,
+    transparent 45% 49%,
+    var(--wm-red) 49% 53%,
+    transparent 53% 57%,
+    var(--wm-yellow) 57% 66%,
+    transparent 66%
+  );
+}
+.track-hatch {
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    125deg, transparent 0 6px, var(--hatch-ink) 6px 7px, transparent 7px 12px
+  );
+}
+.page-frame {
+  position: relative;
+}
+@media (min-width: 1280px) {
+  .page-frame::before,
+  .page-frame::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    top: 2.5rem;
+    bottom: 2.5rem;
+    width: 9px;
+    border-top: 1px solid var(--border-strong);
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .page-frame::before { left: -1rem; border-left: 1px solid var(--border); }
+  .page-frame::after { right: -1rem; border-right: 1px solid var(--border); }
+}
+.auth-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1.25rem 3rem;
+}
+.auth-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--stripe-blue) 0 58%, var(--wm-red) 58% 76%, var(--wm-yellow) 76%);
+}
+.auth-stripes {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 auto;
+  width: clamp(6rem, 24vw, 24rem);
+  opacity: 0.14;
+}
+@media (max-width: 639px) {
+  .auth-stripes { top: 0; bottom: auto; height: 12rem; width: 12rem; }
 }
 /* Chequered finish flag (success / completed) — mode-aware ink. */
 .chequer {
@@ -325,10 +328,7 @@ body {
   font-weight: 800;
   font-style: italic;
   font-variant-numeric: tabular-nums;
-  box-shadow:
-    0 0 0 2px var(--roundel-ink),
-    0 0 0 4.5px var(--wm-yellow),
-    0 6px 14px -6px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-strong);
 }
 /* Start-lights row — the FIA gantry (loading / countdown). */
 .start-lamp {
@@ -358,7 +358,7 @@ body {
 }
 .start-lamp.lit { animation: lamp-arm 1.4s ease-in-out infinite; }
 
-/* ---- Claymorphic surfaces ---- */
+/* ---- Flat surfaces ---- */
 .panel {
   background: var(--surface);
   border: 1px solid var(--clay-border);
@@ -372,13 +372,13 @@ body {
   border-radius: var(--radius-lg);
 }
 .panel-deep {
-  background: linear-gradient(180deg, var(--surface) 0%, var(--background-tint) 120%);
+  background: var(--surface);
   border: 1px solid var(--clay-border);
   box-shadow: var(--clay-deep);
   border-radius: var(--radius-xl);
 }
 
-/* Pressed-in well (inputs, progress tracks, code blocks) */
+/* Bordered well (inputs, progress tracks, code blocks) */
 .clay-inset {
   background: var(--background-tint);
   box-shadow: var(--clay-inset);
@@ -394,26 +394,22 @@ body {
   letter-spacing: 0;
 }
 
-/* Puffy hover lift on interactive panels */
+/* Colour and border changes keep interactive surfaces steady. */
 .panel-hover {
-  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease;
+  transition: border-color 160ms ease, background-color 160ms ease;
 }
 .panel-hover:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--clay-raised-hover);
+  border-color: var(--border-bright);
+  background-color: var(--surface-2);
 }
 .panel-hover:active {
-  transform: translateY(-1px) scale(0.995);
-  box-shadow: var(--clay-inset);
+  background-color: var(--background-tint);
 }
 
 /* Focus ring */
 :focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--background),
-    0 0 0 4px var(--focus-ring);
-  border-radius: var(--radius-sm);
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
 }
 
 /* No selection / no drag during exam runs. */
@@ -474,34 +470,33 @@ body {
 /* Top status strip indicator dot */
 .dot {
   display: inline-block;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 0 2px var(--dot-ring), 0 0 10px 0 currentColor;
 }
 
 /* Section eyebrow */
 .eyebrow {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
 /* Display heading style */
 .display-xl {
-  font-size: 2.35rem;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  font-weight: 600;
 }
 .display-lg {
-  font-size: 2rem;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  font-weight: 700;
+  font-size: clamp(1.75rem, 3vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  font-weight: 600;
 }
 /* Race-lean italics for hero words — the 1993 sponsor-decal slant */
 .race-lean {

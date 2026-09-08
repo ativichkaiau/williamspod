@@ -48,41 +48,32 @@ export default async function DashboardPage() {
       : null;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8 sm:space-y-10">
       {/* ----- HERO ----- */}
-      <section className="relative overflow-hidden panel-deep p-8 sm:p-10 pop-in">
-        <div className="pointer-events-none absolute inset-0 bg-scanlines opacity-40" />
-        <div className="pointer-events-none absolute -right-32 -top-32 h-72 w-72 rounded-full bg-signal/8 blur-3xl" />
-        <div className="relative grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+      <section className="relative overflow-hidden border-y border-border bg-surface px-6 py-8 sm:px-8 sm:py-10 pop-in">
+        <div aria-hidden="true" className="racing-stripes absolute inset-y-0 right-0 w-12 sm:w-24" />
+        <div className="relative grid gap-8 pr-4 sm:pr-14 lg:grid-cols-[1.35fr_1fr] lg:gap-10">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="dot text-signal" />
-              <p className="eyebrow">Dashboard</p>
-            </div>
+            <p className="eyebrow">Dashboard</p>
             <div className="mt-3 flex items-center gap-4">
               <h1 className="display-xl text-foreground">
                 Williams<span className="race-lean text-signal">Pod</span>
               </h1>
-              <span className="roundel h-10 w-10 text-lg" aria-hidden="true">
-                0
-              </span>
             </div>
-            <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-foreground-dim">
-              Practice before the real Exam Pod. Tighter timing, harder recall
-              and stricter conditions than the official simulator — so the real
-              thing feels easier.
+            <p className="mt-4 max-w-md text-base leading-relaxed text-foreground-dim">
+              Train your recall and timing under stricter exam conditions.
+              Make the real Exam Pod feel easier.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
               {!empty && (
-                <Button asChild variant="signal" size="lg">
+                <Button asChild variant="signal" className="max-sm:w-full">
                   <Link href="/run/new">
-                    <Play className="h-4 w-4" />
                     Start practice test
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               )}
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" className="max-sm:w-full">
                 <Link href={empty ? "/upload" : "/bank"}>
                   {empty ? (
                     <>
@@ -100,9 +91,9 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Live instrument cluster */}
-          <div className="relative">
-            <div className="panel livery-edge p-5">
+          {/* Latest result shares the hero's surface. */}
+          <div className="border-t border-border pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <div>
               <div className="mb-4 flex items-center justify-between">
                 <p className="eyebrow">Last test</p>
                 {lastAttempt?.aborted && <Badge tone="bad">Aborted</Badge>}
@@ -110,14 +101,14 @@ export default async function DashboardPage() {
               {lastAttempt ? (
                 <div className="space-y-3">
                   <div className="flex items-baseline gap-3">
-                    <span className="digit text-5xl text-foreground">
+                    <span className="digit text-5xl font-medium text-foreground">
                       {lastP != null ? lastP.toFixed(0) : "—"}
                     </span>
                     {lastP != null && (
                       <span className="text-2xl text-muted">%</span>
                     )}
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-[10px] uppercase tracking-[0.16em]">
+                  <div className="grid grid-cols-3 gap-3">
                     <MiniStat
                       label="score"
                       value={`${lastAttempt.scoreCorrect ?? "—"}/${lastAttempt.scoreTotal ?? "—"}`}
@@ -134,7 +125,7 @@ export default async function DashboardPage() {
                   </div>
                   <Link
                     href={`/run/${lastAttempt.id}/debrief`}
-                    className="mt-2 inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.18em] text-signal hover:text-signal-strong"
+                    className="mt-2 inline-flex items-center gap-2 text-sm text-signal hover:text-signal-strong"
                   >
                     View results
                     <ArrowRight className="h-3 w-3" />
@@ -142,8 +133,8 @@ export default async function DashboardPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <span className="digit text-5xl text-muted">—</span>
-                  <p className="text-xs text-muted">No tests taken yet.</p>
+                  <span className="digit text-5xl font-medium text-muted">—</span>
+                  <p className="text-sm text-muted">Your first result starts here.</p>
                 </div>
               )}
             </div>
@@ -152,7 +143,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* ----- STAT STRIP ----- */}
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Practice statistics" className="grid grid-cols-2 gap-x-6 gap-y-7 border-b border-border pb-8 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
         <StatTile
           icon={<BookOpen className="h-3.5 w-3.5" />}
           label="Lectures"
@@ -178,7 +169,8 @@ export default async function DashboardPage() {
 
       {/* ----- EMPTY STATE or ACTION CARDS ----- */}
       {empty ? (
-        <div className="panel bg-grid p-8 pop-in">
+        <div className="panel relative overflow-hidden p-6 sm:p-8 pop-in">
+          <div aria-hidden="true" className="track-hatch absolute inset-x-0 top-0 h-2" />
           <div className="flex items-center gap-2">
             <span className="dot text-warn" />
             <p className="eyebrow">Bank empty</p>
@@ -202,8 +194,9 @@ export default async function DashboardPage() {
           </div>
         </div>
       ) : (
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section aria-label="Practice tools" className="grid gap-4 lg:grid-cols-2">
           <ActionCard
+            number="01"
             href="/run/new"
             eyebrow="New test"
             title="Set up a practice test"
@@ -217,6 +210,7 @@ export default async function DashboardPage() {
             variant="signal"
           />
           <ActionCard
+            number="02"
             href="/bank"
             eyebrow="Question bank"
             title="Edit the bank"
@@ -256,14 +250,14 @@ function StatTile({
           ? "text-bad"
           : "text-foreground";
   return (
-    <div className="panel p-4">
+    <div className="min-w-0 lg:px-6 lg:first:pl-0">
       <div className="flex items-center gap-1.5 text-muted">
         {icon}
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em]">
+        <span className="text-xs font-medium">
           {label}
         </span>
       </div>
-      <div className={`mt-2 digit text-3xl ${color}`}>{value}</div>
+      <div className={`mt-3 digit text-3xl font-medium ${color}`}>{value}</div>
     </div>
   );
 }
@@ -286,14 +280,15 @@ function MiniStat({
           ? "text-good"
           : "text-foreground";
   return (
-    <div className="rounded-sm border border-border bg-surface-2/60 px-2 py-1.5">
-      <div className="text-muted">{label}</div>
-      <div className={`mt-0.5 font-mono text-xs font-bold tabular ${color}`}>{value}</div>
+    <div className="min-w-0 py-1">
+      <div className="text-xs capitalize text-muted">{label}</div>
+      <div className={`mt-1 font-mono text-sm tabular ${color}`}>{value}</div>
     </div>
   );
 }
 
 function ActionCard({
+  number,
   href,
   eyebrow,
   title,
@@ -301,6 +296,7 @@ function ActionCard({
   cta,
   variant = "outline",
 }: {
+  number: string;
   href: string;
   eyebrow: string;
   title: string;
@@ -311,18 +307,19 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="panel panel-hover group block p-6"
+      className="panel panel-hover group relative block overflow-hidden p-6 sm:p-7"
     >
-      <p className="eyebrow">{eyebrow}</p>
-      <h3 className="mt-2 text-lg font-bold text-foreground">{title}</h3>
-      <p className="mt-1 text-sm font-medium text-foreground-dim">{body}</p>
+      <div className="flex items-center justify-between gap-4">
+        <p className="eyebrow">{eyebrow}</p>
+        <span aria-hidden="true" className="font-mono text-xs text-muted">/{number}</span>
+      </div>
+      <h3 className="mt-4 text-xl font-medium tracking-tight text-foreground">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-foreground-dim">{body}</p>
       <div className="mt-5">
-        <Button asChild variant={variant} size="md" className="pointer-events-none">
-          <span>
+          <span className={`inline-flex items-center gap-2 text-sm font-medium ${variant === "signal" ? "text-signal" : "text-foreground"}`}>
             {cta}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </span>
-        </Button>
       </div>
     </Link>
   );

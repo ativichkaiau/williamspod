@@ -52,7 +52,7 @@ export function LapChart({ pacing }: { pacing: PacingPoint[] }) {
           className="pointer-events-none absolute inset-x-0 z-10 border-t border-dashed border-border-bright"
           style={{ bottom: `${(median / max) * 100}%` }}
         >
-          <span className="absolute -top-2 right-0 bg-surface px-1 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-strong">
+          <span className="absolute -top-2 right-0 bg-surface px-1 font-mono text-[10px] text-muted-strong">
             median {median}s
           </span>
         </div>
@@ -90,7 +90,7 @@ export function LapChart({ pacing }: { pacing: PacingPoint[] }) {
       {/* Legend */}
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border/70 pt-4">
         {(Object.keys(CAT_BAR) as TimingCategory[]).map((c) => (
-          <span key={c} className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-muted">
+          <span key={c} className="flex items-center gap-1.5 text-[11px] text-muted">
             <span className={cn("inline-block h-2.5 w-2.5 rounded-[2px]", CAT_BAR[c])} />
             {CAT_LABEL[c]}
           </span>
@@ -130,7 +130,7 @@ function PaceStat({
     tone === "warn" ? "text-warn" : tone === "bad" ? "text-bad" : "text-foreground";
   return (
     <div className="clay-inset px-3 py-2">
-      <div className="text-[9px] font-bold uppercase tracking-[0.16em] text-muted">
+      <div className="text-[11px] font-medium text-muted">
         {label}
       </div>
       <div className={cn("mt-0.5 digit text-base", color)}>{value}</div>

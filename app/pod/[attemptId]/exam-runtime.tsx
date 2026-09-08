@@ -551,7 +551,7 @@ export function ExamRuntime({
               <span className="dot text-signal pod-pulse" />
               <p className="eyebrow">Before you start</p>
             </div>
-            <div className="flex items-center gap-1.5" aria-hidden="true">
+            <div className="lamp-row flex items-center gap-1.5" aria-hidden="true">
               <span className="start-lamp lit" />
               <span className="start-lamp lit" />
               <span className="start-lamp lit" />

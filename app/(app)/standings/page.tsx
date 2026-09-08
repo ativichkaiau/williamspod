@@ -46,7 +46,7 @@ export default async function StandingsPage() {
 
       {/* Leader spotlight */}
       <section className="panel-deep relative overflow-hidden p-6 pop-in">
-        <div className="livery-stripe pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
+        <div className="livery-stripe livery-sheen pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
         <p className="eyebrow">Top subject</p>
         <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -72,7 +72,7 @@ export default async function StandingsPage() {
       </section>
 
       {/* Subject standings */}
-      <section className="panel overflow-hidden">
+      <section className="panel reveal stripe-in overflow-hidden">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <p className="eyebrow">By subject</p>
           <Trophy className="h-3.5 w-3.5 text-signal" />
@@ -86,7 +86,7 @@ export default async function StandingsPage() {
 
       {/* Topic standings (only when tagged) */}
       {topics.length > 0 && (
-        <section className="panel overflow-hidden">
+        <section className="panel reveal stripe-in overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <p className="eyebrow">By topic</p>
             <span className="text-xs text-muted">
@@ -103,7 +103,7 @@ export default async function StandingsPage() {
 
       {/* Concepts to review — cross-test weak concepts */}
       {weakConcepts.length > 0 && (
-        <section className="panel p-6">
+        <section className="panel reveal p-6">
           <div className="mb-1 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Target className="h-3.5 w-3.5 text-signal" />

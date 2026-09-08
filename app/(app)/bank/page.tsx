@@ -57,7 +57,7 @@ export default async function BankPage() {
 
       {rows.length === 0 ? (
         <div className="panel relative flex flex-col items-center gap-3 overflow-hidden py-14 text-center">
-          <div aria-hidden="true" className="track-hatch absolute inset-x-0 top-0 h-2" />
+          <div aria-hidden="true" className="track-hatch hatch-scroll absolute inset-x-0 top-0 h-2" />
           <LibraryBig className="h-8 w-8 text-muted" />
           <p className="text-sm text-muted">
             No questions in the bank yet.
@@ -70,7 +70,7 @@ export default async function BankPage() {
           </Button>
         </div>
       ) : (
-        <ul className="panel divide-y divide-border overflow-hidden">
+        <ul className="panel reveal stripe-in divide-y divide-border overflow-hidden">
           {groupOrder.map((subject, index) => {
             const items = groups.get(subject)!;
             const subTotal = items.reduce(

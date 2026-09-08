@@ -8,14 +8,14 @@ export const metadata = { title: "WilliamsPod — Sign in" };
 export default function LoginPage() {
   return (
     <main className="auth-shell">
-      <div aria-hidden="true" className="racing-stripes auth-stripes" />
+      <div aria-hidden="true" className="racing-stripes stripes-sway auth-stripes" />
       <ThemeToggle labeled className="absolute right-5 top-5 sm:right-8 sm:top-8" />
 
       <div className="relative w-full max-w-md pop-in">
         <BrandLockup className="mb-8" />
 
         <div className="panel-deep relative overflow-hidden p-6 sm:p-8">
-          <div aria-hidden="true" className="track-hatch absolute inset-x-0 top-0 h-2" />
+          <div aria-hidden="true" className="track-hatch hatch-scroll absolute inset-x-0 top-0 h-2" />
           <div className="mb-6">
             <div>
               <p className="eyebrow">Sign in</p>

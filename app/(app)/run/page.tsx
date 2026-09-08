@@ -30,7 +30,7 @@ export default async function RunsHubPage() {
     <div className="space-y-8">
       {/* Spaced-repetition prompt */}
       <section className="panel-deep relative overflow-hidden p-6 pop-in">
-        <div className="livery-stripe pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
+        <div className="livery-stripe livery-sheen pointer-events-none absolute inset-x-0 top-0 h-[3px]" />
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface-2 text-signal">
@@ -90,7 +90,7 @@ export default async function RunsHubPage() {
           </Button>
         </div>
       ) : (
-        <div className="panel overflow-hidden">
+        <div className="panel reveal stripe-in overflow-hidden">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <p className="eyebrow">Recent tests</p>
             <span className="text-xs text-muted">

@@ -45,7 +45,11 @@ export function AppShell({
   return (
     <div className="flex min-h-svh flex-col">
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div aria-hidden="true" className="livery-stripe h-[3px] w-full" />
+        {/* Lap rail: dim livery track, bright fill tracking page scroll. */}
+        <div aria-hidden="true" className="livery-rail livery-sheen h-[3px] w-full">
+          <span className="livery-stripe livery-rail-track" />
+          <span className="livery-stripe livery-rail-fill scroll-rail" />
+        </div>
         <div className="mx-auto flex min-h-20 w-full max-w-6xl flex-wrap items-center gap-x-6 px-5 pt-4 sm:px-6 xl:flex-nowrap xl:py-0">
           <Link href="/" aria-label="WilliamsPod dashboard" className="flex shrink-0 items-center gap-3">
             <WilliamsPodLogo
@@ -102,7 +106,7 @@ export function AppShell({
       <footer className="mx-auto w-full max-w-6xl px-5 sm:px-6">
         <div aria-hidden="true" className="flex h-2 gap-3">
           <span className="livery-stripe w-16" />
-          <span className="track-hatch flex-1" />
+          <span className="track-hatch hatch-scroll flex-1" />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 py-5 text-xs text-muted">
           <div className="flex items-center gap-2">

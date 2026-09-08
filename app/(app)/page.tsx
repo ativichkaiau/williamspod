@@ -51,7 +51,7 @@ export default async function DashboardPage() {
     <div className="space-y-8 sm:space-y-10">
       {/* ----- HERO ----- */}
       <section className="relative overflow-hidden border-y border-border bg-surface px-6 py-8 sm:px-8 sm:py-10 pop-in">
-        <div aria-hidden="true" className="racing-stripes absolute inset-y-0 right-0 w-12 sm:w-24" />
+        <div aria-hidden="true" className="racing-stripes parallax-stripes absolute inset-y-0 right-0 w-12 sm:w-24" />
         <div className="relative grid gap-8 pr-4 sm:pr-14 lg:grid-cols-[1.35fr_1fr] lg:gap-10">
           <div>
             <p className="eyebrow">Dashboard</p>
@@ -143,7 +143,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* ----- STAT STRIP ----- */}
-      <section aria-label="Practice statistics" className="grid grid-cols-2 gap-x-6 gap-y-7 border-b border-border pb-8 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
+      <section aria-label="Practice statistics" className="reveal-stagger grid grid-cols-2 gap-x-6 gap-y-7 border-b border-border pb-8 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
         <StatTile
           icon={<BookOpen className="h-3.5 w-3.5" />}
           label="Lectures"
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
       {/* ----- EMPTY STATE or ACTION CARDS ----- */}
       {empty ? (
         <div className="panel relative overflow-hidden p-6 sm:p-8 pop-in">
-          <div aria-hidden="true" className="track-hatch absolute inset-x-0 top-0 h-2" />
+          <div aria-hidden="true" className="track-hatch hatch-scroll absolute inset-x-0 top-0 h-2" />
           <div className="flex items-center gap-2">
             <span className="dot text-warn" />
             <p className="eyebrow">Bank empty</p>
@@ -194,7 +194,7 @@ export default async function DashboardPage() {
           </div>
         </div>
       ) : (
-        <section aria-label="Practice tools" className="grid gap-4 lg:grid-cols-2">
+        <section aria-label="Practice tools" className="reveal-stagger grid gap-4 lg:grid-cols-2">
           <ActionCard
             number="01"
             href="/run/new"
@@ -307,7 +307,7 @@ function ActionCard({
   return (
     <Link
       href={href}
-      className="panel panel-hover group relative block overflow-hidden p-6 sm:p-7"
+      className="panel panel-hover stripe-in group relative block overflow-hidden p-6 sm:p-7"
     >
       <div className="flex items-center justify-between gap-4">
         <p className="eyebrow">{eyebrow}</p>

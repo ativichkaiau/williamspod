@@ -432,7 +432,12 @@ html, body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .livery-slide, .start-lamp.lit, .pod-pulse, .slow-spin { animation: none !important; }
+  .livery-slide, .start-lamp.lit, .pod-pulse, .slow-spin,
+  .livery-sheen::after, .stripes-sway, .hatch-scroll, .chequer-drift {
+    animation: none !important;
+  }
+  /* Drop the decorative overscan so nothing sits off-register when still. */
+  .parallax-stripes { scale: 1; }
 }
 
 /* Pulse for live timer */
@@ -516,3 +521,143 @@ html, body {
   border: 3px solid var(--background);
 }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+
+/* ==========================================================================
+   FW15C LIVERY MOTION
+   Two layers, both decorative:
+     · Ambient  — always-running idle motion (sheen, drift, kerb, gantry).
+     · Scroll   — native scroll-driven timelines (lap rail, reveals, parallax).
+   Scroll-driven rules sit behind @supports + (prefers-reduced-motion:
+   no-preference), so browsers without `animation-timeline` — and anyone who
+   asks for less motion — simply get the static layout with nothing hidden.
+   ========================================================================== */
+
+/* ---------- Ambient ---------- */
+
+/* Specular highlight travelling along a livery stripe — light down the flank. */
+@keyframes livery-sheen {
+  0%      { background-position: 220% 0; }
+  60%     { background-position: -120% 0; }
+  100%    { background-position: -120% 0; }
+}
+/* Sets no `position` on purpose: Tailwind utilities sit in @layer utilities,
+   so ANY unlayered rule here would beat `absolute`/`fixed` on the host no
+   matter the specificity. The host supplies its own positioning instead —
+   `.livery-rail` is relative, and the in-panel stripes are already absolute. */
+.livery-sheen { overflow: hidden; }
+.livery-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    100deg,
+    transparent 0 42%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 58% 100%
+  );
+  background-size: 240% 100%;
+  background-repeat: no-repeat;
+  animation: livery-sheen 7.5s ease-in-out infinite;
+}
+
+/* Diagonal bands breathing. Pans the gradient inside its own box rather than
+   transforming the element, so it can never overflow an unclipped parent. */
+@keyframes stripes-sway {
+  0%, 100% { background-position: 0% 0%; }
+  50%      { background-position: 0% 100%; }
+}
+.stripes-sway {
+  background-size: 100% 132%;
+  animation: stripes-sway 14s ease-in-out infinite;
+}
+
+/* Kerb hatching advancing. 14.649px = one 12px period along the 125deg axis
+   (12 / sin 125deg), so the loop is seamless. */
+@keyframes hatch-advance {
+  to { background-position: 14.649px 0; }
+}
+.hatch-scroll { animation: hatch-advance 3.4s linear infinite; }
+
+/* Chequered flag streaming past — one full 12px tile per cycle. */
+@keyframes chequer-drift {
+  to { background-position: 12px 0; }
+}
+.chequer-drift { animation: chequer-drift 2.6s linear infinite; }
+
+/* Start-light gantry: five lamps arming in sequence, not in unison. */
+.lamp-row .start-lamp:nth-child(1) { animation-delay: 0ms; }
+.lamp-row .start-lamp:nth-child(2) { animation-delay: 150ms; }
+.lamp-row .start-lamp:nth-child(3) { animation-delay: 300ms; }
+.lamp-row .start-lamp:nth-child(4) { animation-delay: 450ms; }
+.lamp-row .start-lamp:nth-child(5) { animation-delay: 600ms; }
+
+/* Header lap rail — dim livery track under a bright livery fill. Without
+   scroll-timeline support the fill simply stays full width (today's stripe). */
+.livery-rail { position: relative; overflow: hidden; }
+.livery-rail-track { position: absolute; inset: 0; opacity: 0.28; }
+.livery-rail-fill { position: absolute; inset: 0; transform-origin: left center; }
+
+/* ---------- Scroll-driven ---------- */
+
+@keyframes rail-fill   { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes reveal-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes stripe-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes stripes-parallax { from { transform: translate3d(0, -7%, 0); } to { transform: translate3d(0, 7%, 0); } }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Lap progress across the whole document. */
+    .livery-rail-fill.scroll-rail {
+      animation: rail-fill linear both;
+      animation-timeline: scroll(root block);
+    }
+    /* Hero bands slide against the page as it moves. */
+    .parallax-stripes {
+      scale: 1.16;
+      animation: stripes-parallax linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 26%;
+    }
+    /* Same rise, offset per child so a row arrives in sequence. */
+    .reveal-stagger > * {
+      animation: reveal-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 26%;
+    }
+    .reveal-stagger > *:nth-child(2)   { animation-range: entry 4% cover 30%; }
+    .reveal-stagger > *:nth-child(3)   { animation-range: entry 8% cover 34%; }
+    .reveal-stagger > *:nth-child(4)   { animation-range: entry 12% cover 38%; }
+    .reveal-stagger > *:nth-child(n+5) { animation-range: entry 16% cover 42%; }
+
+    /* Livery edge painted down a panel as it enters view. */
+    .stripe-in { position: relative; }
+    .stripe-in::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      border-top-left-radius: inherit;
+      border-bottom-left-radius: inherit;
+      background: linear-gradient(
+        180deg,
+        var(--stripe-blue) 0 60%,
+        var(--wm-red) 60% 78%,
+        var(--wm-yellow) 78%
+      );
+      transform-origin: top;
+      animation: stripe-grow linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 32%;
+    }
+  }
+}

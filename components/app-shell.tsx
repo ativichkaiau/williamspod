@@ -105,7 +105,7 @@ export function AppShell({
       </main>
       <footer className="mx-auto w-full max-w-6xl px-5 sm:px-6">
         <div aria-hidden="true" className="flex h-2 gap-3">
-          <span className="livery-stripe w-16" />
+          <span className="livery-stripe livery-sheen relative w-16" />
           <span className="track-hatch hatch-scroll flex-1" />
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 py-5 text-xs text-muted">

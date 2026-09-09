@@ -14,7 +14,7 @@ const buttonVariants = cva(
           "bg-foreground text-background hover:bg-foreground-dim",
         // Camel-yellow paint with Williams-navy lettering — the hero CTA in both modes.
         signal:
-          "bg-wm-yellow text-wm-navy hover:bg-[#f2c200] active:bg-[#e6b800]",
+          "signal-sheen relative overflow-hidden bg-wm-yellow text-wm-navy hover:bg-[#f2c200] active:bg-[#e6b800]",
         outline:
           "border-border bg-transparent text-foreground hover:border-border-strong hover:bg-surface-2",
         ghost:

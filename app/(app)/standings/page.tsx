@@ -50,7 +50,7 @@ export default async function StandingsPage() {
         <p className="eyebrow">Top subject</p>
         <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="roundel h-12 w-12 text-xl" aria-hidden="true">
+            <span className="roundel roundel-live h-12 w-12 text-xl" aria-hidden="true">
               1
             </span>
             <div>

@@ -544,11 +544,11 @@ export function ExamRuntime({
   // ---------- Pre-arm splash ----------
   if (!armed) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-grid p-6">
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-grid grid-drift p-6">
         <div className="relative w-full max-w-xl pop-in">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="dot text-signal pod-pulse" />
+              <span className="dot dot-live text-signal" />
               <p className="eyebrow">Before you start</p>
             </div>
             <div className="lamp-row flex items-center gap-1.5" aria-hidden="true">

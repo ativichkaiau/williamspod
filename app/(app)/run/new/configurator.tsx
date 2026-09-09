@@ -497,7 +497,7 @@ export function Configurator({ lectures }: { lectures: LectureChoice[] }) {
       <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
         <div className="panel-deep p-5">
           <div className="flex items-center gap-2">
-            <span className="dot text-signal pod-pulse" />
+            <span className="dot dot-live text-signal" />
             <p className="eyebrow">Summary</p>
           </div>
 

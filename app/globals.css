@@ -433,11 +433,15 @@ html, body {
     transition-duration: 0.001ms !important;
   }
   .livery-slide, .start-lamp.lit, .pod-pulse, .slow-spin,
-  .livery-sheen::after, .stripes-sway, .hatch-scroll, .chequer-drift {
+  .livery-sheen::after, .stripes-sway, .hatch-scroll, .chequer-drift,
+  .signal-sheen::after, .grid-drift, .roundel-live::after, .dot-live::after,
+  .page-frame::before, .page-frame::after {
     animation: none !important;
   }
   /* Drop the decorative overscan so nothing sits off-register when still. */
   .parallax-stripes { scale: 1; }
+  /* A frozen beacon would read as a stray tick — leave the rails clean. */
+  .page-frame::before, .page-frame::after { background-image: none; }
 }
 
 /* Pulse for live timer */
@@ -660,4 +664,96 @@ html, body {
       animation-range: entry 0% cover 32%;
     }
   }
+}
+
+/* ---------- Ambient, second wave ---------- */
+
+/* Gloss travelling across the Camel-yellow CTA — sunlight down wet paint.
+   Hosts supply `relative overflow-hidden` (see the layer note above). */
+@keyframes signal-sheen {
+  0%   { transform: translateX(-170%) skewX(-18deg); }
+  55%  { transform: translateX(280%) skewX(-18deg); }
+  100% { transform: translateX(280%) skewX(-18deg); }
+}
+.signal-sheen::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 36%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+  animation: signal-sheen 5.5s ease-in-out infinite;
+}
+
+/* Instrument grid creeping past — the track moving under the car. 64px is one
+   full cell of .bg-grid, so the loop is seamless. Deliberately near-subliminal. */
+@keyframes grid-drift {
+  to { background-position: 64px 64px; }
+}
+.grid-drift { animation: grid-drift 38s linear infinite; }
+
+/* Telemetry ring sweeping the race-number roundel. Sits outside the disc
+   (inset -5px) as a two-segment border, so it never covers the number. */
+.roundel-live { position: relative; }
+.roundel-live::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  border-top-color: var(--wm-yellow);
+  border-right-color: var(--wm-red);
+  pointer-events: none;
+  animation: slow-spin 6s linear infinite;
+}
+
+/* Radar ping off a live status dot. */
+@keyframes dot-ping {
+  0%        { transform: scale(1); opacity: 0.5; }
+  70%, 100% { transform: scale(3.2); opacity: 0; }
+}
+.dot-live { position: relative; }
+.dot-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  pointer-events: none;
+  animation: dot-ping 2.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Timing beacon sliding down the page-frame margin rails (wide screens only —
+   the rails themselves only exist there). */
+@keyframes frame-beacon {
+  from { background-position-y: -90px; }
+  to   { background-position-y: calc(100% + 90px); }
+}
+@media (min-width: 1280px) {
+  .page-frame::before,
+  .page-frame::after {
+    background-image: linear-gradient(
+      180deg,
+      transparent 0 42%,
+      var(--signal) 42% 58%,
+      transparent 58%
+    );
+    background-size: 100% 90px;
+    background-repeat: no-repeat;
+    animation: frame-beacon 9s linear infinite;
+  }
+  /* Offset so the two rails never run in lockstep. */
+  .page-frame::after { animation-delay: -4.5s; }
+}
+
+/* A live run stays calm: no decorative sweeps on the exam HUD. The timer's own
+   pod-pulse survives — that one is functional, not decoration. */
+.lockdown .signal-sheen::after,
+.lockdown .livery-sheen::after {
+  content: none;
 }

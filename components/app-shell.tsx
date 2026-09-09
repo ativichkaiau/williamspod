@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WilliamsPodLogo } from "@/components/brand/williamspod-logo";
+import { PageMotion } from "@/components/motion/page-motion";
 import {
   Gauge,
   Warehouse,
@@ -44,7 +45,7 @@ export function AppShell({
 
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+      <header className="app-header sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
         {/* Lap rail: dim livery track, bright fill tracking page scroll. */}
         <div aria-hidden="true" className="livery-rail livery-sheen h-[3px] w-full">
           <span className="livery-stripe livery-rail-track" />
@@ -67,10 +68,10 @@ export function AppShell({
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative flex min-h-11 shrink-0 items-center gap-1.5 border-b-2 px-2.5 text-[13px] font-medium transition-colors focus-visible:-outline-offset-4",
+                    "nav-motion relative flex min-h-11 shrink-0 items-center gap-1.5 border-b-2 border-transparent px-2.5 text-[13px] font-medium focus-visible:-outline-offset-4",
                     active
-                      ? "border-signal text-foreground"
-                      : "border-transparent text-muted hover:border-border-strong hover:text-foreground",
+                      ? "text-foreground"
+                      : "text-muted hover:text-foreground",
                   )}
                 >
                   <Icon aria-hidden="true" className="h-3.5 w-3.5" />
@@ -101,7 +102,7 @@ export function AppShell({
         </div>
       </header>
       <main className="page-frame mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:px-6 sm:py-12">
-        {children}
+        <PageMotion nested>{children}</PageMotion>
       </main>
       <footer className="mx-auto w-full max-w-6xl px-5 sm:px-6">
         <div aria-hidden="true" className="flex h-2 gap-3">

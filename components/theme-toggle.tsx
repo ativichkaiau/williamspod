@@ -60,7 +60,7 @@ export function ThemeToggle({
       <button
         type="button"
         className={cn(
-          "flex h-10 shrink-0 items-center gap-2 rounded-md border border-border px-3 text-xs font-medium text-foreground transition-colors hover:bg-surface-2",
+          "button-motion flex h-10 shrink-0 items-center gap-2 rounded-md border border-border px-3 text-xs font-medium text-foreground hover:bg-surface-2",
           className,
         )}
         aria-label={isDay ? "Switch to night mode" : "Switch to day mode"}
@@ -68,7 +68,9 @@ export function ThemeToggle({
         onClick={() => applyTheme(nextTheme)}
       >
         <Icon
-          className={cn("h-3.5 w-3.5", isDay ? "text-warn" : "text-signal")}
+          key={theme}
+          aria-hidden="true"
+          className={cn("theme-icon h-3.5 w-3.5", isDay ? "text-warn" : "text-signal")}
         />
         {isDay ? "Day" : "Night"}
       </button>
@@ -79,14 +81,14 @@ export function ThemeToggle({
     <button
       type="button"
       className={cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-foreground",
+        "button-motion flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-muted hover:bg-surface-2 hover:text-foreground",
         className,
       )}
       aria-label={isDay ? "Switch to night mode" : "Switch to day mode"}
       title={isDay ? "Switch to night mode" : "Switch to day mode"}
       onClick={() => applyTheme(nextTheme)}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon key={theme} aria-hidden="true" className="theme-icon h-3.5 w-3.5" />
     </button>
   );
 }

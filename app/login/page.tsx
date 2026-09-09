@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { LoginForm } from "./login-form";
 import { BrandLockup } from "@/components/brand/williamspod-logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { PageMotion } from "@/components/motion/page-motion";
 
 export const metadata = { title: "WilliamsPod — Sign in" };
 
@@ -11,7 +12,7 @@ export default function LoginPage() {
       <div aria-hidden="true" className="racing-stripes stripes-sway auth-stripes" />
       <ThemeToggle labeled className="absolute right-5 top-5 sm:right-8 sm:top-8" />
 
-      <div className="relative w-full max-w-md pop-in">
+      <PageMotion className="relative w-full max-w-md">
         <BrandLockup className="mb-8" />
 
         <div className="panel-deep relative overflow-hidden p-6 sm:p-8">
@@ -33,7 +34,7 @@ export default function LoginPage() {
         <p className="mt-6 text-center text-xs text-muted">
           Practice under exam conditions
         </p>
-      </div>
+      </PageMotion>
     </main>
   );
 }

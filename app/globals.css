@@ -12,6 +12,7 @@
   --wm-red: #e4002b;
   --wm-yellow: #ffcc00;
   --wm-white: #ffffff;
+  --motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root, :root.dark {
@@ -394,9 +395,10 @@ html, body {
   letter-spacing: 0;
 }
 
-/* Colour and border changes keep interactive surfaces steady. */
+/* Interactive panels move independently of their scroll reveal transform. */
 .panel-hover {
-  transition: border-color 160ms ease, background-color 160ms ease;
+  transition: translate 320ms var(--motion-ease), border-color 200ms ease,
+    background-color 200ms ease, box-shadow 320ms ease;
 }
 .panel-hover:hover {
   border-color: var(--border-bright);
@@ -425,25 +427,6 @@ html, body {
   -webkit-user-select: text !important;
 }
 
-/* Reduced-motion respect — stops every keyframe (livery-slide, lamp-arm, pulses…) */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-  }
-  .livery-slide, .start-lamp.lit, .pod-pulse, .slow-spin,
-  .livery-sheen::after, .stripes-sway, .hatch-scroll, .chequer-drift,
-  .signal-sheen::after, .grid-drift, .roundel-live::after, .dot-live::after,
-  .page-frame::before, .page-frame::after {
-    animation: none !important;
-  }
-  /* Drop the decorative overscan so nothing sits off-register when still. */
-  .parallax-stripes { scale: 1; }
-  /* A frozen beacon would read as a stray tick — leave the rails clean. */
-  .page-frame::before, .page-frame::after { background-image: none; }
-}
-
 /* Pulse for live timer */
 @keyframes pod-pulse {
   0%, 100% { opacity: 1; }
@@ -451,12 +434,12 @@ html, body {
 }
 .pod-pulse { animation: pod-pulse 1.1s ease-in-out infinite; }
 
-/* Subtle pop-in animation */
+/* A more deliberate entrance for newly opened panels. */
 @keyframes pop-in {
-  0% { opacity: 0; transform: translateY(6px); }
+  0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-.pop-in { animation: pop-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.pop-in { animation: pop-in 520ms var(--motion-ease) backwards; }
 
 /* Sweep-in for bars */
 @keyframes bar-sweep {
@@ -562,7 +545,7 @@ html, body {
   );
   background-size: 240% 100%;
   background-repeat: no-repeat;
-  animation: livery-sheen 7.5s ease-in-out infinite;
+  animation: livery-sheen 3.8s ease-in-out infinite;
 }
 
 /* Diagonal bands breathing. Pans the gradient inside its own box rather than
@@ -572,8 +555,8 @@ html, body {
   50%      { background-position: 0% 100%; }
 }
 .stripes-sway {
-  background-size: 100% 132%;
-  animation: stripes-sway 14s ease-in-out infinite;
+  background-size: 100% 155%;
+  animation: stripes-sway 6s ease-in-out infinite;
 }
 
 /* Kerb hatching advancing. 14.649px = one 12px period along the 125deg axis
@@ -581,13 +564,13 @@ html, body {
 @keyframes hatch-advance {
   to { background-position: 14.649px 0; }
 }
-.hatch-scroll { animation: hatch-advance 3.4s linear infinite; }
+.hatch-scroll { animation: hatch-advance 1.2s linear infinite; }
 
 /* Chequered flag streaming past — one full 12px tile per cycle. */
 @keyframes chequer-drift {
   to { background-position: 12px 0; }
 }
-.chequer-drift { animation: chequer-drift 2.6s linear infinite; }
+.chequer-drift { animation: chequer-drift 1.6s linear infinite; }
 
 /* Start-light gantry: five lamps arming in sequence, not in unison. */
 .lamp-row .start-lamp:nth-child(1) { animation-delay: 0ms; }
@@ -687,8 +670,10 @@ html, body {
     rgba(255, 255, 255, 0.45),
     transparent
   );
-  animation: signal-sheen 5.5s ease-in-out infinite;
+  animation: signal-sheen 3.4s ease-in-out infinite;
 }
+.signal-sheen:disabled::after,
+.signal-sheen[aria-disabled="true"]::after { content: none; }
 
 /* Instrument grid creeping past — the track moving under the car. 64px is one
    full cell of .bg-grid, so the loop is seamless. Deliberately near-subliminal. */
@@ -745,10 +730,120 @@ html, body {
     );
     background-size: 100% 90px;
     background-repeat: no-repeat;
-    animation: frame-beacon 9s linear infinite;
+    animation: frame-beacon 4.8s linear infinite;
   }
   /* Offset so the two rails never run in lockstep. */
-  .page-frame::after { animation-delay: -4.5s; }
+  .page-frame::after { animation-delay: -2.4s; }
+}
+
+/* ---------- Entrances and interaction ---------- */
+
+.button-motion {
+  transition: translate 240ms var(--motion-ease), scale 240ms var(--motion-ease),
+    background-color 200ms ease, border-color 200ms ease, color 200ms ease,
+    box-shadow 240ms ease;
+}
+.button-motion > svg,
+.nav-motion > svg {
+  transition: translate 280ms var(--motion-ease), rotate 280ms var(--motion-ease);
+}
+.nav-motion {
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.nav-motion::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: auto 10px -2px;
+  height: 2px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 320ms var(--motion-ease);
+}
+.nav-motion[aria-current="page"]::after {
+  transform: scaleX(1);
+  animation: nav-draw 450ms var(--motion-ease) backwards;
+}
+@keyframes nav-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes theme-turn {
+  from { opacity: 0; rotate: -100deg; scale: 0.4; }
+  to { opacity: 1; rotate: 0deg; scale: 1; }
+}
+.theme-icon { animation: theme-turn 480ms var(--motion-ease); }
+
+/* Each field arrives in sequence; focus immediately cancels its entrance. */
+@keyframes field-enter {
+  from { opacity: 0; translate: 0 14px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.form-motion > * {
+  animation: field-enter 550ms var(--motion-ease) backwards;
+  animation-delay: 140ms;
+}
+.form-motion > :nth-child(2) { animation-delay: 210ms; }
+.form-motion > :nth-child(3) { animation-delay: 280ms; }
+.form-motion > :nth-child(4) { animation-delay: 350ms; }
+.form-motion > :nth-child(n+5) { animation-delay: 420ms; }
+.form-motion > :focus-within,
+.form-motion > :focus-visible { animation: none; }
+
+/* A short streak passes along the hero edge without crossing the text. */
+@keyframes hero-streak {
+  0% { translate: -110% 0; opacity: 0; }
+  12% { opacity: 0.85; }
+  70%, 100% { translate: 500% 0; opacity: 0; }
+}
+.hero-motion::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: auto auto 0 0;
+  width: 24%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--wm-yellow), var(--wm-red));
+  animation: hero-streak 3.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(body, .panel, .panel-flat, .panel-deep, .app-header) {
+    transition: background-color 350ms ease, border-color 250ms ease, color 250ms ease;
+  }
+  .button-motion:not(:disabled):not([aria-disabled="true"]):active {
+    scale: 0.96;
+    translate: 0 1px;
+  }
+  .panel-hover:active { translate: 0 0; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .button-motion:not(:disabled):not([aria-disabled="true"]):hover {
+      translate: 0 -2px;
+    }
+    .button-motion:hover > svg:not(.theme-icon) { translate: 3px 0; }
+    .panel-hover:hover,
+    .panel-hover:focus-visible {
+      translate: 0 -5px;
+      box-shadow: 0 10px 22px -18px var(--foreground-dim);
+    }
+    .nav-motion:hover > svg { translate: 0 -2px; rotate: -8deg; }
+    .nav-motion:hover::after { transform: scaleX(1); }
+  }
+}
+
+/* Keep every control visible and stationary when less motion is requested. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .parallax-stripes { scale: 1; }
+  .page-frame::before, .page-frame::after { background-image: none; }
+  .hero-motion::after, .signal-sheen::after, .livery-sheen::after,
+  .roundel-live::after, .dot-live::after { content: none; }
 }
 
 /* A live run stays calm: no decorative sweeps on the exam HUD. The timer's own
@@ -757,3 +852,5 @@ html, body {
 .lockdown .livery-sheen::after {
   content: none;
 }
+.lockdown .button-motion { translate: none !important; scale: none !important; }
+.lockdown .button-motion > svg { translate: none !important; }

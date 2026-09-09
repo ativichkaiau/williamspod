@@ -40,7 +40,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form onSubmit={onSubmit} className="form-motion space-y-5">
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
         <Input

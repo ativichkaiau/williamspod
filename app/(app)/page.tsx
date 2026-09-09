@@ -5,6 +5,7 @@ import { lectures, questions, attempts } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AnimatedNumber } from "@/components/motion/animated-number";
 import {
   Upload,
   Play,
@@ -50,8 +51,10 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8 sm:space-y-10">
       {/* ----- HERO ----- */}
-      <section className="relative overflow-hidden border-y border-border bg-surface px-6 py-8 sm:px-8 sm:py-10 pop-in">
-        <div aria-hidden="true" className="racing-stripes parallax-stripes absolute inset-y-0 right-0 w-12 sm:w-24" />
+      <section className="hero-motion relative overflow-hidden border-y border-border bg-surface px-6 py-8 sm:px-8 sm:py-10">
+        <div aria-hidden="true" className="parallax-stripes absolute inset-y-0 right-0 w-12 sm:w-24">
+          <div className="racing-stripes stripes-sway absolute inset-0" />
+        </div>
         <div className="relative grid gap-8 pr-4 sm:pr-14 lg:grid-cols-[1.35fr_1fr] lg:gap-10">
           <div>
             <p className="eyebrow">Dashboard</p>
@@ -102,7 +105,7 @@ export default async function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-baseline gap-3">
                     <span className="digit text-5xl font-medium text-foreground">
-                      {lastP != null ? lastP.toFixed(0) : "—"}
+                      {lastP != null ? <AnimatedNumber value={lastP} /> : "—"}
                     </span>
                     {lastP != null && (
                       <span className="text-2xl text-muted">%</span>
@@ -162,7 +165,8 @@ export default async function DashboardPage() {
         <StatTile
           icon={<Target className="h-3.5 w-3.5" />}
           label="Last result"
-          value={lastP != null ? `${lastP}%` : "—"}
+          value={lastP ?? "—"}
+          suffix={lastP != null ? "%" : undefined}
           tone={lastP != null && lastP >= 70 ? "good" : undefined}
         />
       </section>
@@ -234,11 +238,13 @@ function StatTile({
   icon,
   label,
   value,
+  suffix,
   tone,
 }: {
   icon: React.ReactNode;
   label: string;
   value: number | string;
+  suffix?: string;
   tone?: "good" | "warn" | "bad";
 }) {
   const color =
@@ -257,7 +263,11 @@ function StatTile({
           {label}
         </span>
       </div>
-      <div className={`mt-3 digit text-3xl font-medium ${color}`}>{value}</div>
+      <div className={`mt-3 digit text-3xl font-medium ${color}`}>
+        {typeof value === "number" ? (
+          <AnimatedNumber value={value} suffix={suffix} decimals={Number.isInteger(value) ? 0 : 1} />
+        ) : value}
+      </div>
     </div>
   );
 }
